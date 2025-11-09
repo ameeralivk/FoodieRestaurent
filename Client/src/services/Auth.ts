@@ -1,20 +1,29 @@
 import axios from "axios";
 
-interface formData {
-  restaurentName: string;
+interface registerFormData {
+  restaurantName: string;
   email: string;
   password: string;
 }
 
-// export const register = async (formData: formData) => {
-//   try {
-//     const response = await axios.post("http://localhost:3000/api/Admin/Auth",formData);
-//     console.log(response,'res')
-//   } catch (error) {
-//      if (error instanceof Error) {
-//       throw new Error(error.message);
-//     } else {
-//       throw new Error("An Unknown error Occured")
-//   }
-// }
-// }
+export const register = async (formData: registerFormData) => {
+  try {
+    console.log(formData, "data");
+    const response = await axios.post(
+      "http://localhost:3000/api/admin/auth/signup",
+      formData,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "An unknown error occurred"
+    );
+  }
+};
+
+
+
+

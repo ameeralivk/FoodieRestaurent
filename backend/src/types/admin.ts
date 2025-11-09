@@ -9,3 +9,11 @@ export interface IAdmin extends Document {
   password:string,
   isDeleted:boolean,
 }
+
+export interface adminData extends Document {
+    restaurantName: String;
+    email: String;
+    password: String;
+    role:String;
+}
+

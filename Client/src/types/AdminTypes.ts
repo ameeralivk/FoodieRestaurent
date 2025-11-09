@@ -2,8 +2,8 @@
 
 export interface FormData {
   restaurantName: string;
-  adminEmail: string;
-  adminPassword: string;
+  email: string;
+  password: string;
 }
 
 export interface RestaurantFormData {

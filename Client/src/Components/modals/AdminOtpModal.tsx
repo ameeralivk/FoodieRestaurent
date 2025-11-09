@@ -1,22 +1,23 @@
 import { Lock } from "lucide-react";
 import type { ChangeEvent, KeyboardEvent } from "react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
+import WarningSwal from "../Helpers/WarningSwal";
 interface otpModalProps {
   modalOpen: boolean;
 }
 const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
-  const [resendTimer, setresentTimer] = useState(7);
+  const [resendTimer, setResendTimer] = useState(120);
+  const [isCounting, setIsCounting] = useState(true);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return; // only 1 digit per input
-    if (!/^\d*$/.test(value)) return; // only digits
+    if (value.length > 1) return;
+    if (!/^\d*$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < otp.length - 1) {
       const nextInput = document.getElementById(
         `otp-${index + 1}`
@@ -34,8 +35,40 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
     }
   };
 
+  useEffect(() => {
+    if (!isCounting) return;
+
+    if (resendTimer === 0) {
+      setIsCounting(false);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setResendTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [resendTimer, isCounting]);
+
+  const handleResendClick = () => {
+    console.log("Resend OTP clicked");
+    setResendTimer(120);
+    setIsCounting(true);
+  };
+
+  const handleModalSubmit = () => {
+    console.log(otp, "otp");
+    const isFull = otp.every((item) => item.trim() !== "");
+    if (!isFull) {
+      WarningSwal({ message: "Otp must be 6 character" });
+      return
+    }else{
+      
+    }
+  };
+
   return modalOpen ? (
-     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
       <div className="relative w-full max-w-md">
         <div className="bg-linear-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-700">
           {/* Icon */}
@@ -78,13 +111,16 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
           </div>
 
           {/* Verify Button */}
-          <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg mb-4">
+          <button
+            onClick={handleModalSubmit}
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg mb-4"
+          >
             Verify OTP
           </button>
 
           {/* Resend OTP */}
           <div className="text-center">
-            {resendTimer > 0 ? (
+            {isCounting ? (
               <p className="text-gray-400 text-sm">
                 Resend OTP in{" "}
                 <span className="text-yellow-500 font-semibold">
@@ -92,7 +128,10 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
                 </span>
               </p>
             ) : (
-              <button className="text-blue-400 hover:text-blue-300 transition duration-300 text-sm font-semibold">
+              <button
+                onClick={handleResendClick}
+                className="text-blue-400 hover:text-blue-300 transition duration-300 text-sm font-semibold"
+              >
                 Resend OTP
               </button>
             )}
@@ -100,7 +139,9 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
         </div>
       </div>
     </div>
-  ):""
+  ) : (
+    ""
+  );
 };
 
 export default OTPVerificationModal;

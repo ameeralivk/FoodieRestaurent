@@ -1,7 +1,7 @@
 import Admin,{ AdminDocument  } from "../../../models/admin";
 import { BaseRepository } from "../../IBaseRepository";
 import { IAdminAuthRepository } from "../interface/IAdminRepositories";
-
+import redisClient from "../../../config/redisClient";
 export class AdminAuthRepository
   extends BaseRepository<AdminDocument>
   implements IAdminAuthRepository
@@ -10,11 +10,16 @@ export class AdminAuthRepository
     super(Admin);
   }
   async register(adminData: {
-    role:String,
-    restaurantName: String;
-    email: String;
-    password: String;
+    role:string,
+    restaurantName: string;
+    email: string;
+    password: string;
   }): Promise<{ admin: AdminDocument }> {
+    const redisDataKey = `adminData:${adminData.email}`
+     const cachedData = await redisClient.get(redisDataKey);
+
+        const data = JSON.parse(cachedData?cachedData:"")
+        console.log(data,'fdsfjdlskajf')
 
      const admin = await this.model.create({
       role:adminData.role,

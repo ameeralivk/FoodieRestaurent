@@ -4,16 +4,19 @@ import { useState } from "react";
 import type { FormData } from "../../types/AdminTypes";
 import AdminRegisterValidation from "../../Validation/AdminRegistractiorValidation";
 import { validateFullForm } from "../../Validation/AdminRegistractiorValidation";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useEffect } from "react";
 import OTPVerificationModal from "../../Components/modals/AdminOtpModal";
 import WarningSwal from "../../Components/Helpers/WarningSwal";
+import { register } from "../../services/Auth";
+import { loadingToast ,AfterLoading } from "../../Components/Elements/Loading";
+import { showErrorToast } from "../../Components/Elements/ErrorToast";
 const AdminRegisterPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     restaurantName: "",
-    adminEmail: "",
-    adminPassword: "",
+    email: "",
+    password: "",
   });
   const [error, setError] = useState<Partial<Record<keyof FormData, string>>>(
     {}
@@ -40,7 +43,7 @@ const AdminRegisterPage = () => {
     setError((prev) => ({ ...prev, [name]: validation || "" }));
   };
 
-  const handleSubmit =  async() => {
+  const handleSubmit = async () => {
     let res = validateFullForm(formData);
     let len = Object.keys(res.errors).length;
     if (len > 0) {
@@ -51,17 +54,28 @@ const AdminRegisterPage = () => {
       WarningSwal({ message: "Please File all the Field to Proceed" });
       return;
     } else {
-      setModalOpen(true);
+      const toastId = loadingToast();
       const formPayload = new FormData();
-
       (Object.keys(formData) as (keyof FormData)[]).forEach((field) => {
         const value = formData[field];
-        console.log(value, "va");
         if (typeof value === "string") {
           formPayload.append(field, value);
         }
       });
-  
+      const registerData = {
+        restaurantName: formData.restaurantName,
+        email: formData.email,
+        password: formData.password,
+        role: "admin",
+      };
+      let res = await register(registerData);
+      if (res.message.success) {
+         toast.dismiss(toastId)
+         await AfterLoading("Sending OTP...", "✅ OTP sent successfully!");
+         setModalOpen(true)
+      }else{
+         showErrorToast(res.message.message)
+      }
     }
   };
 
@@ -108,16 +122,16 @@ const AdminRegisterPage = () => {
                   </label>
                   <input
                     onChange={handleInputChange}
-                    name="adminEmail"
+                    name="email"
                     type="email"
                     placeholder="Enter your Email"
                     className={`w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-gray-500 focus:outline-none ${
-                      error.adminEmail
+                      error.email
                         ? "focus:border-red-600"
                         : "focus:border-green-500"
                     } transition`}
                   />
-                  <ErrorPTag Text={error.adminEmail} />
+                  <ErrorPTag Text={error.email} />
                 </div>
 
                 {/* Admin Password */}
@@ -127,16 +141,16 @@ const AdminRegisterPage = () => {
                   </label>
                   <input
                     onChange={handleInputChange}
-                    name="adminPassword"
+                    name="password"
                     type="password"
                     placeholder="Enter your admin password"
                     className={`w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-gray-500 focus:outline-none ${
-                      error.adminPassword
+                      error.password
                         ? "focus:border-red-600"
                         : "focus:border-green-500"
                     } transition`}
                   />
-                  <ErrorPTag Text={error.adminPassword} />
+                  <ErrorPTag Text={error.password} />
                 </div>
 
                 {/* Submit Button */}

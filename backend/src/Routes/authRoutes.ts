@@ -10,5 +10,7 @@ const adminAuthService = new AdminAuthService(adminAuthRepository);
 const authController = new AdminAuthController(adminAuthService);
 
 router.route("/signup").post(asyncHandler(authController.register));
+router.route("/verify-otp").post(asyncHandler(authController.verifyOtp))
+router.route("/resent-otp").post(asyncHandler(authController.resendOtp))
 
 export default router

@@ -13,7 +13,7 @@ const AdminRegisterValidation = (
         return restaurentNameError
       return null;
 
-    case "adminEmail":
+    case "email":
       if (!value || (typeof value === "string" && !value.trim()))
         return "Email is required.";
       if (
@@ -23,7 +23,7 @@ const AdminRegisterValidation = (
         return emailErrorMessage ;
       return null;
 
-    case "adminPassword":
+    case "password":
       if (!value || (typeof value === "string" && !value.trim()))
         return "Password is required.";
       if (typeof value === "string" && !passwordRegex.test(value.trim())) {
