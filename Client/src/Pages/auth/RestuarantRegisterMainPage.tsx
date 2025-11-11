@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import type { RestaurantFormData } from "../../types/AdminTypes";
 import StaticMap from "../../Components/Component/RestaurantMainRegistraction/Map";
+import { useDispatch } from "react-redux";
+import { logoutAction } from "../../redux/slice/adminSlice";
 
 const RestaurantMainRegistration = () => {
   const [formData, setFormData] = useState<RestaurantFormData>({
@@ -38,7 +40,7 @@ const RestaurantMainRegistration = () => {
         )}`
       );
       const data = await response.json();
-      console.log(data,'dat')
+      console.log(data, "dat");
       if (data.length > 0) {
         const { lat, lon } = data[0];
         setPosition([parseFloat(lat), parseFloat(lon)]);
@@ -64,10 +66,20 @@ const RestaurantMainRegistration = () => {
     const file = e.target.files?.[0] ?? null;
     setFormData((prev) => ({ ...prev, [fieldName]: file }));
   };
+  const dispatch = useDispatch();
+  const handlelogout = () => {
+    dispatch(logoutAction());
+  };
 
   return (
     <>
       <div className="min-h-screen bg-black p-8">
+        <button
+          onClick={handlelogout}
+          className="text-white bg-amber-300 w-[60px] "
+        >
+          Logout
+        </button>
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <h1 className="text-5xl font-bold text-yellow-500 text-center mb-12">

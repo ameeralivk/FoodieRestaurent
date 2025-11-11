@@ -1,9 +1,7 @@
-POST http://localhost:3000/api/admin/auth/signup
+POST http://localhost:3000/api/admin/auth/login
 Content-Type: application/json
 
 {
-  "restaurantName": "My Restaurant",
-  "email": "shehimavk@gmail.com",
-  "password": "Abcd@1234",
-  "role":"admin"
+  "email": "ameervk1875@gmail.com",
+  "password": "Ameer@123"
 }

@@ -3,24 +3,27 @@ import Button from "../../Components/Elements/Button";
 import { useState } from "react";
 import WarningSwal from "../../Components/Helpers/WarningSwal";
 import Admin_Navbar from "../../Components/Layouts/Admin_Navbar";
+import { handleForgetPasswordSubmit } from "../../services/Auth";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 const ForgetPasswordPage = () => {
-  const [input, setInput] = useState("");
+  const [email, setemail] = useState("");
   const navigate = useNavigate();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setInput(value);
+    setemail(value);
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!input) {
+    if (!email) {
       WarningSwal({ message: "Please Fill the Email and Continue" });
       return;
-    } else if (input && !emailRegex.test(input)) {
+    } else if (email && !emailRegex.test(email)) {
       WarningSwal({ message: "Please Enter Correct Email Formate" });
       return;
     } else {
-      console.log("hi");
+      const res = await handleForgetPasswordSubmit({ email });
+      console.log(res, "response");
     }
   };
   const nav = () => {
@@ -31,6 +34,7 @@ const ForgetPasswordPage = () => {
       <div className="top-0 fixed w-screen">
         <Admin_Navbar role={"login"} />
       </div>
+      <ToastContainer />
       <div className=" w-screen h-screen bg-black flex justify-center items-center">
         <div className="w-[370px] h-80 bg-slate-900/80 border-2 border-amber-400/40  rounded-md p-6 text-center">
           <h1 className="text-3xl text-amber-400">ForgetPassword</h1>

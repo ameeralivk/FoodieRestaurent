@@ -8,6 +8,11 @@ export interface IAdmin extends Document {
   email:string,
   password:string,
   isDeleted:boolean,
+  googleID:string,
+  imageUrl:string,
+  isBlocked:boolean,
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 }
 
 export interface adminData extends Document {
@@ -15,5 +20,8 @@ export interface adminData extends Document {
     email: String;
     password: String;
     role:String;
+    googleID:string,
+    imageUrl:string,
+    isBlocked:boolean,
 }
 

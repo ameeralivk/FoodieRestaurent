@@ -1,5 +1,5 @@
-import { Model ,FilterQuery } from "mongoose";
-
+import { Model ,FilterQuery ,UpdateQuery} from "mongoose";
+import { IAdmin } from "../types/admin";
 export class BaseRepository<T> {
   protected model: Model<T>;
   constructor(model: Model<T>) {
@@ -10,5 +10,12 @@ export class BaseRepository<T> {
   }
   async getByFilter(filter: FilterQuery<T>): Promise<T | null> {
     return await this.model.findOne(filter);
+  }
+  async getById(id: string): Promise<T | null> {
+    return await this.model.findById(id,{ isDeleted:false });
+  }
+  
+  async updateOne(filter: FilterQuery<T>, update: UpdateQuery<T>): Promise<T | null> {
+    return this.model.findOneAndUpdate(filter, update, { new: true });
   }
 }

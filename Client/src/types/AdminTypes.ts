@@ -1,7 +1,10 @@
-
-
 export interface FormData {
   restaurantName: string;
+  email: string;
+  password: string;
+}
+
+export interface loginForm {
   email: string;
   password: string;
 }
@@ -19,3 +22,15 @@ export interface RestaurantFormData {
   longitude: string;
 }
 
+export interface AdminType {
+  _id: string,
+  role: string;
+  restaurantName?: string;
+  email: string;
+  googleId: string;
+  imageUrl: string;
+}
+
+export interface ForgetPasswordFormData {
+  email: string;
+}

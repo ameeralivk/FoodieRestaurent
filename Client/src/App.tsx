@@ -2,11 +2,12 @@
 import { Route ,Routes } from "react-router-dom"
 import LandingPagesRoutes from "./Routes/LandingPageRoutes"
 import AdminRoutes from "./Routes/AdminRoutes"
+import PublicRoute from "./Routes/publicRoute"
 const App = () => {
   return (
      <Routes>
-      <Route path="/*" element={<LandingPagesRoutes/>} />
-      <Route path="/Admin/*" element={<AdminRoutes/>}/>
+      <Route path="/*" element={<PublicRoute><LandingPagesRoutes/></PublicRoute>} />
+      <Route path="/admin/*" element={<AdminRoutes/>}/>
      </Routes>
   )
 }

@@ -132,3 +132,65 @@ export const resendOtpEmail = async (email: string, otp: string) => {
   return { success: false, message: "Failed to send OTP" };
   }
 };
+
+export const sendResetPasswordEmail = async (email: string, token: string) => {
+  try {
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+    const mailOptions = {
+      from: `"FoodieRestaurant" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Reset Your Password",
+      html: `
+      <div style="
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f9f9f9;
+        padding: 30px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        max-width: 480px;
+        margin: auto;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      ">
+        <div style="text-align: center;">
+          <h1 style="
+            color: #e63946;
+            font-size: 28px;
+            margin-bottom: 10px;
+          ">🍴 FoodieRestaurant</h1>
+          <p style="color: #555; font-size: 16px; margin-bottom: 25px;">
+            You requested to reset your password. Click the button below to set a new password:
+          </p>
+          <a href="${resetLink}" style="
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #e63946;
+            color: #fff;
+            font-size: 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+          ">Reset Password</a>
+          <p style="color: #777; font-size: 14px;">
+            This link is valid for <b>10 minutes</b>.<br>
+            If you didn’t request this, you can safely ignore this email.
+          </p>
+          <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
+          <p style="color: #999; font-size: 12px;">
+            You're receiving this email because you requested a password reset from FoodieRestaurant.<br>
+            If you didn’t request this, please ignore this message.
+          </p>
+        </div>
+      </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return { success: true, message: "Password reset link sent successfully" };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Failed to send password reset email" };
+  }
+};

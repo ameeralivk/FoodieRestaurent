@@ -8,11 +8,15 @@ import { toast, ToastContainer } from "react-toastify";
 import { useEffect } from "react";
 import OTPVerificationModal from "../../Components/modals/AdminOtpModal";
 import WarningSwal from "../../Components/Helpers/WarningSwal";
-import { register } from "../../services/Auth";
-import { loadingToast ,AfterLoading } from "../../Components/Elements/Loading";
+import { register, useGoogleLoginHandler } from "../../services/Auth";
+import { loadingToast, AfterLoading } from "../../Components/Elements/Loading";
 import { showErrorToast } from "../../Components/Elements/ErrorToast";
+import { GoogleLoginButton } from "../../Components/Elements/googleLoginButton";
+import { useDispatch } from "react-redux";
+
 const AdminRegisterPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
+
   const [formData, setFormData] = useState<FormData>({
     restaurantName: "",
     email: "",
@@ -54,7 +58,6 @@ const AdminRegisterPage = () => {
       WarningSwal({ message: "Please File all the Field to Proceed" });
       return;
     } else {
-      const toastId = loadingToast();
       const formPayload = new FormData();
       (Object.keys(formData) as (keyof FormData)[]).forEach((field) => {
         const value = formData[field];
@@ -68,20 +71,34 @@ const AdminRegisterPage = () => {
         password: formData.password,
         role: "admin",
       };
-      let res = await register(registerData);
-      if (res.message.success) {
-         toast.dismiss(toastId)
-         await AfterLoading("Sending OTP...", "✅ OTP sent successfully!");
-         setModalOpen(true)
-      }else{
-         showErrorToast(res.message.message)
+      try {
+        const toastId = loadingToast();
+        let res = await register(registerData);
+        if (res.message.success) {
+          console.log(res);
+          toast.dismiss(toastId);
+          await AfterLoading("Sending OTP...", "✅ OTP sent successfully!");
+          setModalOpen(true);
+        } else {
+          throw new Error("lfkdjslfjdasjfdsaf");
+        }
+      } catch (error) {
+        toast.dismiss();
+        if (error instanceof Error) {
+          showErrorToast(error.message);
+        } else {
+        }
       }
     }
   };
 
+  const dispatch = useDispatch();
+  const googleLogin = useGoogleLoginHandler(dispatch);
   return (
     <>
-      {modalOpen && <OTPVerificationModal modalOpen={modalOpen} />}
+      {modalOpen && (
+        <OTPVerificationModal modalOpen={modalOpen} email={formData.email} />
+      )}
       <div className="min-h-screen bg-black text-white">
         {/* Header */}
         <Admin_Navbar role={"register"} />
@@ -152,7 +169,7 @@ const AdminRegisterPage = () => {
                   />
                   <ErrorPTag Text={error.password} />
                 </div>
-
+                <GoogleLoginButton login={googleLogin} />
                 {/* Submit Button */}
                 <button
                   onClick={handleSubmit}

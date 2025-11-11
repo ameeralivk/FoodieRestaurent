@@ -9,10 +9,10 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173", // 👈 your React app URL
-    credentials: true, // 👈 allow cookies or auth headers
+    origin: "http://localhost:5173", 
+    credentials: true, 
   })
-);
+); 
 connectRedis()
 connectDB();
 app.use(express.json());

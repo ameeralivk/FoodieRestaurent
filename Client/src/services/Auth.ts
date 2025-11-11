@@ -1,5 +1,16 @@
 import axios from "axios";
-
+import { useGoogleLogin } from "@react-oauth/google";
+import { showSuccessToast } from "../Components/Elements/SuccessToast";
+import { showErrorToast } from "../Components/Elements/ErrorToast";
+import { AxiosError } from "axios";
+import api from "./Api";
+import { loginAction } from "../redux/slice/adminSlice";
+import type { AppDispatch } from "../redux/store/store";
+import { toast } from "react-toastify";
+import type { AdminType } from "../types/AdminTypes";
+import { AfterLoading, loadingToast } from "../Components/Elements/Loading";
+import { useNavigate } from "react-router-dom";
+import type { ForgetPasswordFormData } from "../types/AdminTypes";
 interface registerFormData {
   restaurantName: string;
   email: string;
@@ -8,7 +19,6 @@ interface registerFormData {
 
 export const register = async (formData: registerFormData) => {
   try {
-    console.log(formData, "data");
     const response = await axios.post(
       "http://localhost:3000/api/admin/auth/signup",
       formData,
@@ -17,13 +27,206 @@ export const register = async (formData: registerFormData) => {
       }
     );
     return response.data;
-  } catch (error: any) {
-    throw new Error(
-      error.response?.data?.message || "An unknown error occurred"
-    );
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error("SignUp Error:", error.response);
+      throw new Error(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    }
+    throw new Error("Something went wrong. Please try again.");
   }
 };
 
+export const verifyOtp = async (otp: string, email: string) => {
+  try {
+    let data = { otp: otp, email: email };
+    const response = await axios.post(
+      "http://localhost:3000/api/admin/auth/verify-otp",
+      data,
+      {
+        withCredentials: true,
+      }
+    );
+    console.log(response.data, "fdalfdajk");
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.error("SignUp Error:", error.response);
+      throw new Error(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    }
+    throw new Error("Something went wrong. Please try again.");
+  }
+};
 
+export const resendOtp = async (email: string) => {
+  try {
+    let data = { email };
+    const response = await axios.post(
+      "http://localhost:3000/api/admin/auth/resent-otp",
+      data,
+      {
+        withCredentials: true,
+      }
+    );
+    console.log(response.data, "fdalfdajk");
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.error("SignUp Error:", error.response);
+      throw new Error(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    }
+    throw new Error("Something went wrong. Please try again.");
+  }
+};
 
+export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
+  const navigate = useNavigate();
+  return useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const res = await api.post("/admin/auth/googleAuth", {
+          token: tokenResponse.access_token,
+        });
+        if (res.data.success) {
+          const access_token = res.data.accesstoken;
 
+          const saveddata: AdminType = {
+            _id: res.data.data._id,
+            restaurantName: res.data.data.restaurantName,
+            email: res.data.data.email,
+            role: res.data.data.role,
+            googleId: res.data.data.googleId,
+            imageUrl: res.data.data.imageUrl,
+          };
+
+          dispatch(
+            loginAction({
+              admin: saveddata,
+              token: access_token,
+            })
+          );
+
+          showSuccessToast("Google login successful!");
+
+          navigate("/admin/onboarding");
+        } else {
+          showErrorToast("Google authentication failed!");
+        }
+      } catch (err) {
+        showErrorToast("Google login failed!");
+      }
+    },
+    onError: () => showErrorToast("Google authentication failed"),
+  });
+};
+
+export const handleLogin = async (email: string, password: string) => {
+  try {
+    let data = { email, password };
+    const response = await axios.post(
+      "http://localhost:3000/api/admin/auth/login",
+      data,
+      {
+        withCredentials: true,
+      }
+    );
+    if (response) {
+      return response.data;
+    } else {
+      showErrorToast("Something wentWrong");
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message = error.response?.data.message;
+      showErrorToast(message);
+      return;
+    } else if (error instanceof Error) {
+      showErrorToast(error.message);
+    } else {
+      showErrorToast("An unknown error occurred");
+    }
+    throw new Error("Something went wrong. Please try again.");
+  }
+};
+
+// export const handleForgetPasswordSubmit = async (
+//   formData: ForgetPasswordFormData
+// ) => {
+//   try {
+//     const response = await axios.post(
+//       "http://localhost:3000/api/admin/auth/forget-password",
+//       {
+//         email: formData.email,
+//       }
+//     );
+//     console.log(response.data, "response is here");
+//     if (response.data.succes) {
+
+//       showSuccessToast(
+//         response.data.message || "Check your email for reset link!"
+//       );
+//     } else {
+//       showErrorToast(response.data.message || "Failed to send reset link!");
+//     }
+//   } catch (error: any) {
+//     if (axios.isAxiosError(error)) {
+//       showErrorToast(error.response?.data?.message || "Something went wrong!");
+//     } else if (error instanceof Error) {
+//       showErrorToast(error.message);
+//     } else {
+//       showErrorToast("An unknown error occurred");
+//     }
+//   }
+// };
+
+export const handleForgetPasswordSubmit = async (
+  formData: ForgetPasswordFormData
+) => {
+  // Show loading toast immediately
+  const loadingId = loadingToast();
+
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/api/admin/auth/forget-password",
+      { email: formData.email }
+    );
+
+    // Update toast based on API response
+    console.log(response, "res ");
+    if (response.data.success || response.data.succes) {
+      await AfterLoading(
+        "Sending reset link...",
+        response.data.message || "Password reset link sent successfully!"
+      );
+      toast.dismiss(loadingId);
+    } else {
+      toast.update(loadingId, {
+        render: response.data.message || "Failed to send reset link!",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    }
+
+    console.log(response.data, "response is here");
+  } catch (error: any) {
+    toast.update(loadingId, {
+      render: axios.isAxiosError(error)
+        ? error.response?.data?.message || "Something went wrong!"
+        : error instanceof Error
+        ? error.message
+        : "An unknown error occurred",
+      type: "error",
+      isLoading: false,
+      autoClose: 3000,
+    });
+  }
+};

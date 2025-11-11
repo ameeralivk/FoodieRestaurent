@@ -3,13 +3,28 @@ import type { ChangeEvent, KeyboardEvent } from "react";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import WarningSwal from "../Helpers/WarningSwal";
+import { showErrorToast } from "../Elements/ErrorToast";
+import { resendOtp, verifyOtp } from "../../services/Auth";
+import { showSuccessToast } from "../Elements/SuccessToast";
+import { useNavigate } from "react-router-dom";
+import { loadingToast } from "../Elements/Loading";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { loginAction } from "../../redux/slice/adminSlice";
+import type { AdminType } from "../../types/AdminTypes";
 interface otpModalProps {
   modalOpen: boolean;
+  email: string;
 }
-const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
+const OTPVerificationModal: React.FC<otpModalProps> = ({
+  modalOpen,
+  email,
+}) => {
   const [resendTimer, setResendTimer] = useState(120);
   const [isCounting, setIsCounting] = useState(true);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
+  // const Navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
     if (!/^\d*$/.test(value)) return;
@@ -25,7 +40,9 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
       nextInput?.focus();
     }
   };
-
+  useEffect(() => {
+    console.log(email);
+  }, []);
   const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       const prevInput = document.getElementById(
@@ -34,7 +51,7 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
       prevInput?.focus();
     }
   };
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (!isCounting) return;
 
@@ -50,20 +67,67 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
     return () => clearInterval(interval);
   }, [resendTimer, isCounting]);
 
-  const handleResendClick = () => {
-    console.log("Resend OTP clicked");
+  const handleResendClick = async () => {
     setResendTimer(120);
     setIsCounting(true);
+    const toastId = loadingToast();
+    try {
+      const res = await resendOtp(email);
+      if (res.success) {
+        toast.dismiss(toastId);
+        showSuccessToast(res.message);
+        console.log(res.data, "fdsfdas");
+        const data: AdminType = {
+          _id: res.data.data._id,
+          restaurantName: res.data.data.admin.restaurantName,
+          email: res.data.data.admin.email,
+          role: res.data.data.admin.role,
+          googleId: "",
+          imageUrl: "",
+        };
+        dispatch(loginAction({ admin: data, token: res.accesstoken }));
+      } else {
+        showErrorToast("Failed to resend otp");
+      }
+    } catch (error) {
+      toast.dismiss(toastId);
+      if (error instanceof Error) {
+        showErrorToast(error.message);
+      }
+    }
   };
 
-  const handleModalSubmit = () => {
+  const handleModalSubmit = async () => {
     console.log(otp, "otp");
     const isFull = otp.every((item) => item.trim() !== "");
     if (!isFull) {
       WarningSwal({ message: "Otp must be 6 character" });
-      return
-    }else{
-      
+      return;
+    } else {
+      let num = "";
+      otp.forEach((x) => {
+        num += x;
+      });
+      try {
+        let res = await verifyOtp(num, email);
+        console.log(res, "respons is here");
+        showSuccessToast(res.message);
+        const data: AdminType = {
+          _id: res.data.admin._id,
+          restaurantName: res.data.admin.restaurantName,
+          email: res.data.admin.email,
+          role: res.data.admin.role,
+          googleId: "",
+          imageUrl: "",
+        };
+        setTimeout(() => {
+          dispatch(loginAction({ admin: data, token: res.accesstoken }));
+        }, 2000);
+      } catch (error) {
+        if (error instanceof Error) {
+          showErrorToast(error.message);
+        }
+      }
     }
   };
 
@@ -87,7 +151,7 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({ modalOpen }) => {
           <p className="text-gray-400 text-center mb-8">
             Enter the 6-digit code sent to
             <br />
-            <span className="text-white font-semibold">your@email.com</span>
+            <span className="text-white font-semibold">{email}</span>
           </p>
 
           {/* OTP Input Fields */}
