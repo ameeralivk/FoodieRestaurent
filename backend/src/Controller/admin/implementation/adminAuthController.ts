@@ -10,10 +10,12 @@ import {
   LINK_SENT_SUCCESS,
   NO_REFRESH_TOKEN_FOUND,
   PASS_CHANGE_SUCCESS,
+  RESTAURANT_REGISTER_COMPLETE,
   SERVER_ERROR,
 } from "../../../constants/messages";
 import { http } from "winston";
 import { success } from "zod";
+import { generateToken } from "../../../middleware/jwt";
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
 export class AdminAuthController implements IAdminAuthController {
@@ -24,7 +26,6 @@ export class AdminAuthController implements IAdminAuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      console.log(req.body, "body");
       const parsed = registerSchema.safeParse(req.body);
       if (!parsed.success) {
         const errorMessages = parsed.error.issues.map((e) => e.message);
@@ -115,6 +116,7 @@ export class AdminAuthController implements IAdminAuthController {
         email: admin.email,
         googleId: admin.googleID,
         imageUrl: admin.imageUrl,
+        status:admin.status,
       };
       res.status(200).json({
         success: true,
@@ -202,17 +204,19 @@ export class AdminAuthController implements IAdminAuthController {
       }
     } catch (error: any) {
       console.log(error, "res");
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: error.message || "Something went Wrong" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message || "Something went Wrong",
+      });
     }
   };
 
   updatePassword = async (req: Request, res: Response): Promise<void> => {
     try {
       const token = req.query.token as string;
+      console.log(token, "token is here");
       const { newPassword, email } = req.body;
-      if (!token) res.status(400).json({ message: "Token is required" });
+      if (!token) throw new AppError("Token is Missing");
       if (!newPassword)
         res.status(400).json({ message: "New password is required" });
       let response = await this._adminauthService.updatePassword(
@@ -220,7 +224,6 @@ export class AdminAuthController implements IAdminAuthController {
         newPassword,
         email
       );
-
       if (response.success) {
         res
           .status(HttpStatus.OK)
@@ -230,11 +233,45 @@ export class AdminAuthController implements IAdminAuthController {
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: response.message });
       }
-    } catch (error) {
-      console.log(error, "err");
-      res
-        .status(500)
-        .json({ success: false, message: error || "Internal Server Errors" });
+    } catch (error: any) {
+      console.log(error.message, "eer");
+      throw new AppError(error);
     }
   };
+
+  registerRestaurant = async(req: Request, res: Response): Promise<void> =>{
+    try {
+      const {
+        restaurantName,
+        email,
+        ownerName,
+        contactNumber,
+        restaurantAddress,
+        openingTime,
+        closingTime,
+        latitude,
+        longitude,
+      } = req.body;
+      const restaurantPhoto = (req.files as any)?.restaurantPhoto?.[0].path;
+      const proofDocument = (req.files as any)?.proofDocument?.[0].path;
+      const response = await this._adminauthService.registerRestaurant({
+        email,
+        restaurantName,
+        ownerName,
+        contactNumber,
+        restaurantAddress,
+        openingTime,
+        closingTime,
+        latitude,
+        longitude,
+        restaurantPhoto,
+        proofDocument,
+      });
+      console.log(response,'ameer')
+      res.status(200).json({ success: true, message: RESTAURANT_REGISTER_COMPLETE });
+    } catch (error: any) {
+      throw new AppError(error?.message || "Something went wrong");
+    }
+  }
+
 }

@@ -6,7 +6,13 @@ import { handleLogin } from "../../services/Auth";
 import { ToastContainer } from "react-toastify";
 import WarningSwal from "../../Components/Helpers/WarningSwal";
 import ErrorPTag from "../../Components/Elements/ErrorParagraph";
-import AdminRegisterValidation, { validateFullForm, validateLoginForm } from "../../Validation/AdminRegistractiorValidation";
+import type { AdminType } from "../../types/AdminTypes";
+import { loginAction } from "../../redux/slice/adminSlice";
+import { useDispatch } from "react-redux";
+import AdminRegisterValidation, {
+  validateFullForm,
+  validateLoginForm,
+} from "../../Validation/AdminRegistractiorValidation";
 const RestaurentLoginPage = () => {
   interface FormData {
     email: string;
@@ -16,6 +22,7 @@ const RestaurentLoginPage = () => {
     email: "",
     password: "",
   });
+  const dispatch = useDispatch();
   const [error, setError] = useState<Partial<Record<keyof FormData, string>>>(
     {}
   );
@@ -35,18 +42,35 @@ const RestaurentLoginPage = () => {
 
   const handleLoginButton = async () => {
     try {
-      const valid = validateLoginForm(formData)
-        let len = Object.keys(valid.errors).length;
-       if (len > 0) {
-      for (let key in valid.errors) {
-        const field = key as keyof FormData;
-        setError((prev) => ({ ...prev, [field]: valid.errors[field] || "" }));
+      const valid = validateLoginForm(formData);
+      let len = Object.keys(valid.errors).length;
+      if (len > 0) {
+        for (let key in valid.errors) {
+          const field = key as keyof FormData;
+          setError((prev) => ({ ...prev, [field]: valid.errors[field] || "" }));
+        }
+        WarningSwal({ message: "Please File all the Field to Proceed" });
+        return;
       }
-      WarningSwal({ message: "Please File all the Field to Proceed" });
-      return;
-    }
+
       const response = await handleLogin(formData.email, formData.password);
-      console.log(response);
+      console.log(response.admin);
+      const saveddata: AdminType = {
+        _id: response.admin._id,
+        restaurantName: response.admin.restaurantName,
+        email: response.admin.email,
+        role: response.admin.role,
+        googleId: response.admin.googleId,
+        imageUrl: response.admin.imageUrl,
+        status:response.admin.status,
+      };
+
+      dispatch(
+        loginAction({
+          admin: saveddata,
+          token: response.token,
+        })
+      );
     } catch (error: unknown) {
       if (error instanceof Error) {
         showErrorToast(error.message);

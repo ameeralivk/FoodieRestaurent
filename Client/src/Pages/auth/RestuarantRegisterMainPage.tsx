@@ -8,14 +8,38 @@ import {
   FileText,
   Camera,
 } from "lucide-react";
-import type { RestaurantFormData } from "../../types/AdminTypes";
+import type {
+  RegisterFormData,
+  RestaurantFormData,
+} from "../../types/AdminTypes";
 import StaticMap from "../../Components/Component/RestaurantMainRegistraction/Map";
-import { useDispatch } from "react-redux";
-import { logoutAction } from "../../redux/slice/adminSlice";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutAction, updateStatus } from "../../redux/slice/adminSlice";
+import type { RootState } from "../../redux/store/store";
+import { validateRestaurantForm } from "../../Validation/mainRegisterFormValidation";
+import ErrorPTag from "../../Components/Elements/ErrorParagraph";
+import { registerRestaurant } from "../../services/Auth";
+import { ToastContainer } from "react-toastify";
+import RegistrationSuccessModal from "../../Components/modals/registractionCompletedModal";
 
 const RestaurantMainRegistration = () => {
+    const dispatch = useDispatch()
+  const [search, setSearch] = useState("");
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof RestaurantFormData, string>>
+  >({});
+  const [showSuccessModal, setSuccessModal] = useState(false);
+  const [position, setPosition] = useState<[number, number]>([11.051, 76.0711]);
+  const restaurantName =
+    useSelector((state: RootState) => state.auth.admin?.restaurantName) || "";
+  const email = useSelector(
+    (state: RootState) => state.auth.admin?.email || ""
+  );
+  const status = useSelector((state: RootState) => state.auth.admin?.status);
   const [formData, setFormData] = useState<RestaurantFormData>({
-    restaurantName: "",
+    email: email,
+    restaurantName: restaurantName,
     ownerName: "",
     contactNumber: "",
     address: "",
@@ -27,8 +51,6 @@ const RestaurantMainRegistration = () => {
     longitude: "",
   });
 
-  const [search, setSearch] = useState("");
-  const [position, setPosition] = useState<[number, number]>([11.051, 76.0711]);
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!search.trim()) return;
@@ -40,7 +62,7 @@ const RestaurantMainRegistration = () => {
         )}`
       );
       const data = await response.json();
-      console.log(data, "dat");
+
       if (data.length > 0) {
         const { lat, lon } = data[0];
         setPosition([parseFloat(lat), parseFloat(lon)]);
@@ -52,11 +74,26 @@ const RestaurantMainRegistration = () => {
     }
   };
 
+  useEffect(() => {
+    if (status === "pending") {
+      setSuccessModal(true);
+    } else {
+      setSuccessModal(false);
+    }
+  }, [status]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      if (value.trim() !== "") {
+        delete newErrors[name as keyof RestaurantFormData];
+      }
+      return newErrors;
+    });
   };
 
   const handleFileChange = (
@@ -65,14 +102,35 @@ const RestaurantMainRegistration = () => {
   ) => {
     const file = e.target.files?.[0] ?? null;
     setFormData((prev) => ({ ...prev, [fieldName]: file }));
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      if (file) delete newErrors[fieldName];
+      return newErrors;
+    });
   };
-  const dispatch = useDispatch();
   const handlelogout = () => {
     dispatch(logoutAction());
   };
 
+  const handleSubmit = async () => {
+    const { isValid, errors } = validateRestaurantForm(formData);
+    if (!isValid) {
+      console.log(errors, "error");
+      setErrors(errors);
+      return;
+    }
+    console.log(formData);
+    const res = await registerRestaurant(formData);
+    if (res.success) {
+      setTimeout(() => {
+        dispatch(updateStatus("pending"))
+      }, 2000);
+    }
+  };
+
   return (
     <>
+      <ToastContainer />
       <div className="min-h-screen bg-black p-8">
         <button
           onClick={handlelogout}
@@ -80,6 +138,7 @@ const RestaurantMainRegistration = () => {
         >
           Logout
         </button>
+        {showSuccessModal && <RegistrationSuccessModal />}
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <h1 className="text-5xl font-bold text-yellow-500 text-center mb-12">
@@ -103,6 +162,7 @@ const RestaurantMainRegistration = () => {
                   placeholder="Enter restaurant name"
                   className="w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
                 />
+                <ErrorPTag Text={errors.restaurantName} />
               </div>
 
               {/* Owner Name */}
@@ -119,6 +179,7 @@ const RestaurantMainRegistration = () => {
                   placeholder="Enter owner name"
                   className="w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
                 />
+                <ErrorPTag Text={errors.ownerName} />
               </div>
 
               {/* Contact Number */}
@@ -135,6 +196,7 @@ const RestaurantMainRegistration = () => {
                   placeholder="Enter contact number"
                   className="w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
                 />
+                <ErrorPTag Text={errors.contactNumber} />
               </div>
 
               {/* Restaurant Address */}
@@ -151,6 +213,7 @@ const RestaurantMainRegistration = () => {
                   rows={4}
                   className="w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 placeholder-gray-400 resize-none"
                 />
+                <ErrorPTag Text={errors.address} />
               </div>
             </div>
 
@@ -170,6 +233,7 @@ const RestaurantMainRegistration = () => {
                     onChange={handleInputChange}
                     className="w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   />
+                  <ErrorPTag Text={errors.openingTime} />
                 </div>
                 <div>
                   <label className=" text-white font-semibold mb-2 flex items-center gap-2">
@@ -183,6 +247,7 @@ const RestaurantMainRegistration = () => {
                     onChange={handleInputChange}
                     className="w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   />
+                  <ErrorPTag Text={errors.closingTime} />
                 </div>
               </div>
 
@@ -211,6 +276,7 @@ const RestaurantMainRegistration = () => {
                         : "Upload Document"}
                     </span>
                   </label>
+                  <ErrorPTag Text={errors.proofDocument} />
                 </div>
               </div>
 
@@ -239,28 +305,21 @@ const RestaurantMainRegistration = () => {
                         : "Upload Photo"}
                     </span>
                   </label>
+                  <ErrorPTag Text={errors.restaurantPhoto} />
                 </div>
               </div>
 
               {/* Submit Button */}
               <button
                 type="button"
+                onClick={handleSubmit}
                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg mt-8"
               >
                 Register Restaurant
               </button>
-
-              {/* Back to Login */}
-              <div className="text-center">
-                <a
-                  href="#"
-                  className="text-blue-400 hover:text-blue-300 transition duration-300"
-                >
-                  Already have an account? Login
-                </a>
-              </div>
             </div>
           </div>
+          <ErrorPTag Text={errors.latitude || errors.longitude} />
           <form onSubmit={handleSearch} className="flex gap-2 w-full max-w-md">
             <input
               type="text"
@@ -283,9 +342,20 @@ const RestaurantMainRegistration = () => {
               initialLongitude={position[1]}
               zoom={13}
               height="h-80"
-              onLocationSelect={(lat, lng) =>
-                console.log("Selected:", lat, lng)
-              }
+              onLocationSelect={(lat, lng) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  latitude: lat.toString(),
+                  longitude: lng.toString(),
+                }));
+
+                setErrors((prev) => {
+                  const newErrors = { ...prev };
+                  delete newErrors.latitude;
+                  delete newErrors.longitude;
+                  return newErrors;
+                });
+              }}
             />
           </div>
         </div>

@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
-
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { handleresetPasswordForm } from "../../services/Auth";
+import { ToastContainer } from "react-toastify";
+import { showSuccessToast } from "../../Components/Elements/SuccessToast";
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{ confirm?: string }>({});
+  const navigate = useNavigate();
   const [requirements, setRequirements] = useState({
     length: false,
     uppercase: false,
     number: false,
   });
-
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get("email") || "";
+  const token = searchParams.get("token") || "";
   // Check password requirements
   useEffect(() => {
     setRequirements({
@@ -19,7 +25,7 @@ export default function ResetPasswordPage() {
     });
   }, [password]);
 
-  const handleReset = () => {
+  const handleReset = async () => {
     const newErrors: { confirm?: string } = {};
     if (password !== confirmPassword) {
       newErrors.confirm = "Passwords do not match";
@@ -32,16 +38,25 @@ export default function ResetPasswordPage() {
       newErrors.confirm = "Password does not meet all requirements";
     }
     setErrors(newErrors);
-
     if (Object.keys(newErrors).length === 0) {
-      // Call your API here
-      console.log("Password reset successfully:", password);
+      const res = await handleresetPasswordForm({
+        email,
+        newPassword: password,
+        token,
+      });
+      if (res?.success) {
+        showSuccessToast(res.message);
+        setTimeout(() => {
+          navigate("/admin/login");
+        }, 2000);
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+        <ToastContainer />
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-full mb-4">
             <svg

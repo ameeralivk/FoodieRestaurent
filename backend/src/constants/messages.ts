@@ -15,3 +15,5 @@ export const LINK_SENT_SUCCESS ="Password reset link sent successfully to your e
 export const LINK_SENT_FAILED = "Failed to send password reset link. Please try again."
 export const PASS_CHANGE_SUCCESS = "password updated Successfully"
 export const PASS_CHANGE_FAILED = "Failed to change Password"
+export const RESTAURANT_REGISTER_COMPLETE = "register Successfully completed"
+export const RESTAURANT_REGISTER_FAILED = "register Successfully Failed"

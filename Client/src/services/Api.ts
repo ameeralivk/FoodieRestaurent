@@ -1,7 +1,7 @@
 // api/axiosInstance.ts
 import axios from "axios";
 import { store } from "../redux/store/store";
-import { setAccessToken, logoutAction} from "../redux/slice/adminSlice";
+import { setAccessToken, logoutAction } from "../redux/slice/adminSlice";
 
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
@@ -36,8 +36,7 @@ api.interceptors.response.use(
         );
 
         const newAccessToken = res.data.accessToken;
-        store.dispatch(setAccessToken(newAccessToken));
-
+        store.dispatch(setAccessToken({ newAccessToken }));
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return axios(originalRequest);
       } catch (err) {

@@ -2,7 +2,8 @@ import Admin, { AdminDocument } from "../../../models/admin";
 import { BaseRepository } from "../../IBaseRepository";
 import { IAdminAuthRepository } from "../interface/IAdminRepositories";
 import redisClient from "../../../config/redisClient";
-import { IAdmin } from "../../../types/admin";
+import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
+import { AppError } from "../../../utils/Error";
 export class AdminAuthRepository
   extends BaseRepository<AdminDocument>
   implements IAdminAuthRepository
@@ -50,4 +51,31 @@ export class AdminAuthRepository
   async updatePasswordByEmail(email: string, hashedPassword: string): Promise<AdminDocument | null> {
     return this.updateOne({ email }, { password: hashedPassword });
   }
+
+  async registerRestaurent(
+    id: string,
+    data: IRestaurantRegisterData
+  ): Promise<AdminDocument | null> {
+    const updateData = {
+      restaurantName: data.restaurantName,
+      ownerName: data.ownerName,
+      contactNumber: data.contactNumber,
+      openingTime: data.openingTime,
+      closingTime: data.closingTime,
+      address: data.restaurantAddress,
+      restaurantPhoto: data.restaurantPhoto?.path,
+      proofDocument: data.proofDocument?.path,
+      location: {
+        type: "Point",
+        coordinates: [
+          parseFloat(data.longitude),
+          parseFloat(data.latitude),
+        ],
+      },
+      status: "pending",
+    };
+
+    return await this.model.findByIdAndUpdate(id, updateData, { new: true });
+  }
+
 }

@@ -114,7 +114,7 @@ export const resendOtpEmail = async (email: string, otp: string) => {
         ${otp}
       </div>
       <p style="color: #777; font-size: 14px;">
-        This OTP is valid for <b>5 minutes</b>.<br>
+        This OTP is valid for <b>2 minutes</b>.<br>
         Please do not share it with anyone.
       </p>
       <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
@@ -135,7 +135,9 @@ export const resendOtpEmail = async (email: string, otp: string) => {
 
 export const sendResetPasswordEmail = async (email: string, token: string) => {
   try {
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?email=${encodeURIComponent(
+    email
+    )}&token=${token}`;
 
     const mailOptions = {
       from: `"FoodieRestaurant" <${process.env.EMAIL_USER}>`,
@@ -173,7 +175,7 @@ export const sendResetPasswordEmail = async (email: string, token: string) => {
             margin-bottom: 20px;
           ">Reset Password</a>
           <p style="color: #777; font-size: 14px;">
-            This link is valid for <b>10 minutes</b>.<br>
+            This link is valid for <b>2 minutes</b>.<br>
             If you didn’t request this, you can safely ignore this email.
           </p>
           <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">

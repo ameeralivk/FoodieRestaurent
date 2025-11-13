@@ -7,16 +7,16 @@ import api from "./Api";
 import { loginAction } from "../redux/slice/adminSlice";
 import type { AppDispatch } from "../redux/store/store";
 import { toast } from "react-toastify";
-import type { AdminType } from "../types/AdminTypes";
+import type { AdminType, resetPassword } from "../types/AdminTypes";
 import { AfterLoading, loadingToast } from "../Components/Elements/Loading";
 import { useNavigate } from "react-router-dom";
+import type { RegisterFormData } from "../types/AdminTypes";
 import type { ForgetPasswordFormData } from "../types/AdminTypes";
 interface registerFormData {
   restaurantName: string;
   email: string;
   password: string;
 }
-
 export const register = async (formData: registerFormData) => {
   try {
     const response = await axios.post(
@@ -42,13 +42,9 @@ export const register = async (formData: registerFormData) => {
 export const verifyOtp = async (otp: string, email: string) => {
   try {
     let data = { otp: otp, email: email };
-    const response = await axios.post(
-      "http://localhost:3000/api/admin/auth/verify-otp",
-      data,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await api.post("/admin/auth/verify-otp", data, {
+      withCredentials: true,
+    });
     console.log(response.data, "fdalfdajk");
     return response.data;
   } catch (error) {
@@ -66,13 +62,9 @@ export const verifyOtp = async (otp: string, email: string) => {
 export const resendOtp = async (email: string) => {
   try {
     let data = { email };
-    const response = await axios.post(
-      "http://localhost:3000/api/admin/auth/resent-otp",
-      data,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await api.post("/admin/auth/resent-otp", data, {
+      withCredentials: true,
+    });
     console.log(response.data, "fdalfdajk");
     return response.data;
   } catch (error) {
@@ -96,6 +88,7 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
           token: tokenResponse.access_token,
         });
         if (res.data.success) {
+          console.log(res.data, "data is here");
           const access_token = res.data.accesstoken;
 
           const saveddata: AdminType = {
@@ -105,6 +98,7 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
             role: res.data.data.role,
             googleId: res.data.data.googleId,
             imageUrl: res.data.data.imageUrl,
+            status: res.data.data.status,
           };
 
           dispatch(
@@ -131,13 +125,9 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
 export const handleLogin = async (email: string, password: string) => {
   try {
     let data = { email, password };
-    const response = await axios.post(
-      "http://localhost:3000/api/admin/auth/login",
-      data,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await api.post("/admin/auth/login", data, {
+      withCredentials: true,
+    });
     if (response) {
       return response.data;
     } else {
@@ -190,14 +180,12 @@ export const handleLogin = async (email: string, password: string) => {
 export const handleForgetPasswordSubmit = async (
   formData: ForgetPasswordFormData
 ) => {
-  // Show loading toast immediately
   const loadingId = loadingToast();
 
   try {
-    const response = await axios.post(
-      "http://localhost:3000/api/admin/auth/forget-password",
-      { email: formData.email }
-    );
+    const response = await api.post("/admin/auth/forget-password", {
+      email: formData.email,
+    });
 
     // Update toast based on API response
     console.log(response, "res ");
@@ -214,6 +202,7 @@ export const handleForgetPasswordSubmit = async (
         isLoading: false,
         autoClose: 3000,
       });
+      return false;
     }
 
     console.log(response.data, "response is here");
@@ -228,5 +217,62 @@ export const handleForgetPasswordSubmit = async (
       isLoading: false,
       autoClose: 3000,
     });
+  }
+};
+
+export const handleresetPasswordForm = async (resetPassword: resetPassword) => {
+  try {
+    const response = await api.patch(
+      `/admin/auth/forget-password?token=${resetPassword.token}`,
+      { email: resetPassword.email, newPassword: resetPassword.newPassword }
+    );
+
+    // Update toast based on API response
+    console.log(response, "res ");
+    if (response.data.success || response.data.succes) {
+      return { success: true, message: response.data.message };
+    }
+  } catch (error: any) {
+    const message = axios.isAxiosError(error)
+      ? error.response?.data?.message || "Something went wrong!"
+      : error instanceof Error
+      ? error.message
+      : "An unknown error occurred";
+    showErrorToast(message);
+  }
+};
+
+export const registerRestaurant = async (formData: RegisterFormData) => {
+  try {
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        if (value instanceof File) {
+          data.append(key, value);
+        } else {
+          data.append(key, value.toString());
+        }
+      }
+    });
+    for (const [key, value] of data.entries()) {
+      console.log(key, value, "ready");
+    }
+
+    const response = await axios.post(
+      "http://localhost:3000/api/admin/auth/on-boarding",
+      data,
+      {
+        withCredentials: true,
+      }
+    );
+    showSuccessToast("Restaurant registered successfully!");
+    return response.data;
+  } catch (error: any) {
+    showErrorToast(
+      axios.isAxiosError(error)
+        ? error.response?.data?.message || "Something went wrong!"
+        : error.message
+    );
+    throw error;
   }
 };

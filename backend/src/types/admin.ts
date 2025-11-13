@@ -1,27 +1,57 @@
 import { Document } from "mongoose";
 
 export type Role = "admin" | "superAdmin";
-
+export interface Location {
+  type: "Point";
+  coordinates: [number, number]; // [longitude, latitude]
+}
 export interface IAdmin extends Document {
-  role:string,
-  restaurantName:string,
-  email:string,
-  password:string,
-  isDeleted:boolean,
-  googleID:string,
-  imageUrl:string,
-  isBlocked:boolean,
-  resetPasswordToken?: string;
-  resetPasswordExpires?: Date;
+  role: string;
+  ownerName: string;
+  contactNumber: Number;
+  restaurantAddress: string;
+  location: Location;
+  openingTime: string;
+  proofDocument: string;
+  restaurantPhoto: string;
+  closingTime: string;
+  restaurantName: string;
+  email: string;
+  password: string;
+  isDeleted: boolean;
+  googleID: string;
+  imageUrl: string;
+  isBlocked: boolean;
+  status?: "pending" | "approved" | "rejected";
 }
 
 export interface adminData extends Document {
-    restaurantName: String;
-    email: String;
-    password: String;
-    role:String;
-    googleID:string,
-    imageUrl:string,
-    isBlocked:boolean,
+  restaurantName: String;
+  email: String;
+  password: String;
+  role: String;
+  googleID: string;
+  imageUrl: string;
+  isBlocked: boolean;
 }
 
+
+export interface GeoLocation {
+  type: "Point";
+  coordinates: [number, number]; // [longitude, latitude]
+}
+
+
+export interface IRestaurantRegisterData {
+  email: string;
+  restaurantName: string;
+  ownerName: string;
+  contactNumber: string;
+  restaurantAddress: string;
+  openingTime: Date;
+  closingTime: Date;
+  latitude: string;
+  longitude: string;
+  restaurantPhoto: Express.Multer.File;
+  proofDocument: Express.Multer.File;
+}

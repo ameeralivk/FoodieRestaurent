@@ -10,6 +10,7 @@ export interface loginForm {
 }
 
 export interface RestaurantFormData {
+  email:string
   restaurantName: string;
   ownerName: string;
   contactNumber: string;
@@ -23,14 +24,35 @@ export interface RestaurantFormData {
 }
 
 export interface AdminType {
-  _id: string,
+  _id: string;
   role: string;
   restaurantName?: string;
   email: string;
   googleId: string;
   imageUrl: string;
+  status:string;
 }
 
 export interface ForgetPasswordFormData {
   email: string;
+}
+
+export interface resetPassword {
+  email: string;
+  newPassword: string;
+  token:string,
+}
+
+
+export interface RegisterFormData {
+  restaurantName: string;
+  ownerName: string;
+  contactNumber: string;
+  address: string;
+  openingTime: string;
+  closingTime: string;
+  restaurantPhoto?: File|null;
+  proofDocument?: File|null;
+  latitude: string;
+  longitude: string;
 }

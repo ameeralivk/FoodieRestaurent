@@ -9,5 +9,6 @@ export default interface IAdminAuthController {
   refreshToken(req:Request, res: Response): Promise<void>;
   forgetPassword(req:Request, res: Response): Promise<void>;
   login(req:Request,res:Response): Promise<void>;
-  updatePassword(req:Request,res:Response): Promise<void>
+  updatePassword(req:Request,res:Response): Promise<void>;
+  registerRestaurant(req:Request,res:Response): Promise<void>
 }

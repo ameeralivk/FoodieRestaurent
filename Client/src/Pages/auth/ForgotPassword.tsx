@@ -4,6 +4,7 @@ import { useState } from "react";
 import WarningSwal from "../../Components/Helpers/WarningSwal";
 import Admin_Navbar from "../../Components/Layouts/Admin_Navbar";
 import { handleForgetPasswordSubmit } from "../../services/Auth";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 const ForgetPasswordPage = () => {
@@ -13,6 +14,7 @@ const ForgetPasswordPage = () => {
     const value = e.target.value;
     setemail(value);
   };
+  const [isHidden, setIsHidden] = useState(false);
   const handleSubmit = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -22,13 +24,34 @@ const ForgetPasswordPage = () => {
       WarningSwal({ message: "Please Enter Correct Email Formate" });
       return;
     } else {
-      const res = await handleForgetPasswordSubmit({ email });
-      console.log(res, "response");
+      setIsHidden(true);
+      let res =  await handleForgetPasswordSubmit({ email });
+      if(!res){
+        setIsHidden(false)
+         return
+      }
+      const hiddenUntil = Date.now() + 2 * 60 * 1000;
+      localStorage.setItem("hiddenUntil", hiddenUntil.toString());
+      setTimeout(() => {
+        setIsHidden(false);
+        localStorage.removeItem("hiddenUntil");
+      }, 2 * 60 * 1000);
+      
     }
   };
   const nav = () => {
     navigate("/Admin/Login");
   };
+
+  useEffect(() => {
+    const hiddenUntil = localStorage.getItem("hiddenUntil");
+    if (hiddenUntil && Date.now() < Number(hiddenUntil)) {
+      setIsHidden(true);
+      const remaining = Number(hiddenUntil) - Date.now();
+      setTimeout(() => setIsHidden(false), remaining);
+    }
+  }, []);
+
   return (
     <div>
       <div className="top-0 fixed w-screen">
@@ -46,7 +69,13 @@ const ForgetPasswordPage = () => {
             <InputField Name={"Email"} onChange={handleInputChange} />
           </div>
           <div className="flex justify-center flex-col items-center h-[60px] ">
-            <Button onClick={handleSubmit} text="Request Reset Link" />
+            {!isHidden ? (
+              <Button onClick={handleSubmit} text="Request Reset Link" />
+            ) : (
+              <p className="text-amber-50">
+                Button will reappear after 2 minutes...
+              </p>
+            )}
           </div>
           <a onClick={nav} className="text-blue-600 cursor-pointer mt-6">
             Back To Login

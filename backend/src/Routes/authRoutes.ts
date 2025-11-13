@@ -3,6 +3,7 @@ import { AdminAuthRepository } from "../Repositories/Admin/implimentation/adminR
 import { AdminAuthService } from "../services/admin/implementation/adminAuthService";
 import { AdminAuthController } from "../Controller/admin/implementation/adminAuthController";
 import { asyncHandler } from "../middleware/asyncHandler";
+import { upload } from "../config/multerConfig";
 const router = express.Router();
 
 const adminAuthRepository = new AdminAuthRepository();
@@ -13,8 +14,11 @@ router.route("/signup").post(asyncHandler(authController.register));
 router.route("/verify-otp").post(asyncHandler(authController.verifyOtp));
 router.route("/resent-otp").post(asyncHandler(authController.resendOtp));
 router.route("/googleAuth").post(asyncHandler(authController.googleAuth));
-router.route('/refresh-token').post(asyncHandler(authController.refreshToken))
-router.route('/login').post(asyncHandler(authController.login))
-router.route('/forget-password').post(asyncHandler(authController.forgetPassword))
-                                .patch(asyncHandler(authController.updatePassword))
+router.route("/refresh-token").post(asyncHandler(authController.refreshToken));
+router.route("/login").post(asyncHandler(authController.login));
+router
+  .route("/forget-password")
+  .post(asyncHandler(authController.forgetPassword))
+  .patch(asyncHandler(authController.updatePassword));
+router.route('/on-boarding').post(upload,asyncHandler(authController.registerRestaurant))
 export default router;

@@ -12,7 +12,7 @@ const Admin_Navbar: React.FC<role> = ({ role }) => {
       <div className="flex items-center gap-3">
         <ChefHat size={22} className="text-[#EDAB12]" />
         <span className="cursor-pointer font-semibold tracking-wide text-sm sm:text-base">
-          SASHI RESTAURANT
+          FOODIE PALACE
         </span>
       </div>
 

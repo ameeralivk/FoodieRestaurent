@@ -8,6 +8,7 @@ import {
   OTP_RESENT_SUCCESS,
   OTP_VERIFY_sUCCESS,
   PASS_CHANGE_SUCCESS,
+  RESTAURANT_REGISTER_COMPLETE,
 } from "../../../constants/messages";
 import { IAdminAuthRepository } from "../../../Repositories/Admin/interface/IAdminRepositories";
 import { generateOtp } from "../../../utils/dto/generateOtp";
@@ -24,8 +25,8 @@ import {
   generateToken,
   verifyRefreshToken,
 } from "../../../middleware/jwt";
-import { IAdmin } from "../../../types/admin";
-import { email } from "zod";
+import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
+import { email, string, success } from "zod";
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 export class AdminAuthService {
   constructor(private _adminAuthRepository: IAdminAuthRepository) {}
@@ -173,7 +174,7 @@ export class AdminAuthService {
     const admin = await this._adminAuthRepository.findByEmail(email);
     if (!admin) throw new Error(ADMIN_NOT_FOUND);
     const token = crypto.randomBytes(32).toString("hex");
-    await redisClient.setEx(`resetPassword:${email}`, 600, token);
+    await redisClient.setEx(`resetPassword:${email}`,120, token);
     await sendResetPasswordEmail(email, token);
     return { success: true, message: "Password reset link sent to your email" };
   };
@@ -223,35 +224,48 @@ export class AdminAuthService {
   // }
 
   async updatePassword(
-  token: string,
-  newPassword: string,
-  email: string
-): Promise<{ success: boolean; message: string }> {
-  try {
-    const storedToken = await redisClient.get(`resetPassword:${email}`);
+    token: string,
+    newPassword: string,
+    email: string
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const storedToken = await redisClient.get(`resetPassword:${email}`);
+      console.log(storedToken,email,'stored token')
+      if (!storedToken || storedToken !== token) {
+        console.log("Token is invalid or expired");
+        return { success: false, message: "Invalid or expired token" };
+      }
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    if (!storedToken || storedToken !== token) {
-      console.log("Token is invalid or expired");
-      return { success: false, message: "Invalid or expired token" };
+      const admin = await this._adminAuthRepository.updatePasswordByEmail(
+        email,
+        hashedPassword
+      );
+      if (!admin) {
+        return { success: false, message: ADMIN_NOT_FOUND };
+      }
+      await redisClient.del(`resetPassword:${email}`);
+
+      return { success: true, message: PASS_CHANGE_SUCCESS };
+    } catch (error) {
+      console.error("Error in updatePassword:", error);
+      return { success: false, message: "Internal Server Error" };
     }
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
- 
-
-    const admin = await this._adminAuthRepository.updatePasswordByEmail(
-      email,
-      hashedPassword
-    );
-    if (!admin) {
-      return { success: false, message: ADMIN_NOT_FOUND };
-    }
-    await redisClient.del(`resetPassword:${email}`);
-
-
-    return { success: true, message: PASS_CHANGE_SUCCESS };
-  } catch (error) {
-    console.error("Error in updatePassword:", error);
-    return { success: false, message: "Internal Server Error" };
   }
-}
+
+  async registerRestaurant(data:IRestaurantRegisterData):Promise <{success:boolean,message:string}>{
+        try {
+           let res = await this._adminAuthRepository.findByEmail(data.email)
+           if(!res){
+              throw new AppError(ADMIN_NOT_FOUND)
+           }
+           const adminId = res?._id as string
+           let result = await this._adminAuthRepository.registerRestaurent(adminId,data)
+           console.log(result,'res ameer')
+           return {success:true,message:RESTAURANT_REGISTER_COMPLETE}
+        } catch (error:any) {
+             throw new AppError(error)
+        }
+    }
 
 }
