@@ -38,7 +38,6 @@ export class AdminAuthController implements IAdminAuthController {
         password,
         role
       );
-      console.log(message, "message is here");
       if (message.success) {
         res.status(HttpStatus.OK).json({ message });
       } else {
@@ -118,6 +117,13 @@ export class AdminAuthController implements IAdminAuthController {
         imageUrl: admin.imageUrl,
         status:admin.status,
       };
+     
+      res.cookie("refresh_token", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        maxAge: refreshTokenMaxAge,
+      });
       res.status(200).json({
         success: true,
         data,
@@ -131,7 +137,6 @@ export class AdminAuthController implements IAdminAuthController {
 
   refreshToken = async (req: Request, res: Response) => {
     try {
-      console.log("new tocken generated");
       const refreshToken = req.cookies?.refresh_token;
 
       if (!refreshToken) {
@@ -203,7 +208,7 @@ export class AdminAuthController implements IAdminAuthController {
           .json({ succes: false, message: LINK_SENT_FAILED });
       }
     } catch (error: any) {
-      console.log(error, "res");
+     
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message || "Something went Wrong",
@@ -214,7 +219,6 @@ export class AdminAuthController implements IAdminAuthController {
   updatePassword = async (req: Request, res: Response): Promise<void> => {
     try {
       const token = req.query.token as string;
-      console.log(token, "token is here");
       const { newPassword, email } = req.body;
       if (!token) throw new AppError("Token is Missing");
       if (!newPassword)

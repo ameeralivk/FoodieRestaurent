@@ -23,18 +23,19 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.log(error.response, "rees");
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
       try {
+        console.log("hi ameer ali vk");
         const res = await axios.get(
           "http://localhost:3000/api/admin/auth/refresh-token",
           {
             withCredentials: true,
           }
         );
-
+        console.log(res, "resulte is ther");
         const newAccessToken = res.data.accessToken;
         store.dispatch(setAccessToken({ newAccessToken }));
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;

@@ -27,8 +27,9 @@ import {
 } from "../../../middleware/jwt";
 import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
 import { email, string, success } from "zod";
+import IAdminAuthService from "../interface/IAdminAuthService";
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
-export class AdminAuthService {
+export class AdminAuthService implements IAdminAuthService {
   constructor(private _adminAuthRepository: IAdminAuthRepository) {}
 
   async register(
@@ -152,7 +153,7 @@ export class AdminAuthService {
     const decoded = verifyRefreshToken(refreshToken);
 
     if (!decoded) {
-      throw { status: HttpStatus.FORBIDDEN, message: INVALID_TOKEN };
+      throw { status: HttpStatus.UNAUTHORIZED, message: INVALID_TOKEN };
     }
 
     const admin = await this._adminAuthRepository.findById(decoded.id);
@@ -230,7 +231,6 @@ export class AdminAuthService {
   ): Promise<{ success: boolean; message: string }> {
     try {
       const storedToken = await redisClient.get(`resetPassword:${email}`);
-      console.log(storedToken,email,'stored token')
       if (!storedToken || storedToken !== token) {
         console.log("Token is invalid or expired");
         return { success: false, message: "Invalid or expired token" };
@@ -261,7 +261,7 @@ export class AdminAuthService {
            }
            const adminId = res?._id as string
            let result = await this._adminAuthRepository.registerRestaurent(adminId,data)
-           console.log(result,'res ameer')
+         
            return {success:true,message:RESTAURANT_REGISTER_COMPLETE}
         } catch (error:any) {
              throw new AppError(error)

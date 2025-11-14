@@ -258,8 +258,8 @@ export const registerRestaurant = async (formData: RegisterFormData) => {
       console.log(key, value, "ready");
     }
 
-    const response = await axios.post(
-      "http://localhost:3000/api/admin/auth/on-boarding",
+    const response = await api.post(
+      "/admin/auth/on-boarding",
       data,
       {
         withCredentials: true,

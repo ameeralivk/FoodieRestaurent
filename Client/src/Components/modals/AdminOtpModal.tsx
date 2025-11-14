@@ -84,6 +84,7 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({
           role: res.data.data.admin.role,
           googleId: "",
           imageUrl: "",
+          status:res.data.data.admin.status,
         };
         dispatch(loginAction({ admin: data, token: res.accesstoken }));
       } else {
@@ -119,6 +120,7 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({
           role: res.data.admin.role,
           googleId: "",
           imageUrl: "",
+          status:res.data.admin.status,
         };
         setTimeout(() => {
           dispatch(loginAction({ admin: data, token: res.accesstoken }));

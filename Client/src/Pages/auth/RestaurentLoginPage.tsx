@@ -62,7 +62,7 @@ const RestaurentLoginPage = () => {
         role: response.admin.role,
         googleId: response.admin.googleId,
         imageUrl: response.admin.imageUrl,
-        status:response.admin.status,
+        status: response.admin.status,
       };
 
       dispatch(
@@ -73,7 +73,7 @@ const RestaurentLoginPage = () => {
       );
     } catch (error: unknown) {
       if (error instanceof Error) {
-        showErrorToast(error.message);
+        console.log(error, "error");
       } else {
         showErrorToast(String(error));
       }

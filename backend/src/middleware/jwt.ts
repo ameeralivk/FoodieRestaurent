@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
-import jwt,{ JwtPayload } from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import logger from "../config/logger";
+import { Http } from "winston/lib/winston/transports";
+import HttpStatus from "../constants/htttpStatusCode";
 const generateToken = (
   id: string | mongoose.Types.ObjectId | undefined,
   role: string | undefined
@@ -26,7 +28,7 @@ const generateRefreshToken = (
   );
 };
 
- const verifyRefreshToken = (refreshToken: string): JwtPayload | null => {
+const verifyRefreshToken = (refreshToken: string): JwtPayload | null => {
   try {
     const decoded = jwt.verify(
       refreshToken,
@@ -52,14 +54,14 @@ export const verifyAccessToken = (
   req: Request,
   res: Response,
   next: NextFunction
-):void => {
+): void => {
   try {
-    console.log(req.headers)
+    console.log(req.headers);
     const authHeader = req.headers["authorization"];
-    console.log(authHeader,'header')
+
     if (!authHeader) {
       res.status(401).json({ message: "Authorization header missing" });
-      return; 
+      return;
     }
 
     const token = authHeader.split(" ")[1];
@@ -70,16 +72,15 @@ export const verifyAccessToken = (
 
     const decoded = jwt.verify(
       token,
-      process.env.ACCESS_TOKEN_SECRET!
+      process.env.JWT_SECRET!
     ) as DecodedUser;
 
     (req as any).user = decoded;
     next(); // ✅ continue if valid
   } catch (error: any) {
     console.error("Token verification failed:", error.message);
-    res.status(403).json({ message: "Invalid or expired token" });
+    res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid or expired token" });
   }
 };
 
-
-export {generateRefreshToken,generateToken,verifyRefreshToken}
+export { generateRefreshToken, generateToken, verifyRefreshToken };
