@@ -3,28 +3,21 @@ import type { ChangeEvent, KeyboardEvent } from "react";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import WarningSwal from "../Helpers/WarningSwal";
-import { showErrorToast } from "../Elements/ErrorToast";
-import { resendOtp, verifyOtp } from "../../services/Auth";
-import { showSuccessToast } from "../Elements/SuccessToast";
-import { useNavigate } from "react-router-dom";
-import { loadingToast } from "../Elements/Loading";
-import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
-import { loginAction } from "../../redux/slice/adminSlice";
-import type { AdminType } from "../../types/AdminTypes";
 interface otpModalProps {
   modalOpen: boolean;
   email: string;
+  onVerify: (otp: string) => void;
+  onResend: () => void;
 }
 const OTPVerificationModal: React.FC<otpModalProps> = ({
   modalOpen,
   email,
+  onVerify,
+  onResend,
 }) => {
   const [resendTimer, setResendTimer] = useState(120);
   const [isCounting, setIsCounting] = useState(true);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
-  // const Navigate = useNavigate();
-  const dispatch = useDispatch();
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
     if (!/^\d*$/.test(value)) return;
@@ -51,7 +44,6 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({
       prevInput?.focus();
     }
   };
-  const navigate = useNavigate();
   useEffect(() => {
     if (!isCounting) return;
 
@@ -67,70 +59,21 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({
     return () => clearInterval(interval);
   }, [resendTimer, isCounting]);
 
-  const handleResendClick = async () => {
+  const handleResendClickLocal = () => {
+    onResend();
     setResendTimer(120);
     setIsCounting(true);
-    const toastId = loadingToast();
-    try {
-      const res = await resendOtp(email);
-      if (res.success) {
-        toast.dismiss(toastId);
-        showSuccessToast(res.message);
-        console.log(res.data, "fdsfdas");
-        const data: AdminType = {
-          _id: res.data.data._id,
-          restaurantName: res.data.data.admin.restaurantName,
-          email: res.data.data.admin.email,
-          role: res.data.data.admin.role,
-          googleId: "",
-          imageUrl: "",
-          status:res.data.data.admin.status,
-        };
-        dispatch(loginAction({ admin: data, token: res.accesstoken }));
-      } else {
-        showErrorToast("Failed to resend otp");
-      }
-    } catch (error) {
-      toast.dismiss(toastId);
-      if (error instanceof Error) {
-        showErrorToast(error.message);
-      }
-    }
   };
 
-  const handleModalSubmit = async () => {
-    console.log(otp, "otp");
-    const isFull = otp.every((item) => item.trim() !== "");
+  const handleModalSubmit = () => {
+    const isFull = otp.every((x) => x.trim() !== "");
     if (!isFull) {
-      WarningSwal({ message: "Otp must be 6 character" });
+      WarningSwal({ message: "Otp must be 6 characters" });
       return;
-    } else {
-      let num = "";
-      otp.forEach((x) => {
-        num += x;
-      });
-      try {
-        let res = await verifyOtp(num, email);
-        console.log(res, "respons is here");
-        showSuccessToast(res.message);
-        const data: AdminType = {
-          _id: res.data.admin._id,
-          restaurantName: res.data.admin.restaurantName,
-          email: res.data.admin.email,
-          role: res.data.admin.role,
-          googleId: "",
-          imageUrl: "",
-          status:res.data.admin.status,
-        };
-        setTimeout(() => {
-          dispatch(loginAction({ admin: data, token: res.accesstoken }));
-        }, 2000);
-      } catch (error) {
-        if (error instanceof Error) {
-          showErrorToast(error.message);
-        }
-      }
     }
+
+    const finalOtp = otp.join("");
+    onVerify(finalOtp);
   };
 
   return modalOpen ? (
@@ -195,7 +138,7 @@ const OTPVerificationModal: React.FC<otpModalProps> = ({
               </p>
             ) : (
               <button
-                onClick={handleResendClick}
+                onClick={handleResendClickLocal}
                 className="text-blue-400 hover:text-blue-300 transition duration-300 text-sm font-semibold"
               >
                 Resend OTP

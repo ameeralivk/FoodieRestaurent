@@ -20,7 +20,7 @@ const UserSchema: Schema<IUser> = new Schema(
 
     password: {
       type: String,
-      required: true,
+      required: false,
     },
 
     phone: {
@@ -45,10 +45,8 @@ const UserSchema: Schema<IUser> = new Schema(
         type:Boolean,
         default:false,
     },
-    profilePitcher: {
-      type: String,
-      default: "",
-    },
+     googleID: { type: String },
+    imageUrl: { type: String },
   },
   { timestamps: true }
 );

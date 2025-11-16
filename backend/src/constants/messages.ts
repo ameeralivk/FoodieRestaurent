@@ -7,6 +7,7 @@ export const OTP_SENT_SUCCESS = "OTP Sended to your Email"
 export const OTP_VERIFY_sUCCESS = "OTP Verification Successfully Completed";
 export const NO_REFRESH_TOKEN_FOUND = "No refresh token found";
 export const INVALID_TOKEN = "The token is Invalid";
+export const OTP_INCORRECT = "Incorrect OTP Please Check Your OTP and Retry"
 export const ADMIN_NOT_FOUND =
   "Admin not found. Please check the credentials or register first.";
 export const ACCOUNT_IS_BLOCKED =

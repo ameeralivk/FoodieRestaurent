@@ -12,11 +12,11 @@ import { register, useGoogleLoginHandler } from "../../services/Auth";
 import { loadingToast, AfterLoading } from "../../Components/Elements/Loading";
 import { showErrorToast } from "../../Components/Elements/ErrorToast";
 import { GoogleLoginButton } from "../../Components/Elements/googleLoginButton";
+import { createOtpHandlers } from "../../Components/Helpers/Admin/handleOtpHandlers";
 import { useDispatch } from "react-redux";
-
 const AdminRegisterPage = () => {
+  const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState(false);
-
   const [formData, setFormData] = useState<FormData>({
     restaurantName: "",
     email: "",
@@ -25,7 +25,10 @@ const AdminRegisterPage = () => {
   const [error, setError] = useState<Partial<Record<keyof FormData, string>>>(
     {}
   );
-
+  const { handleAdminVerifyOtp, handleAdminResendOtp } = createOtpHandlers(
+    dispatch,
+    formData.email
+  );
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (modalOpen) {
@@ -91,13 +94,17 @@ const AdminRegisterPage = () => {
       }
     }
   };
-
-  const dispatch = useDispatch();
   const googleLogin = useGoogleLoginHandler(dispatch);
   return (
     <>
       {modalOpen && (
-        <OTPVerificationModal modalOpen={modalOpen} email={formData.email} />
+        // <OTPVerificationModal modalOpen={modalOpen} email={formData.email} />
+        <OTPVerificationModal
+          modalOpen={modalOpen}
+          email={formData.email}
+          onVerify={handleAdminVerifyOtp}
+          onResend={handleAdminResendOtp}
+        />
       )}
       <div className="min-h-screen bg-black text-white">
         {/* Header */}

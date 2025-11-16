@@ -5,6 +5,7 @@ import {
   ADMIN_NOT_FOUND,
   INVALID_TOKEN,
   NO_REFRESH_TOKEN_FOUND,
+  OTP_INCORRECT,
   OTP_RESENT_SUCCESS,
   OTP_VERIFY_sUCCESS,
   PASS_CHANGE_SUCCESS,
@@ -104,7 +105,7 @@ export class AdminAuthService implements IAdminAuthService {
       .update(otp)
       .digest("hex");
     if (hashedInputOtp !== hashedOtp) {
-      throw new AppError("Invalid OTP", HttpStatus.UNAUTHORIZED);
+      throw new AppError("Invalid OTP",HttpStatus.BAD_REQUEST);
     }
     const userDataString = await redisClient.get(redisDataKey);
     if (!userDataString) {

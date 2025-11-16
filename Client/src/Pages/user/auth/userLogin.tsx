@@ -3,29 +3,44 @@ import { useState } from "react";
 import { validateLoginForm } from "../../../Validation/AdminRegistractiorValidation";
 import AdminRegisterValidation from "../../../Validation/AdminRegistractiorValidation";
 import ErrorPTag from "../../../Components/Elements/ErrorParagraph";
-import type{FormData} from "../../../types/userTypes"
+import type { FormData } from "../../../types/userTypes";
 import WarningSwal from "../../../Components/Helpers/WarningSwal";
+import {
+  handleUserLogin,
+  userGoogleLoginHandler,
+} from "../../../services/userAuth";
+import { ToastContainer } from "react-toastify";
+import { GoogleLoginButton } from "../../../Components/Elements/googleLoginButton";
+import { useDispatch } from "react-redux";
 export default function UserLoginForm() {
-     const [formData, setFormData] = useState<FormData>({
-        email: "",
-        password: "",
-      });
-     const [error, setError] = useState<Partial<Record<keyof FormData, string>>>(
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState<Partial<Record<keyof FormData, string>>>(
     {}
-    );
+  );
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-     const valid = validateLoginForm(formData);
-     let len = Object.keys(valid.errors).length;
-      if (len > 0) {
-        for (let key in valid.errors) {
-          const field = key as keyof FormData;
-          setError((prev) => ({ ...prev, [field]: valid.errors[field] || "" }));
-        }
-        WarningSwal({ message: "Please File all the Field to Proceed" });
-        return;
+    const valid = validateLoginForm(formData);
+    let len = Object.keys(valid.errors).length;
+    if (len > 0) {
+      for (let key in valid.errors) {
+        const field = key as keyof FormData;
+        setError((prev) => ({ ...prev, [field]: valid.errors[field] || "" }));
       }
-    console.log('Login submitted');
+      WarningSwal({ message: "Please File all the Field to Proceed" });
+      return;
+    }
+    const fetch = async () => {
+      try {
+        let res = await handleUserLogin(formData.email, formData.password);
+        console.log(res, "response");
+      } catch (error) {
+        console.log(error, "error");
+      }
+    };
+    fetch();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,20 +49,23 @@ export default function UserLoginForm() {
     const validation = AdminRegisterValidation(name as keyof FormData, value);
     setError((prev) => ({ ...prev, [name]: validation || "" }));
   };
+  const dispatch = useDispatch();
+  const googleLogin = userGoogleLoginHandler(dispatch);
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <ToastContainer />
       <div className="w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           Welcome back
         </h1>
-        
-        <form 
-          onSubmit={handleSubmit} 
+
+        <form
+          onSubmit={handleSubmit}
           className="bg-white p-8 rounded-lg shadow-sm space-y-6"
         >
           <div>
-            <label 
-              htmlFor="email" 
+            <label
+              htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
               Email or username
@@ -60,12 +78,12 @@ export default function UserLoginForm() {
               placeholder="Enter your email or username"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
-            <ErrorPTag Text={error.email}/>
+            <ErrorPTag Text={error.email} />
           </div>
 
           <div>
-            <label 
-              htmlFor="password" 
+            <label
+              htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
               Password
@@ -78,7 +96,7 @@ export default function UserLoginForm() {
               placeholder="Enter your password"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
-            <ErrorPTag Text={error.password}/>
+            <ErrorPTag Text={error.password} />
           </div>
 
           <button
@@ -87,12 +105,18 @@ export default function UserLoginForm() {
           >
             Login
           </button>
-
+          <GoogleLoginButton login={googleLogin} />
           <div className="text-center space-y-2">
-            <a href="#" className="text-sm text-gray-600 hover:text-gray-900 block">
-              New to DiseFood? Sign up
+            <a
+              href="/user/register"
+              className="text-sm text-gray-600 hover:text-gray-900 block"
+            >
+              New to Foodie? Sign up
             </a>
-            <a href="#" className="text-sm text-gray-600 hover:text-gray-900 block">
+            <a
+              href="#"
+              className="text-sm text-gray-600 hover:text-gray-900 block"
+            >
               Forgot Password?
             </a>
           </div>

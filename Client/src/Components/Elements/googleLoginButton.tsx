@@ -7,6 +7,7 @@ interface GoogleLoginButtonProps {
 export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ login }) => {
   return (
     <button
+      type="button"
       onClick={() => login()}
       className="flex items-center justify-center gap-3 bg-white text-gray-700 border border-gray-300 rounded-lg px-5 py-2 w-full hover:bg-gray-100 transition-all duration-200 shadow-sm"
     >

@@ -9,9 +9,9 @@ interface PublicRouteProps {
 }
 
 const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-  const token = useSelector((state: RootState) => state.auth.token);
+  const adminToken = useSelector((state: RootState) => state.auth.token);
 
-  if (token) {
+  if (adminToken) {
     return <Navigate to="/admin/onboarding" replace />;
   }
 

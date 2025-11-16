@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Clock } from "lucide-react";
 import { logoutAction } from "../../redux/slice/adminSlice"; // adjust path as needed
-import { useEffect } from "react";
 const RegistrationSuccessModal: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();

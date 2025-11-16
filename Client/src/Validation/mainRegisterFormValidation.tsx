@@ -5,7 +5,7 @@ interface ValidationResult {
   isValid: boolean;
   errors: Partial<Record<keyof RestaurantFormData, string>>;
 }
-
+ const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 export const validateRestaurantForm = (
   data: RestaurantFormData
 ): ValidationResult => {
@@ -39,8 +39,7 @@ export const validateRestaurantForm = (
     errors.address = "Address must be at least 5 characters";
   }
 
-  // 🔹 Opening / Closing Time (24-hour format like 09:00 or 18:30)
-  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
   if (!data.openingTime) {
     errors.openingTime = "Opening time is required";
   } else if (!timeRegex.test(data.openingTime)) {
@@ -53,12 +52,10 @@ export const validateRestaurantForm = (
     errors.closingTime = "Enter time in HH:MM format";
   }
 
-  if (
-    timeRegex.test(data.openingTime || "") &&
-    timeRegex.test(data.closingTime || "")
-  ) {
-    const [openHour, openMin] = data.openingTime.split(":").map(Number);
-    const [closeHour, closeMin] = data.closingTime.split(":").map(Number);
+if (timeRegex.test(data.openingTime || "") && timeRegex.test(data.closingTime || "")) {
+    
+    const [openHour, openMin] = data.openingTime.trim().split(":").map(Number);
+    const [closeHour, closeMin] = data.closingTime.trim().split(":").map(Number);
 
     const openTotalMinutes = openHour * 60 + openMin;
     const closeTotalMinutes = closeHour * 60 + closeMin;
@@ -66,7 +63,7 @@ export const validateRestaurantForm = (
     if (closeTotalMinutes <= openTotalMinutes) {
       errors.closingTime = "Closing time must be greater than opening time";
     }
-  }
+}
 
   if (!data.proofDocument) {
     errors.proofDocument = "Proof document is required";

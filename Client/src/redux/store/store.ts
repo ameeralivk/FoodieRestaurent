@@ -3,6 +3,7 @@ import storage from "redux-persist/lib/storage";
 const typedStorage = storage as unknown as import("redux-persist").Storage;
 export default typedStorage;
 import authReducer from '../slice/adminSlice'
+import userAuthSlice from "../slice/userSlice"
 import persistReducer from "redux-persist/es/persistReducer";
 import persistStore from "redux-persist/es/persistStore";
 
@@ -13,6 +14,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  userAuth:userAuthSlice,
 });
 
 const persistReducers = persistReducer(persistConfig, rootReducer);

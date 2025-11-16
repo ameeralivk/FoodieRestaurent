@@ -11,7 +11,7 @@ export class UserAuthRepository extends BaseRepository<UserDocument> implements 
    async register(name:string,email: string, password: string): Promise<{ success: boolean; user: UserDocument; }> {
         try {
             let res = await this.model.create({
-                Name:name,
+                Name:name?name:"",
                 Email:email,
                 password:password
             })
@@ -30,4 +30,29 @@ export class UserAuthRepository extends BaseRepository<UserDocument> implements 
         throw new Error((error as Error).message);
     }
 }
+
+
+ 
+ async googleregister(userData: { name: String; email: String; password?: String;  googleID?: string; imageUrl?: string; }): Promise<{ user:UserDocument}> {
+     try {
+        const user = await this.model.create({
+        Name: userData.name,
+        Email: userData.email,
+        password: userData.password ? userData.password : "",
+        googleID: userData.googleID,
+        imageUrl: userData.imageUrl,
+      });
+
+      return {user};
+        
+     } catch (error) {
+        throw new Error((error as Error).message)
+     }
+ }
+
+
+  async updatePasswordByEmail(email: string, hashedPassword: string): Promise<UserDocument | null> {
+     return this.updateOne({ email }, { password: hashedPassword });
+   }
+
 }

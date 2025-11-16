@@ -1,14 +1,29 @@
 import {
+  ADMIN_NOT_FOUND,
+  OTP_RESENT_SUCCESS,
   OTP_SENT_SUCCESS,
+  OTP_VERIFY_sUCCESS,
+  PASS_CHANGE_SUCCESS,
   USER_ALREADY_EXIST,
   USER_CREATED_SUCCESS,
 } from "../../../../constants/messages";
+import axios from "axios";
 import IUserAuthService from "../interface/IUserAuthService";
 import IUserAuthRepository from "../../../../Repositories/user/auth/interface/IUserAuthRepository";
 import bcrypt from "bcrypt";
 import { generateOtp } from "../../../../utils/dto/generateOtp";
-import { sentOtp } from "../../../../utils/dto/sentOtp";
+import { generateToken } from "../../../../middleware/jwt";
+import crypto from "crypto";
+import { generateRefreshToken } from "../../../../middleware/jwt";
+import {
+  resendOtpEmail,
+  sendResetPasswordEmail,
+  sentOtp,
+} from "../../../../utils/dto/sentOtp";
 import redisClient from "../../../../config/redisClient";
+import HttpStatus from "../../../../constants/htttpStatusCode";
+import { IUser } from "../../../../types/usert";
+import { AppError } from "../../../../utils/Error";
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 export class UserAuthService implements IUserAuthService {
@@ -24,7 +39,7 @@ export class UserAuthService implements IUserAuthService {
       if (isExist) {
         return { success: false, message: USER_ALREADY_EXIST };
       }
-      const redisDataKey = `adminData:${email}`;
+      const redisDataKey = `userData:${email}`;
       const redisOtpKey = `otp:${email}`;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
       const data = {
@@ -40,6 +55,147 @@ export class UserAuthService implements IUserAuthService {
     } catch (error) {
       let err = error as Error;
       throw new Error(err.message);
+    }
+  }
+
+  googleAuth = async (accessToken: string) => {
+    const response = await axios.get(process.env.GOOGLE_USERINFO_URL!, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const { sub, name, email, picture } = response.data;
+    let user = await this._userAuthRepository.findByEmail(email);
+    if (!user) {
+      const result = await this._userAuthRepository.googleregister({
+        name: name,
+        email: email,
+        googleID: sub,
+        imageUrl: picture,
+      });
+
+      user = result.user;
+    }
+    const accesstoken = generateToken(user?._id as string, "user");
+    const refreshToken = generateRefreshToken(user?._id as string, "user");
+
+    return { user, accesstoken, refreshToken };
+  };
+
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ user: IUser; token: string; refreshToken: string }> {
+    const user = await this._userAuthRepository.findByEmail(email);
+    if (!user) {
+      throw new AppError(ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new AppError("Invalid password", HttpStatus.UNAUTHORIZED);
+    }
+
+    const token = generateToken(user._id as string, "user");
+    const refreshToken = generateRefreshToken(user._id as string, "user");
+
+    return { user, token, refreshToken };
+  }
+
+  async verifyOtp(email: string, otp: string) {
+    const redisOtpKey = `otp:${email}`;
+    const redisDataKey = `userData:${email}`;
+
+    const hashedOtp = await redisClient.get(redisOtpKey);
+
+    if (!hashedOtp) {
+      throw new AppError("OTP expired or not found", HttpStatus.BAD_REQUEST);
+    }
+
+    const hashedInputOtp = crypto
+      .createHash("sha256")
+      .update(otp)
+      .digest("hex");
+    if (hashedInputOtp !== hashedOtp) {
+      throw new AppError("Invalid OTP", HttpStatus.BAD_REQUEST);
+    }
+    const userDataString = await redisClient.get(redisDataKey);
+    if (!userDataString) {
+      throw new AppError(
+        "Admin data expired or not found",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const userData = JSON.parse(userDataString);
+
+    const createdUser = await this._userAuthRepository.register(
+      userData.name ? userData.name : "",
+      userData.Email,
+      userData.password
+    );
+
+    await redisClient.del(redisOtpKey);
+    await redisClient.del(redisDataKey);
+    const accesstoken = generateToken(createdUser.user._id as string, "user");
+    const refreshToken = generateRefreshToken(
+      createdUser.user._id as string,
+      "user"
+    );
+    return {
+      success: true,
+      message: OTP_VERIFY_sUCCESS,
+      data: createdUser,
+      accesstoken,
+    };
+  }
+
+  createLink = async (
+    email: string
+  ): Promise<{ success: boolean; message: string }> => {
+    const admin = await this._userAuthRepository.findByEmail(email);
+    if (!admin) throw new Error(ADMIN_NOT_FOUND);
+    const token = crypto.randomBytes(32).toString("hex");
+    await redisClient.setEx(`resetPassword:${email}`, 120, token);
+    await sendResetPasswordEmail(email, token);
+    return { success: true, message: "Password reset link sent to your email" };
+  };
+
+  resendOtp = async (email: string) => {
+    const { otp, hashedOtp } = generateOtp();
+
+    const redisOtpKey = `otp:${email}`;
+    await redisClient.setEx(redisOtpKey, 120, hashedOtp);
+
+    await resendOtpEmail(email, otp);
+
+    return { success: true, message: OTP_RESENT_SUCCESS };
+  };
+
+  async updatePassword(
+    token: string,
+    newPassword: string,
+    email: string
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const storedToken = await redisClient.get(`resetPassword:${email}`);
+      if (!storedToken || storedToken !== token) {
+        console.log("Token is invalid or expired");
+        return { success: false, message: "Invalid or expired token" };
+      }
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      const admin = await this._userAuthRepository.updatePasswordByEmail(
+        email,
+        hashedPassword
+      );
+      if (!admin) {
+        return { success: false, message: ADMIN_NOT_FOUND };
+      }
+      await redisClient.del(`resetPassword:${email}`);
+
+      return { success: true, message: PASS_CHANGE_SUCCESS };
+    } catch (error) {
+      console.error("Error in updatePassword:", error);
+      return { success: false, message: "Internal Server Error" };
     }
   }
 }

@@ -8,7 +8,8 @@ export interface IUser extends Document {
   phone: string;
   Allergies?: string;
   DietaryRestriction?: string;
-  profilePitcher?: string;
+  googleID: string;
+  imageUrl: string;
   isDeleted:boolean;
   isBlocked:boolean;
 }
