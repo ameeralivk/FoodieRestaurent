@@ -76,7 +76,7 @@ export const verifyAccessToken = (
     ) as DecodedUser;
 
     (req as any).user = decoded;
-    next(); // ✅ continue if valid
+    next(); 
   } catch (error: any) {
     console.error("Token verification failed:", error.message);
     res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid or expired token" });

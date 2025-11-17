@@ -6,6 +6,7 @@ import {
   PASS_CHANGE_SUCCESS,
   USER_ALREADY_EXIST,
   USER_CREATED_SUCCESS,
+  USER_NOT_FOUND,
 } from "../../../../constants/messages";
 import axios from "axios";
 import IUserAuthService from "../interface/IUserAuthService";
@@ -155,7 +156,7 @@ export class UserAuthService implements IUserAuthService {
     if (!admin) throw new Error(ADMIN_NOT_FOUND);
     const token = crypto.randomBytes(32).toString("hex");
     await redisClient.setEx(`resetPassword:${email}`, 120, token);
-    await sendResetPasswordEmail(email, token);
+    await sendResetPasswordEmail(email, token,"user");
     return { success: true, message: "Password reset link sent to your email" };
   };
 
@@ -182,13 +183,14 @@ export class UserAuthService implements IUserAuthService {
         return { success: false, message: "Invalid or expired token" };
       }
       const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-
-      const admin = await this._userAuthRepository.updatePasswordByEmail(
+      console.log(hashedPassword,'password')
+      const user = await this._userAuthRepository.updatePasswordByEmail(
         email,
         hashedPassword
       );
-      if (!admin) {
-        return { success: false, message: ADMIN_NOT_FOUND };
+      console.log(user,'resdaf')
+      if (!user) {
+        return { success: false, message:USER_NOT_FOUND};
       }
       await redisClient.del(`resetPassword:${email}`);
 

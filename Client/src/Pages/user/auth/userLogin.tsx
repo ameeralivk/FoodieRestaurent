@@ -12,7 +12,9 @@ import {
 import { ToastContainer } from "react-toastify";
 import { GoogleLoginButton } from "../../../Components/Elements/googleLoginButton";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 export default function UserLoginForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -35,7 +37,9 @@ export default function UserLoginForm() {
     const fetch = async () => {
       try {
         let res = await handleUserLogin(formData.email, formData.password);
-        console.log(res, "response");
+        if (res?.succes) {
+          navigate("/user");
+        }
       } catch (error) {
         console.log(error, "error");
       }
@@ -114,7 +118,7 @@ export default function UserLoginForm() {
               New to Foodie? Sign up
             </a>
             <a
-              href="#"
+              href="/user/forgetPassword"
               className="text-sm text-gray-600 hover:text-gray-900 block"
             >
               Forgot Password?

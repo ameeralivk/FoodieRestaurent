@@ -4,8 +4,11 @@ import { showErrorToast } from "../../Elements/ErrorToast";
 import type { AdminType } from "../../../types/AdminTypes";
 import { loginAction } from "../../../redux/slice/adminSlice";
 import { userResendOtp, userVerifyOtp } from "../../../services/userAuth";
+import { userLoginAction } from "../../../redux/slice/userSlice";
+import { useNavigate } from "react-router-dom";
 
 export const createOtpHandlers = (dispatch: any, email: string) => {
+  const navigate = useNavigate();
   const handleAdminVerifyOtp = async (otp: string) => {
     try {
       const res = await verifyOtp(otp, email);
@@ -21,7 +24,10 @@ export const createOtpHandlers = (dispatch: any, email: string) => {
         status: res.data.admin.status,
       };
       console.log(res, "response");
-      dispatch(loginAction({ admin: data, token: res.accesstoken }));
+      // dispatch(loginAction({ admin: data, token: res.accesstoken }));
+      setTimeout(() => {
+        navigate("/admin/login");
+      },2000);
     } catch (err: any) {
       showErrorToast(err.message);
     }
@@ -35,7 +41,6 @@ export const createOtpHandlers = (dispatch: any, email: string) => {
       showErrorToast(err.message);
     }
   };
-
   const handleUserVerifyOtp = async (otp: string) => {
     try {
       const res = await userVerifyOtp(otp, email);
@@ -48,10 +53,9 @@ export const createOtpHandlers = (dispatch: any, email: string) => {
         role: res.data.user.role,
         googleId: "",
         imageUrl: "",
-        status: res.data.user.status||"",
+        status: res.data.user.status || "",
       };
-      console.log(res, "response");
-      dispatch(loginAction({ admin: data, token: res.accesstoken }));
+      // dispatch(userLoginAction({ user: data, token: res.accesstoken }));
     } catch (err: any) {
       showErrorToast(err.message);
     }

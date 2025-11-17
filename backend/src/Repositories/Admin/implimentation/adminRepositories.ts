@@ -3,7 +3,7 @@ import { BaseRepository } from "../../IBaseRepository";
 import { IAdminAuthRepository } from "../interface/IAdminRepositories";
 import redisClient from "../../../config/redisClient";
 import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
-import { AppError } from "../../../utils/Error";
+import getPlaceName from "../../../config/getPlaceName";
 export class AdminAuthRepository
   extends BaseRepository<AdminDocument>
   implements IAdminAuthRepository
@@ -44,18 +44,24 @@ export class AdminAuthRepository
   async findByEmail(email: string) {
     return await this.getByFilter({ email: email, isDeleted: false });
   }
-   async findById(id: string) {
-    return await this.getById(id)
+  async findById(id: string) {
+    return await this.getById(id);
   }
-   
-  async updatePasswordByEmail(email: string, hashedPassword: string): Promise<AdminDocument | null> {
+
+  async updatePasswordByEmail(
+    email: string,
+    hashedPassword: string
+  ): Promise<AdminDocument | null> {
     return this.updateOne({ email }, { password: hashedPassword });
   }
+  
 
   async registerRestaurent(
     id: string,
     data: IRestaurantRegisterData
   ): Promise<AdminDocument | null> {
+     const place = await getPlaceName(parseFloat(data.latitude),parseFloat(data.longitude));
+     console.log("place is here ",place)
     const updateData = {
       restaurantName: data.restaurantName,
       ownerName: data.ownerName,
@@ -67,15 +73,23 @@ export class AdminAuthRepository
       proofDocument: data.proofDocument?.path,
       location: {
         type: "Point",
-        coordinates: [
-          parseFloat(data.longitude),
-          parseFloat(data.latitude),
-        ],
+        coordinates: [parseFloat(data.longitude), parseFloat(data.latitude)],
       },
       status: "pending",
+      placeName:place,
     };
 
     return await this.model.findByIdAndUpdate(id, updateData, { new: true });
   }
+
+
+ async getAllRestaurant(): Promise<AdminDocument[]> {
+  try {
+    return await this.getAll();  
+  } catch (error: any) {
+    console.error("Error fetching restaurants:", error);
+    throw error;
+  }
+}
 
 }

@@ -122,9 +122,7 @@ const RestaurantMainRegistration = () => {
     console.log(formData);
     const res = await registerRestaurant(formData);
     if (res.success) {
-      setTimeout(() => {
         dispatch(updateStatus("pending"))
-      }, 2000);
     }
   };
 

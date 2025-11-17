@@ -27,5 +27,8 @@ export class BaseRepository<T> {
     const document = await this.model.findOne({ email } as FilterQuery<T>).select(selectedFields).lean<T>();
     return document || null;
   }
+  async getAll(): Promise<T[]> {
+    return await this.model.find({role:"admin",status:"pending"});
+  }
 
 }

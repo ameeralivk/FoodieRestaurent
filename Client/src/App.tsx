@@ -1,17 +1,25 @@
-
-import { Route ,Routes } from "react-router-dom"
-import LandingPagesRoutes from "./Routes/LandingPageRoutes"
-import AdminRoutes from "./Routes/AdminRoutes"
-import PublicRoute from "./Routes/publicRoute"
-import UserRoutes from "./Routes/userRoutes"
+import { Route, Routes } from "react-router-dom";
+import LandingPagesRoutes from "./Routes/LandingPageRoutes";
+import AdminRoutes from "./Routes/AdminRoutes";
+import PublicRoute from "./Routes/publicRoute";
+import UserRoutes from "./Routes/userRoutes";
+import SuperAdminRoutes from "./Routes/SuperAdminRoutes";
 const App = () => {
   return (
-     <Routes>
-      <Route path="/*" element={<PublicRoute><LandingPagesRoutes/></PublicRoute>} />
-      <Route path="/admin/*" element={<AdminRoutes/>}/>
-      <Route path="/user/*" element={<UserRoutes/>}/>
-     </Routes>
-  )
-}
+    <Routes>
+      <Route
+        path="/*"
+        element={
+          <PublicRoute>
+            <LandingPagesRoutes />
+          </PublicRoute>
+        }
+      />
+      <Route path="/admin/*" element={<AdminRoutes />} />
+      <Route path="/user/*" element={<UserRoutes />} />
+      <Route path="/superadmin/*" element={<SuperAdminRoutes />} />
+    </Routes>
+  );
+};
 
-export default App
+export default App;

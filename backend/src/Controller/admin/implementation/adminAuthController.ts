@@ -14,7 +14,7 @@ import {
   SERVER_ERROR,
 } from "../../../constants/messages";
 import { http } from "winston";
-import { success } from "zod";
+import { any, string, success } from "zod";
 import { generateToken } from "../../../middleware/jwt";
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
@@ -115,9 +115,9 @@ export class AdminAuthController implements IAdminAuthController {
         email: admin.email,
         googleId: admin.googleID,
         imageUrl: admin.imageUrl,
-        status:admin.status,
+        status: admin.status,
       };
-     
+
       res.cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: false,
@@ -189,6 +189,23 @@ export class AdminAuthController implements IAdminAuthController {
     }
   };
 
+  getAllRestaurent = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const result = await this._adminauthService.getAllRestaurants();
+
+      res.status(200).json({
+        success: true,
+        message: "Restaurants fetched successfully",
+        data: result.data,
+      });
+    } catch (error:any) {
+       res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch restaurants",
+    });
+    }
+  };
+
   forgetPassword = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email } = req.body;
@@ -208,7 +225,6 @@ export class AdminAuthController implements IAdminAuthController {
           .json({ succes: false, message: LINK_SENT_FAILED });
       }
     } catch (error: any) {
-     
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message || "Something went Wrong",
@@ -243,7 +259,7 @@ export class AdminAuthController implements IAdminAuthController {
     }
   };
 
-  registerRestaurant = async(req: Request, res: Response): Promise<void> =>{
+  registerRestaurant = async (req: Request, res: Response): Promise<void> => {
     try {
       const {
         restaurantName,
@@ -271,11 +287,12 @@ export class AdminAuthController implements IAdminAuthController {
         restaurantPhoto,
         proofDocument,
       });
-      console.log(response,'ameer')
-      res.status(200).json({ success: true, message: RESTAURANT_REGISTER_COMPLETE });
+      console.log(response, "ameer");
+      res
+        .status(200)
+        .json({ success: true, message: RESTAURANT_REGISTER_COMPLETE });
     } catch (error: any) {
       throw new AppError(error?.message || "Something went wrong");
     }
-  }
-
+  };
 }

@@ -220,15 +220,23 @@ export const handleForgetPasswordSubmit = async (
   }
 };
 
-export const handleresetPasswordForm = async (resetPassword: resetPassword) => {
+export const handleresetPasswordForm = async (
+  resetPassword: resetPassword,
+  role: "admin" | "user"
+) => {
   try {
-    const response = await api.patch(
-      `/admin/auth/forget-password?token=${resetPassword.token}`,
-      { email: resetPassword.email, newPassword: resetPassword.newPassword }
-    );
+    const url =
+      role === "admin"
+        ? `/admin/auth/forget-password?token=${resetPassword.token}`
+        : `/user/auth/forget-password?token=${resetPassword.token}`;
 
-    // Update toast based on API response
-    console.log(response, "res ");
+    const response = await api.patch(url, {
+      email: resetPassword.email,
+      newPassword: resetPassword.newPassword,
+    });
+
+    console.log(response, "res");
+
     if (response.data.success || response.data.succes) {
       return { success: true, message: response.data.message };
     }
@@ -238,9 +246,11 @@ export const handleresetPasswordForm = async (resetPassword: resetPassword) => {
       : error instanceof Error
       ? error.message
       : "An unknown error occurred";
+
     showErrorToast(message);
   }
 };
+
 
 export const registerRestaurant = async (formData: RegisterFormData) => {
   try {

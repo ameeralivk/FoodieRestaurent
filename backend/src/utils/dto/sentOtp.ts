@@ -133,11 +133,11 @@ export const resendOtpEmail = async (email: string, otp: string) => {
   }
 };
 
-export const sendResetPasswordEmail = async (email: string, token: string) => {
+export const sendResetPasswordEmail = async (email: string, token: string,role:"admin"|"user") => {
   try {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?email=${encodeURIComponent(
     email
-    )}&token=${token}`;
+    )}&token=${token}&role=${role}`;
 
     const mailOptions = {
       from: `"FoodieRestaurant" <${process.env.EMAIL_USER}>`,

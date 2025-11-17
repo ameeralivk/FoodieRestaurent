@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { IAdmin } from "../types/admin";
-import { boolean } from "zod";
+import { boolean, string } from "zod";
 const adminSchema = new Schema<IAdmin>(
   {
     role: { type: String, required: true },
@@ -30,6 +30,7 @@ const adminSchema = new Schema<IAdmin>(
     googleID: { type: String },
     imageUrl: { type: String },
     isBlocked: { type: Boolean, default: false },
+    placeName:{type:String},
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

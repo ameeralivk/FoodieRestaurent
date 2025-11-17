@@ -7,14 +7,20 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { showSuccessToast } from "../Components/Elements/SuccessToast";
 import type { AdminType } from "../types/AdminTypes";
 import { userLoginAction } from "../redux/slice/userSlice";
+import type { ForgetPasswordFormData } from "../types/AdminTypes";
+import { AfterLoading } from "../Components/Elements/Loading";
+import { loadingToast } from "../Components/Elements/Loading";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 export const handleUserLogin = async (email: string, password: string) => {
   try {
     let data = { email, password };
     const response = await api.post("/user/auth/login", data, {
       withCredentials: true,
     });
-    if (response) {
-      return response.data;
+    console.log(response, "response");
+    if (response.status == 200) {
+      return { succes: true, data: response.data };
     } else {
       showErrorToast("Something wentWrong");
     }
@@ -102,6 +108,7 @@ export const userResendOtp = async (email: string) => {
 };
 
 export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
+    const navigate= useNavigate()
   return useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -131,6 +138,7 @@ export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
           );
 
           showSuccessToast("Google login successful!");
+          navigate('/user')
         } else {
           showErrorToast("Google authentication failed!");
         }
@@ -140,4 +148,51 @@ export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
     },
     onError: () => showErrorToast("Google authentication failed"),
   });
+};
+
+export const handleUserForgetPasswordSubmit = async (
+  formData: ForgetPasswordFormData
+) => {
+  const loadingId = loadingToast();
+
+  try {
+    const response = await api.post("/user/auth/forget-password", {
+      email: formData.email,
+    });
+
+    // Update toast based on API response
+    console.log(response, "res ");
+    if (response.data.success || response.data.succes) {
+      await AfterLoading(
+        "Sending reset link...",
+        response.data.message || "Password reset link sent successfully!"
+      );
+      toast.dismiss(loadingId);
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } else {
+      toast.update(loadingId, {
+        render: response.data.message || "Failed to send reset link!",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      return false;
+    }
+
+    console.log(response.data, "response is here");
+  } catch (error: any) {
+    toast.update(loadingId, {
+      render: axios.isAxiosError(error)
+        ? error.response?.data?.message || "Something went wrong!"
+        : error instanceof Error
+        ? error.message
+        : "An unknown error occurred",
+      type: "error",
+      isLoading: false,
+      autoClose: 3000,
+    });
+  }
 };

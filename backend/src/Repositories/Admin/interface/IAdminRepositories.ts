@@ -23,4 +23,5 @@ export interface IAdminAuthRepository {
     id: string,
     data: IRestaurantRegisterData
   ): Promise<AdminDocument | null>;
+  getAllRestaurant(): Promise<AdminDocument[]>;
 }

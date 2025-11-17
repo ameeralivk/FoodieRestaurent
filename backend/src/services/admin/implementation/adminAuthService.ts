@@ -105,7 +105,7 @@ export class AdminAuthService implements IAdminAuthService {
       .update(otp)
       .digest("hex");
     if (hashedInputOtp !== hashedOtp) {
-      throw new AppError("Invalid OTP",HttpStatus.BAD_REQUEST);
+      throw new AppError("Invalid OTP", HttpStatus.BAD_REQUEST);
     }
     const userDataString = await redisClient.get(redisDataKey);
     if (!userDataString) {
@@ -176,8 +176,8 @@ export class AdminAuthService implements IAdminAuthService {
     const admin = await this._adminAuthRepository.findByEmail(email);
     if (!admin) throw new Error(ADMIN_NOT_FOUND);
     const token = crypto.randomBytes(32).toString("hex");
-    await redisClient.setEx(`resetPassword:${email}`,120, token);
-    await sendResetPasswordEmail(email, token);
+    await redisClient.setEx(`resetPassword:${email}`, 120, token);
+    await sendResetPasswordEmail(email, token, "admin");
     return { success: true, message: "Password reset link sent to your email" };
   };
 
@@ -254,19 +254,35 @@ export class AdminAuthService implements IAdminAuthService {
     }
   }
 
-  async registerRestaurant(data:IRestaurantRegisterData):Promise <{success:boolean,message:string}>{
-        try {
-           let res = await this._adminAuthRepository.findByEmail(data.email)
-           if(!res){
-              throw new AppError(ADMIN_NOT_FOUND)
-           }
-           const adminId = res?._id as string
-           let result = await this._adminAuthRepository.registerRestaurent(adminId,data)
-         
-           return {success:true,message:RESTAURANT_REGISTER_COMPLETE}
-        } catch (error:any) {
-             throw new AppError(error)
-        }
-    }
+async getAllRestaurants(): Promise<{ success: boolean; data: IAdmin[] }> {
+  try {
+    const restaurants = await this._adminAuthRepository.getAllRestaurant();
+    return {
+      success: true,
+      data:restaurants,
+    };
+  } catch (error: any) {
+    throw new AppError(error.message || "Failed to fetch restaurants");
+  }
+}
 
+  async registerRestaurant(
+    data: IRestaurantRegisterData
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      let res = await this._adminAuthRepository.findByEmail(data.email);
+      if (!res) {
+        throw new AppError(ADMIN_NOT_FOUND);
+      }
+      const adminId = res?._id as string;
+      let result = await this._adminAuthRepository.registerRestaurent(
+        adminId,
+        data
+      );
+
+      return { success: true, message: RESTAURANT_REGISTER_COMPLETE };
+    } catch (error: any) {
+      throw new AppError(error);
+    }
+  }
 }

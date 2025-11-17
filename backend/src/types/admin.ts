@@ -22,6 +22,7 @@ export interface IAdmin extends Document {
   googleID: string;
   imageUrl: string;
   isBlocked: boolean;
+  placeName:string;
   status?: "pending" | "approved" | "rejected";
 }
 

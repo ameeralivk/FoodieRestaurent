@@ -176,7 +176,7 @@ const AdminRegisterPage = () => {
                   />
                   <ErrorPTag Text={error.password} />
                 </div>
-                <GoogleLoginButton login={googleLogin} />
+                {/* <GoogleLoginButton login={googleLogin} /> */}
                 {/* Submit Button */}
                 <button
                   onClick={handleSubmit}

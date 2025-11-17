@@ -38,17 +38,28 @@ export default function ResetPasswordPage() {
       newErrors.confirm = "Password does not meet all requirements";
     }
     setErrors(newErrors);
+    const role = searchParams.get("role") as "admin" | "user";
     if (Object.keys(newErrors).length === 0) {
-      const res = await handleresetPasswordForm({
-        email,
-        newPassword: password,
-        token,
-      });
+      const res = await handleresetPasswordForm(
+        {
+          email,
+          newPassword: password,
+          token,
+        },
+        role
+      );
       if (res?.success) {
-        showSuccessToast(res.message);
-        setTimeout(() => {
-          navigate("/admin/login");
-        }, 2000);
+        if (role == "admin") {
+          showSuccessToast(res.message);
+          setTimeout(() => {
+            navigate("/admin/login");
+          }, 2000);
+        } else if (role == "user") {
+          showSuccessToast(res.message);
+          setTimeout(() => {
+            navigate("/user/login");
+          }, 2000);
+        }
       }
     }
   };

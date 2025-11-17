@@ -8,9 +8,10 @@ import WarningSwal from "../../Components/Helpers/WarningSwal";
 import ErrorPTag from "../../Components/Elements/ErrorParagraph";
 import type { AdminType } from "../../types/AdminTypes";
 import { loginAction } from "../../redux/slice/adminSlice";
+import { useGoogleLoginHandler } from "../../services/Auth";
 import { useDispatch } from "react-redux";
+import { GoogleLoginButton } from "../../Components/Elements/googleLoginButton";
 import AdminRegisterValidation, {
-  validateFullForm,
   validateLoginForm,
 } from "../../Validation/AdminRegistractiorValidation";
 const RestaurentLoginPage = () => {
@@ -71,6 +72,12 @@ const RestaurentLoginPage = () => {
           token: response.token,
         })
       );
+
+    if (saveddata.role === "superadmin") {
+      navigate("/superadmin/dashboard");
+    } else {
+      navigate("/admin/onboarding");
+    }
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.log(error, "error");
@@ -79,6 +86,7 @@ const RestaurentLoginPage = () => {
       }
     }
   };
+  const googleLogin = useGoogleLoginHandler(dispatch);
   return (
     <div className="bg-black min-h-screen">
       <div className=" sticky top-0">
@@ -145,6 +153,7 @@ const RestaurentLoginPage = () => {
             >
               Sign In
             </button>
+            <GoogleLoginButton login={googleLogin} />
             <div className="text-sm text-center">
               <a
                 onClick={nav}
