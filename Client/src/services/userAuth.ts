@@ -12,29 +12,77 @@ import { AfterLoading } from "../Components/Elements/Loading";
 import { loadingToast } from "../Components/Elements/Loading";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-export const handleUserLogin = async (email: string, password: string) => {
+// export const handleUserLogin = async (email: string, password: string) => {
+//   try {
+//     let data = { email, password };
+//     const response = await api.post("/user/auth/login", data, {
+//       withCredentials: true,
+//     });
+//     console.log(response, "response");
+//     if (response.status == 200) {
+//       return { succes: true, data: response.data };
+//     } else {
+//       showErrorToast("Something wentWrong");
+//     }
+//   } catch (error) {
+//     if (axios.isAxiosError(error)) {
+//       const message = error.response?.data.message;
+//       showErrorToast(message);
+//       return;
+//     } else if (error instanceof Error) {
+//       showErrorToast(error.message);
+//     } else {
+//       showErrorToast("An unknown error occurred");
+//     }
+//     throw new Error("Something went wrong. Please try again.");
+//   }
+// };
+
+
+
+export const handleUserLogin = async (
+  email: string,
+  password: string,
+  dispatch: any
+) => {
   try {
-    let data = { email, password };
+    const data = { email, password };
+
     const response = await api.post("/user/auth/login", data, {
       withCredentials: true,
     });
-    console.log(response, "response");
-    if (response.status == 200) {
-      return { succes: true, data: response.data };
+
+    if (response.status === 200) {
+      const userData: AdminType = {
+        _id: response.data.user._id,
+        restaurantName: response.data.user.restaurantName,
+        email: response.data.user.Email,
+        role: "user",
+        googleId: "",
+        imageUrl: "",
+        status: response.data.user.status || "",
+      };
+
+      dispatch(
+        userLoginAction({
+          user: userData,
+          token: response.data.token,
+        })
+      );
+
+      return { success: true, data: response.data };
     } else {
-      showErrorToast("Something wentWrong");
+      showErrorToast("Something went wrong");
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const message = error.response?.data.message;
-      showErrorToast(message);
+      const message = error.response?.data?.message;
+      showErrorToast(message || "Login failed");
       return;
-    } else if (error instanceof Error) {
-      showErrorToast(error.message);
-    } else {
-      showErrorToast("An unknown error occurred");
     }
-    throw new Error("Something went wrong. Please try again.");
+
+    showErrorToast("An unknown error occurred");
+    throw new Error("Something went wrong, please try again.");
   }
 };
 

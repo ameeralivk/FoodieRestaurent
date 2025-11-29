@@ -286,3 +286,4 @@ export const registerRestaurant = async (formData: RegisterFormData) => {
     throw error;
   }
 };
+

@@ -7,17 +7,13 @@ import authRouter from "./Routes/authRoutes";
 import { errorHandler } from "./middleware/errorHandler";
 import {connectRedis} from "./config/redisClient";
 import userAuthRouter from "./Routes/user/authRoutes";
+import superAdminRouter from "./Routes/superAdmin/superAdminRouter"
+import path = require("path");
 dotenv.config();
 const app = express();
-// app.use(
-//   cors({
-//     origin: "http://localhost:5173", 
-//     credentials: true, 
-//   })
-// ); 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_BASE_URL,
     credentials: true,
     allowedHeaders: ["Authorization", "Content-Type"], 
   })
@@ -27,8 +23,10 @@ connectRedis()
 connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/admin/auth", authRouter);
 app.use("/api/user/auth", userAuthRouter);
+app.use("/api/superadmin",superAdminRouter)
 app.use(errorHandler);
 const port = process.env.PORT;
 app.listen(port, () => {

@@ -27,7 +27,7 @@ export const createOtpHandlers = (dispatch: any, email: string) => {
       // dispatch(loginAction({ admin: data, token: res.accesstoken }));
       setTimeout(() => {
         navigate("/admin/login");
-      },2000);
+      }, 2000);
     } catch (err: any) {
       showErrorToast(err.message);
     }
@@ -55,7 +55,8 @@ export const createOtpHandlers = (dispatch: any, email: string) => {
         imageUrl: "",
         status: res.data.user.status || "",
       };
-      // dispatch(userLoginAction({ user: data, token: res.accesstoken }));
+      dispatch(userLoginAction({ user: data, token: res.accesstoken }));
+      navigate('/user')
     } catch (err: any) {
       showErrorToast(err.message);
     }

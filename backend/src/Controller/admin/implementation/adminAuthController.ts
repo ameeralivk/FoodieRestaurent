@@ -3,19 +3,13 @@ import IAdminAuthService from "../../../services/admin/interface/IAdminAuthServi
 import IAdminAuthController from "../interface/IAdminAuthController";
 import { AppError } from "../../../utils/Error";
 import HttpStatus from "../../../constants/htttpStatusCode";
-import { loginSchema, registerSchema } from "../../../utils/dto/zodvalidation";
+import { getS3SignedUrl } from "../../../config/Bucket";
+import { loginSchema, registerSchema } from "../../../helpers/zodvalidation";
 import crypto from "crypto";
-import {
-  LINK_SENT_FAILED,
-  LINK_SENT_SUCCESS,
-  NO_REFRESH_TOKEN_FOUND,
-  PASS_CHANGE_SUCCESS,
-  RESTAURANT_REGISTER_COMPLETE,
-  SERVER_ERROR,
-} from "../../../constants/messages";
 import { http } from "winston";
 import { any, string, success } from "zod";
 import { generateToken } from "../../../middleware/jwt";
+import { MESSAGES } from "../../../constants/messages";
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
 export class AdminAuthController implements IAdminAuthController {
@@ -142,7 +136,7 @@ export class AdminAuthController implements IAdminAuthController {
       if (!refreshToken) {
         throw {
           status: HttpStatus.UNAUTHORIZED,
-          message: NO_REFRESH_TOKEN_FOUND,
+          message: MESSAGES.NO_REFRESH_TOKEN_FOUND,
         };
       }
 
@@ -155,7 +149,7 @@ export class AdminAuthController implements IAdminAuthController {
       const err = error as Error;
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: err?.message || NO_REFRESH_TOKEN_FOUND });
+        .json({ message: err?.message || MESSAGES.NO_REFRESH_TOKEN_FOUND });
       console.error("Error while creating refreshToken.", err);
     }
   };
@@ -185,24 +179,7 @@ export class AdminAuthController implements IAdminAuthController {
       const err = error as Error;
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: err?.message || SERVER_ERROR });
-    }
-  };
-
-  getAllRestaurent = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const result = await this._adminauthService.getAllRestaurants();
-
-      res.status(200).json({
-        success: true,
-        message: "Restaurants fetched successfully",
-        data: result.data,
-      });
-    } catch (error:any) {
-       res.status(500).json({
-      success: false,
-      message: error.message || "Failed to fetch restaurants",
-    });
+        .json({ message: err?.message || MESSAGES.SERVER_ERROR });
     }
   };
 
@@ -218,11 +195,11 @@ export class AdminAuthController implements IAdminAuthController {
       if (response.success) {
         res
           .status(HttpStatus.CREATED)
-          .json({ succes: true, message: LINK_SENT_SUCCESS });
+          .json({ succes: true, message: MESSAGES.LINK_SENT_SUCCESS });
       } else {
         res
           .status(HttpStatus.BAD_REQUEST)
-          .json({ succes: false, message: LINK_SENT_FAILED });
+          .json({ succes: false, message: MESSAGES.LINK_SENT_FAILED });
       }
     } catch (error: any) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -247,7 +224,7 @@ export class AdminAuthController implements IAdminAuthController {
       if (response.success) {
         res
           .status(HttpStatus.OK)
-          .json({ success: true, message: PASS_CHANGE_SUCCESS });
+          .json({ success: true, message: MESSAGES.PASS_CHANGE_SUCCESS });
       } else {
         res
           .status(HttpStatus.BAD_REQUEST)
@@ -272,8 +249,51 @@ export class AdminAuthController implements IAdminAuthController {
         latitude,
         longitude,
       } = req.body;
-      const restaurantPhoto = (req.files as any)?.restaurantPhoto?.[0].path;
-      const proofDocument = (req.files as any)?.proofDocument?.[0].path;
+
+      const files = req.files as
+        | {
+            restaurantPhoto?: Express.Multer.File[];
+            proofDocument?: Express.Multer.File[];
+          }
+        | undefined;
+      // const restaurantPhotoPath = files?.restaurantPhoto?.[0]?.path;
+      // const proofDocumentPath = files?.proofDocument?.[0]?.path;
+      // const restaurantPhoto = files?.restaurantPhoto?.[0]?.location;
+      // const proofDocument = files?.proofDocument?.[0]?.location;
+      // const restaurantPhotoKey = files?.restaurantPhoto?.[0]?.key;
+      // const proofDocumentKey = files?.proofDocument?.[0]?.key;
+
+      // const restaurantPhoto = restaurantPhotoKey
+      //   ? await getS3SignedUrl(restaurantPhotoKey)
+      //   : undefined;
+
+      // const proofDocument = proofDocumentKey
+      //   ? await getS3SignedUrl(proofDocumentKey)
+      //   : undefined;
+       const restaurantPhotoKey = files?.restaurantPhoto?.[0]?.key;
+    const proofDocumentKey = files?.proofDocument?.[0]?.key;
+
+    // Construct public URLs directly
+    const bucketName = process.env.S3_BUCKET_NAME;
+    const region = process.env.AWS_REGION || "ap-south-1";
+
+    const restaurantPhoto = restaurantPhotoKey
+      ? `https://${bucketName}.s3.${region}.amazonaws.com/${restaurantPhotoKey}`
+      : undefined;
+
+    const proofDocument = proofDocumentKey
+      ? `https://${bucketName}.s3.${region}.amazonaws.com/${proofDocumentKey}`
+      : undefined;
+
+      // const restaurantPhoto = restaurantPhotoPath
+      //   ? "/uploads/" + restaurantPhotoPath.split(/[/\\]/).pop()
+      //   : undefined;
+
+      // const proofDocument = proofDocumentPath
+      //   ? "/uploads/" + proofDocumentPath.split(/[/\\]/).pop()
+      //   : undefined;
+
+      console.log(restaurantPhoto, proofDocument);
       const response = await this._adminauthService.registerRestaurant({
         email,
         restaurantName,
@@ -288,11 +308,14 @@ export class AdminAuthController implements IAdminAuthController {
         proofDocument,
       });
       console.log(response, "ameer");
-      res
-        .status(200)
-        .json({ success: true, message: RESTAURANT_REGISTER_COMPLETE });
+      res.status(200).json({
+        success: true,
+        message: MESSAGES.RESTAURANT_REGISTER_COMPLETE,
+      });
     } catch (error: any) {
       throw new AppError(error?.message || "Something went wrong");
     }
   };
+
+ 
 }

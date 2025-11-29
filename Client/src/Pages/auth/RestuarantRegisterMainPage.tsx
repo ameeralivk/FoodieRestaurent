@@ -22,9 +22,10 @@ import ErrorPTag from "../../Components/Elements/ErrorParagraph";
 import { registerRestaurant } from "../../services/Auth";
 import { ToastContainer } from "react-toastify";
 import RegistrationSuccessModal from "../../Components/modals/registractionCompletedModal";
-
+import { useNavigate } from "react-router-dom";
+import Admin_Navbar from "../../Components/Layouts/Admin_Navbar";
 const RestaurantMainRegistration = () => {
-    const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [search, setSearch] = useState("");
   const [errors, setErrors] = useState<
     Partial<Record<keyof RestaurantFormData, string>>
@@ -36,6 +37,7 @@ const RestaurantMainRegistration = () => {
   const email = useSelector(
     (state: RootState) => state.auth.admin?.email || ""
   );
+   const navigate = useNavigate();
   const status = useSelector((state: RootState) => state.auth.admin?.status);
   const [formData, setFormData] = useState<RestaurantFormData>({
     email: email,
@@ -51,28 +53,73 @@ const RestaurantMainRegistration = () => {
     longitude: "",
   });
 
+  // const handleSearch = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!search.trim()) return;
+
+  //   try {
+  //     const response = await fetch(
+  //       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+  //         search
+  //       )}`
+  //     );
+  //     const data = await response.json();
+
+  //     if (data.length > 0) {
+  //       const { lat, lon } = data[0];
+  //       setPosition([parseFloat(lat), parseFloat(lon)]);
+  //     } else {
+  //       alert("Location not found!");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching location:", error);
+  //   }
+  // };
+
+
+
   const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!search.trim()) return;
+  e.preventDefault();
+  if (!search.trim()) return;
 
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          search
-        )}`
-      );
-      const data = await response.json();
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        search
+      )}`
+    );
+    const data = await response.json();
 
-      if (data.length > 0) {
-        const { lat, lon } = data[0];
-        setPosition([parseFloat(lat), parseFloat(lon)]);
-      } else {
-        alert("Location not found!");
-      }
-    } catch (error) {
-      console.error("Error fetching location:", error);
+    if (data.length > 0) {
+      const { lat, lon } = data[0];
+      const latitude = parseFloat(lat);
+      const longitude = parseFloat(lon);
+
+      // Move the map
+      setPosition([latitude, longitude]);
+
+      // Also select the location in formData
+      setFormData((prev) => ({
+        ...prev,
+        latitude: latitude.toString(),
+        longitude: longitude.toString(),
+      }));
+
+      // Clear any previous errors related to location
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.latitude;
+        delete newErrors.longitude;
+        return newErrors;
+      });
+    } else {
+      alert("Location not found!");
     }
-  };
+  } catch (error) {
+    console.error("Error fetching location:", error);
+  }
+};
+
 
   useEffect(() => {
     if (status === "pending") {
@@ -80,7 +127,10 @@ const RestaurantMainRegistration = () => {
     } else {
       setSuccessModal(false);
     }
-  }, [status]);
+    if (status === "approved") {
+      navigate("/admin/subscription");
+    }
+  }, [status, navigate]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -108,9 +158,7 @@ const RestaurantMainRegistration = () => {
       return newErrors;
     });
   };
-  const handlelogout = () => {
-    dispatch(logoutAction());
-  };
+
 
   const handleSubmit = async () => {
     const { isValid, errors } = validateRestaurantForm(formData);
@@ -122,20 +170,16 @@ const RestaurantMainRegistration = () => {
     console.log(formData);
     const res = await registerRestaurant(formData);
     if (res.success) {
-        dispatch(updateStatus("pending"))
+      dispatch(updateStatus("pending"));
     }
   };
 
   return (
     <>
+       <Admin_Navbar role={"admin"}/>
       <ToastContainer />
       <div className="min-h-screen bg-black p-8">
-        <button
-          onClick={handlelogout}
-          className="text-white bg-amber-300 w-[60px] "
-        >
-          Logout
-        </button>
+        
         {showSuccessModal && <RegistrationSuccessModal />}
         <div className="max-w-6xl mx-auto">
           {/* Header */}

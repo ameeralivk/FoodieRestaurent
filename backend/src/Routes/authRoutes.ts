@@ -21,6 +21,12 @@ router
   .route("/forget-password")
   .post(asyncHandler(authController.forgetPassword))
   .patch(asyncHandler(authController.updatePassword));
-router.route('/on-boarding').post(verifyAccessToken,upload,asyncHandler(authController.registerRestaurant))
-router.route('/getallrestaurent').get(verifyAccessToken,asyncHandler(authController.getAllRestaurent))
+router
+  .route("/on-boarding")
+  .post(
+    verifyAccessToken,
+    upload,
+    asyncHandler(authController.registerRestaurant)
+  );
+
 export default router;

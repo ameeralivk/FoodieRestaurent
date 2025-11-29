@@ -34,17 +34,23 @@ export default function UserLoginForm() {
       WarningSwal({ message: "Please File all the Field to Proceed" });
       return;
     }
-    const fetch = async () => {
-      try {
-        let res = await handleUserLogin(formData.email, formData.password);
-        if (res?.succes) {
-          navigate("/user");
-        }
-      } catch (error) {
-        console.log(error, "error");
-      }
-    };
-    fetch();
+   const fetch = async () => {
+  try {
+    let res = await handleUserLogin(
+      formData.email,
+      formData.password,
+      dispatch
+    );
+
+    if (res?.success) {
+      navigate("/user");
+    }
+  } catch (error) {
+    console.log(error, "error");
+  }
+};
+
+fetch();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

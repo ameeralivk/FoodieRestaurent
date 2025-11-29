@@ -1,10 +1,26 @@
-import { Heart, ChefHat, User, LogOut } from "lucide-react";
+import { ChefHat, User, LogOut } from "lucide-react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { showConfirm } from "../../Elements/ConfirmationSwall";
+import Swal from "sweetalert2";
 import { userLogoutAction } from "../../../redux/slice/userSlice";
 const Navbar = () => {
     const dispatch = useDispatch()
-   function handleLogout(){
-      dispatch(userLogoutAction())
+     const navigate = useNavigate();
+   const handleLogout = async() =>{
+
+  const confirmed = await showConfirm(
+    "Logout",
+    "Do you really want to logout?",
+    "Logout",
+    "Cancel"
+  );
+
+  if (confirmed) {
+    dispatch(userLogoutAction());
+    navigate("/user/login"); 
+    Swal.fire("Logged out!", "You have been logged out.", "success");
+  }
    }
   return (
     <header className="bg-white shadow-sm sticky top-0 z-10">

@@ -53,6 +53,6 @@ export interface IRestaurantRegisterData {
   closingTime: Date;
   latitude: string;
   longitude: string;
-  restaurantPhoto: Express.Multer.File;
-  proofDocument: Express.Multer.File;
+  restaurantPhoto: string|undefined;
+  proofDocument: string|undefined;
 }

@@ -95,9 +95,9 @@ const RestaurantRow: React.FC<RestaurantRowProps> = ({
       </TableCell>
 
       <TableCell>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer">
           <IconButton
-            icon={<Eye size={16} />}
+            icon={<Eye size={16} className="cursor-pointer" />}
             onClick={onView}
             title="View Details"
           />

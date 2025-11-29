@@ -1,11 +1,29 @@
 import React, { useState } from "react";
-import { ChefHat, Menu, X } from "lucide-react";
+import { ChefHat, Menu, X, LogOut } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { logoutAction } from "../../redux/slice/adminSlice";
+import { showConfirm } from "../Elements/ConfirmationSwall";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 interface role {
   role: String;
 }
 const Admin_Navbar: React.FC<role> = ({ role }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-
+   const dispatch = useDispatch();
+   const navigate = useNavigate()
+  function handleLogout() {
+    console.log("hi");
+    showConfirm("Logout", "Do you really want to logout?", "Logout", "Cancel")
+      .then((confirmed) => {
+        if (confirmed) {
+          dispatch(logoutAction());
+          Swal.fire("Logged out!", "You have been logged out.", "success");
+          navigate('/admin/login')
+        }
+      })
+      .catch((err) => console.error(err));
+  }
   return (
     <nav className="h-16 bg-black text-white border-b border-gray-700 sticky top-0 z-50 flex justify-between items-center px-6">
       {/* Left section - Logo */}
@@ -40,6 +58,7 @@ const Admin_Navbar: React.FC<role> = ({ role }) => {
         <button className="bg-[#383329] w-24 rounded-md h-[30px] hover:bg-[#4a4033] transition">
           Sign Up
         </button>
+        {role=="admin" && <LogOut color="white" onClick={handleLogout} />}
       </ul>
 
       <button

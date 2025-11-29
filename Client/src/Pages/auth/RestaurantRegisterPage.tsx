@@ -15,6 +15,7 @@ import { GoogleLoginButton } from "../../Components/Elements/googleLoginButton";
 import { createOtpHandlers } from "../../Components/Helpers/Admin/handleOtpHandlers";
 import { useDispatch } from "react-redux";
 const AdminRegisterPage = () => {
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -76,12 +77,14 @@ const AdminRegisterPage = () => {
       };
       try {
         const toastId = loadingToast();
+        setLoading(true);
         let res = await register(registerData);
         if (res.message.success) {
           console.log(res);
           toast.dismiss(toastId);
           await AfterLoading("Sending OTP...", "✅ OTP sent successfully!");
           setModalOpen(true);
+          setLoading(false);
         } else {
           throw new Error("lfkdjslfjdasjfdsaf");
         }
@@ -177,12 +180,25 @@ const AdminRegisterPage = () => {
                   <ErrorPTag Text={error.password} />
                 </div>
                 {/* <GoogleLoginButton login={googleLogin} /> */}
-                {/* Submit Button */}
                 <button
                   onClick={handleSubmit}
-                  className="px-8 py-3 bg-yellow-500 text-black font-semibold rounded hover:bg-yellow-400 transition"
+                  disabled={loading}
+                  className={`px-8 py-3 text-black font-semibold rounded transition 
+                  ${
+                    loading
+                      ? "bg-yellow-300 cursor-not-allowed"
+                      : "bg-yellow-500 hover:bg-yellow-400"
+                  }
+                `}
                 >
-                  Register
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <span className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></span>
+                      Loading...
+                    </div>
+                  ) : (
+                    "Register"
+                  )}
                 </button>
               </div>
             </div>

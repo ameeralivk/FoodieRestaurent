@@ -1,4 +1,4 @@
-import { Model ,FilterQuery ,UpdateQuery} from "mongoose";
+import { Model, FilterQuery, UpdateQuery } from "mongoose";
 import { IAdmin } from "../types/admin";
 export class BaseRepository<T> {
   protected model: Model<T>;
@@ -6,29 +6,40 @@ export class BaseRepository<T> {
     this.model = model;
   }
   async create(data: Partial<T>): Promise<T> {
-    return await this.model.create(data)
+    return await this.model.create(data);
   }
   async getByFilter(filter: FilterQuery<T>): Promise<T | null> {
     return await this.model.findOne(filter);
   }
   async getById(id: string): Promise<T | null> {
-    return await this.model.findById(id,{ isDeleted:false });
+    return await this.model.findById(id, { isDeleted: false });
   }
-  
-  async updateOne(filter: FilterQuery<T>, update: UpdateQuery<T>): Promise<T | null> {
+
+  async updateOne(
+    filter: FilterQuery<T>,
+    update: UpdateQuery<T>
+  ): Promise<T | null> {
     return this.model.findOneAndUpdate(filter, update, { new: true });
   }
-   async findByIdAndUpdate(id: string, update: UpdateQuery<T>): Promise<T | null> {
+  async findByIdAndUpdate(
+    id: string,
+    update: UpdateQuery<T>
+  ): Promise<T | null> {
     return await this.model.findByIdAndUpdate(id, update, { new: true });
   }
 
- async getByEmailWithFields(email: string, fields: (keyof T)[]): Promise<Partial<T> | null> {
+  async getByEmailWithFields(
+    email: string,
+    fields: (keyof T)[]
+  ): Promise<Partial<T> | null> {
     const selectedFields = fields.join(" ");
-    const document = await this.model.findOne({ email } as FilterQuery<T>).select(selectedFields).lean<T>();
+    const document = await this.model
+      .findOne({ email } as FilterQuery<T>)
+      .select(selectedFields)
+      .lean<T>();
     return document || null;
   }
   async getAll(): Promise<T[]> {
-    return await this.model.find({role:"admin",status:"pending"});
+    return await this.model.find({ role: "admin",status:{$exists:true} });
   }
-
 }

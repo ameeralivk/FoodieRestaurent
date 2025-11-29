@@ -55,7 +55,7 @@ const RestaurentLoginPage = () => {
       }
 
       const response = await handleLogin(formData.email, formData.password);
-      console.log(response.admin);
+      console.log(response);
       const saveddata: AdminType = {
         _id: response.admin._id,
         restaurantName: response.admin.restaurantName,
@@ -73,11 +73,11 @@ const RestaurentLoginPage = () => {
         })
       );
 
-    if (saveddata.role === "superadmin") {
-      navigate("/superadmin/dashboard");
-    } else {
-      navigate("/admin/onboarding");
-    }
+      if (saveddata.role === "superadmin") {
+        navigate("/superadmin/dashboard");
+      } else {
+        navigate("/admin/onboarding");
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.log(error, "error");

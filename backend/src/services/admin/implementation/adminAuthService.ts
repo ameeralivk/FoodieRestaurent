@@ -1,25 +1,14 @@
 import HttpStatus from "../../../constants/htttpStatusCode";
-import {
-  ACCOUNT_IS_BLOCKED,
-  ADMIN_ALREADY_EXIST,
-  ADMIN_NOT_FOUND,
-  INVALID_TOKEN,
-  NO_REFRESH_TOKEN_FOUND,
-  OTP_INCORRECT,
-  OTP_RESENT_SUCCESS,
-  OTP_VERIFY_sUCCESS,
-  PASS_CHANGE_SUCCESS,
-  RESTAURANT_REGISTER_COMPLETE,
-} from "../../../constants/messages";
+import { MESSAGES } from "../../../constants/messages";
 import { IAdminAuthRepository } from "../../../Repositories/Admin/interface/IAdminRepositories";
-import { generateOtp } from "../../../utils/dto/generateOtp";
+import { generateOtp } from "../../../helpers/generateOtp";
 import { AppError } from "../../../utils/Error";
 import redisClient from "../../../config/redisClient";
 import bcrypt from "bcrypt";
 import axios from "axios";
-import { sendResetPasswordEmail, sentOtp } from "../../../utils/dto/sentOtp";
+import { sendResetPasswordEmail, sentOtp } from "../../../helpers/sentOtp";
 import crypto from "crypto";
-import { resendOtpEmail } from "../../../utils/dto/sentOtp";
+import { resendOtpEmail } from "../../../helpers/sentOtp";
 
 import {
   generateRefreshToken,
@@ -29,6 +18,7 @@ import {
 import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
 import { email, string, success } from "zod";
 import IAdminAuthService from "../interface/IAdminAuthService";
+import { adminDataMapping, IMappedAdminData } from "../../../utils/dto/adminDto";
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 export class AdminAuthService implements IAdminAuthService {
   constructor(private _adminAuthRepository: IAdminAuthRepository) {}
@@ -41,7 +31,7 @@ export class AdminAuthService implements IAdminAuthService {
   ) {
     const existing = await this._adminAuthRepository.findByEmail(email);
     if (existing) {
-      throw new AppError(ADMIN_ALREADY_EXIST, HttpStatus.NOT_FOUND);
+      throw new AppError(MESSAGES.ADMIN_ALREADY_EXIST, HttpStatus.NOT_FOUND);
     }
     const redisDataKey = `adminData:${email}`;
     const redisOtpKey = `otp:${email}`;
@@ -53,6 +43,7 @@ export class AdminAuthService implements IAdminAuthService {
       role,
     };
     const { hashedOtp, otp } = generateOtp();
+    console.log(otp, "otp");
     await redisClient.setEx(redisDataKey, 600, JSON.stringify(data));
     await redisClient.setEx(redisOtpKey, 120, hashedOtp);
     let res = await sentOtp(email, otp);
@@ -131,7 +122,7 @@ export class AdminAuthService implements IAdminAuthService {
     );
     return {
       success: true,
-      message: OTP_VERIFY_sUCCESS,
+      message: MESSAGES.OTP_VERIFY_SUCCESS,
       data: createdUser,
       accesstoken,
     };
@@ -142,28 +133,34 @@ export class AdminAuthService implements IAdminAuthService {
 
     const redisOtpKey = `otp:${email}`;
     await redisClient.setEx(redisOtpKey, 120, hashedOtp);
-
+    console.log(otp, "otp");
     await resendOtpEmail(email, otp);
 
-    return { success: true, message: OTP_RESENT_SUCCESS };
+    return { success: true, message: MESSAGES.OTP_RESENT_SUCCESS };
   };
 
   async refreshToken(refreshToken: string) {
-    if (!refreshToken) throw new Error(NO_REFRESH_TOKEN_FOUND);
+    if (!refreshToken) throw new Error(MESSAGES.NO_REFRESH_TOKEN_FOUND);
 
     const decoded = verifyRefreshToken(refreshToken);
 
     if (!decoded) {
-      throw { status: HttpStatus.UNAUTHORIZED, message: INVALID_TOKEN };
+      throw {
+        status: HttpStatus.UNAUTHORIZED,
+        message: MESSAGES.INVALID_TOKEN,
+      };
     }
 
     const admin = await this._adminAuthRepository.findById(decoded.id);
     if (!admin) {
-      throw { status: HttpStatus.NOT_FOUND, message: ADMIN_NOT_FOUND };
+      throw { status: HttpStatus.NOT_FOUND, message: MESSAGES.ADMIN_NOT_FOUND };
     }
 
     if (admin.isBlocked) {
-      throw { status: HttpStatus.FORBIDDEN, message: ACCOUNT_IS_BLOCKED };
+      throw {
+        status: HttpStatus.FORBIDDEN,
+        message: MESSAGES.ACCOUNT_IS_BLOCKED,
+      };
     }
     const newAccessToken = generateToken(decoded.id, decoded.role);
 
@@ -174,7 +171,7 @@ export class AdminAuthService implements IAdminAuthService {
     email: string
   ): Promise<{ success: boolean; message: string }> => {
     const admin = await this._adminAuthRepository.findByEmail(email);
-    if (!admin) throw new Error(ADMIN_NOT_FOUND);
+    if (!admin) throw new Error(MESSAGES.ADMIN_NOT_FOUND);
     const token = crypto.randomBytes(32).toString("hex");
     await redisClient.setEx(`resetPassword:${email}`, 120, token);
     await sendResetPasswordEmail(email, token, "admin");
@@ -187,7 +184,7 @@ export class AdminAuthService implements IAdminAuthService {
   ): Promise<{ admin: IAdmin; token: string; refreshToken: string }> {
     const admin = await this._adminAuthRepository.findByEmail(email);
     if (!admin) {
-      throw new AppError(ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND);
+      throw new AppError(MESSAGES.ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     const isPasswordValid = await bcrypt.compare(password, admin.password);
@@ -200,30 +197,6 @@ export class AdminAuthService implements IAdminAuthService {
 
     return { admin, token, refreshToken };
   }
-  // async updatePassword(
-  //   token: string,
-  //   newPassword: string,
-  //   email: string
-  // ): Promise<{ success: boolean; message: string }> {
-
-  //   const storedToken = await redisClient.get(`resetPassword:${email}`);
-  //   console.log(storedToken,'token')
-  //   if (!storedToken || storedToken !== token) {
-  //     console.log('hhhhhhhhh')
-  //     return { success: false, message: "Invalid or expired token" };
-  //   }
-  //   const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-  //   const admin = await this._adminAuthRepository.updatePasswordByEmail(
-  //     email,
-  //     hashedPassword
-  //   );
-  //   console.log(admin,'admin')
-  //   if (!admin) {
-  //     return { success: false, message: "Admin not found" };
-  //   }
-  //   await redisClient.del(`resetPassword:${email}`);
-  //   return { success: true, message: "Password updated successfully" };
-  // }
 
   async updatePassword(
     token: string,
@@ -243,28 +216,17 @@ export class AdminAuthService implements IAdminAuthService {
         hashedPassword
       );
       if (!admin) {
-        return { success: false, message: ADMIN_NOT_FOUND };
+        return { success: false, message: MESSAGES.ADMIN_NOT_FOUND };
       }
       await redisClient.del(`resetPassword:${email}`);
 
-      return { success: true, message: PASS_CHANGE_SUCCESS };
+      return { success: true, message: MESSAGES.PASS_CHANGE_SUCCESS };
     } catch (error) {
       console.error("Error in updatePassword:", error);
       return { success: false, message: "Internal Server Error" };
     }
   }
 
-async getAllRestaurants(): Promise<{ success: boolean; data: IAdmin[] }> {
-  try {
-    const restaurants = await this._adminAuthRepository.getAllRestaurant();
-    return {
-      success: true,
-      data:restaurants,
-    };
-  } catch (error: any) {
-    throw new AppError(error.message || "Failed to fetch restaurants");
-  }
-}
 
   async registerRestaurant(
     data: IRestaurantRegisterData
@@ -272,7 +234,7 @@ async getAllRestaurants(): Promise<{ success: boolean; data: IAdmin[] }> {
     try {
       let res = await this._adminAuthRepository.findByEmail(data.email);
       if (!res) {
-        throw new AppError(ADMIN_NOT_FOUND);
+        throw new AppError(MESSAGES.ADMIN_NOT_FOUND);
       }
       const adminId = res?._id as string;
       let result = await this._adminAuthRepository.registerRestaurent(
@@ -280,7 +242,7 @@ async getAllRestaurants(): Promise<{ success: boolean; data: IAdmin[] }> {
         data
       );
 
-      return { success: true, message: RESTAURANT_REGISTER_COMPLETE };
+      return { success: true, message: MESSAGES.RESTAURANT_REGISTER_COMPLETE };
     } catch (error: any) {
       throw new AppError(error);
     }

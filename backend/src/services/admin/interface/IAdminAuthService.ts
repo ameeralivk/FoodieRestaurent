@@ -1,8 +1,9 @@
-import { otpResponse } from "../../../utils/dto/sentOtp";
+import { otpResponse } from "../../../helpers/sentOtp";
 import { AdminDocument } from "../../../models/admin";
 import { IAdmin } from "../../../types/admin";
 import type { IRestaurantRegisterData } from "../../../types/admin";
 import type { GeoLocation } from "../../../types/admin";
+import { IMappedAdminData } from "../../../utils/dto/adminDto";
 export default interface IAdminAuthService {
   login(
     email: string,
@@ -37,6 +38,4 @@ export default interface IAdminAuthService {
   registerRestaurant(
     Data: IRestaurantRegisterData
   ): Promise<{ success: boolean; message: string }>;
-  getAllRestaurants(): Promise<{ success: boolean; data: IAdmin[] }>;
-
 }

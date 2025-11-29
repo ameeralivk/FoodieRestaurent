@@ -5,7 +5,7 @@ interface ValidationResult {
   isValid: boolean;
   errors: Partial<Record<keyof RestaurantFormData, string>>;
 }
- const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 export const validateRestaurantForm = (
   data: RestaurantFormData
 ): ValidationResult => {
@@ -39,7 +39,6 @@ export const validateRestaurantForm = (
     errors.address = "Address must be at least 5 characters";
   }
 
-
   if (!data.openingTime) {
     errors.openingTime = "Opening time is required";
   } else if (!timeRegex.test(data.openingTime)) {
@@ -52,10 +51,15 @@ export const validateRestaurantForm = (
     errors.closingTime = "Enter time in HH:MM format";
   }
 
-if (timeRegex.test(data.openingTime || "") && timeRegex.test(data.closingTime || "")) {
-    
+  if (
+    timeRegex.test(data.openingTime || "") &&
+    timeRegex.test(data.closingTime || "")
+  ) {
     const [openHour, openMin] = data.openingTime.trim().split(":").map(Number);
-    const [closeHour, closeMin] = data.closingTime.trim().split(":").map(Number);
+    const [closeHour, closeMin] = data.closingTime
+      .trim()
+      .split(":")
+      .map(Number);
 
     const openTotalMinutes = openHour * 60 + openMin;
     const closeTotalMinutes = closeHour * 60 + closeMin;
@@ -63,7 +67,7 @@ if (timeRegex.test(data.openingTime || "") && timeRegex.test(data.closingTime ||
     if (closeTotalMinutes <= openTotalMinutes) {
       errors.closingTime = "Closing time must be greater than opening time";
     }
-}
+  }
 
   if (!data.proofDocument) {
     errors.proofDocument = "Proof document is required";
@@ -75,7 +79,23 @@ if (timeRegex.test(data.openingTime || "") && timeRegex.test(data.closingTime ||
   if (!data.restaurantPhoto) {
     errors.restaurantPhoto = "Restaurant photo is required";
   } else if (!allowedPhotoTypes.includes(data.restaurantPhoto.type)) {
-    errors.restaurantPhoto = "Invalid file type. Allowed: JPG, PNG";
+    errors.restaurantPhoto = "Invalid file type. Allowed: JPG, PNG ,PDF";
+  }
+
+  const maxFileSize = 5 * 1024 * 1024; // 5 MB
+
+  // Proof document size
+  if (data.proofDocument && data.proofDocument.size > maxFileSize) {
+    errors.proofDocument = `Proof document must be less than ${
+      maxFileSize / (1024 * 1024)
+    } MB`;
+  }
+
+  // Restaurant photo size
+  if (data.restaurantPhoto && data.restaurantPhoto.size > maxFileSize) {
+    errors.restaurantPhoto = `Restaurant photo must be less than ${
+      maxFileSize / (1024 * 1024)
+    } MB`;
   }
 
   // 🔹 Latitude / Longitude numeric check

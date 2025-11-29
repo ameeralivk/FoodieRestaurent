@@ -3,7 +3,8 @@ import { useDispatch } from "react-redux";
 import { Menu, Search, Bell, User, LogOut } from "lucide-react";
 import { logoutAction } from "../../../redux/slice/adminSlice";
 import { useNavigate } from "react-router-dom";
-
+import Swal from "sweetalert2";
+import { showConfirm } from "../../Elements/ConfirmationSwall";
 // Navbar Component
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -11,10 +12,20 @@ interface NavbarProps {
 const SuperAdminNavbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  function logout() {
-    console.log("hi");
-    dispatch(logoutAction());
-    navigate("/admin/login");
+
+  const logout = async () => {
+    const confirmed = await showConfirm(
+      "Logout",
+      "Do you really want to logout?",
+      "Logout",
+      "Cancel"
+    );
+
+    if (confirmed) {
+      dispatch(logoutAction());
+      navigate("/admin/login");
+      Swal.fire("Logged out!", "You have been logged out.", "success");
+    }
   }
   return (
     <nav className="bg-neutral-900 border-b border-neutral-800 px-6 py-3">
@@ -25,7 +36,7 @@ const SuperAdminNavbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
             <span className="text-white font-semibold text-lg">Foodie</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-6">
+          {/* <div className="hidden md:flex items-center gap-6">
             <a href="#" className="text-white hover:text-amber-500 transition">
               Dashboard
             </a>
@@ -53,7 +64,7 @@ const SuperAdminNavbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
             >
               Reports
             </a>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex items-center gap-4">

@@ -24,4 +24,6 @@ export interface IAdminAuthRepository {
     data: IRestaurantRegisterData
   ): Promise<AdminDocument | null>;
   getAllRestaurant(): Promise<AdminDocument[]>;
+  updateById(id: string, updateData: Partial<AdminDocument>): Promise<AdminDocument | null>
+
 }

@@ -1,13 +1,13 @@
-// api/axiosInstance.ts
 import axios from "axios";
 import { store } from "../redux/store/store";
 import { setAccessToken, logoutAction } from "../redux/slice/adminSlice";
-
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  // baseURL: "http://localhost:3000/api",
+  baseURL:BASE_URL,
   withCredentials: true,
 });
-// Request interceptor: attach access token
+
 api.interceptors.request.use(
   (config) => {
     const state = store.getState();

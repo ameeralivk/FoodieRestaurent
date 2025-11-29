@@ -54,14 +54,15 @@ export class AdminAuthRepository
   ): Promise<AdminDocument | null> {
     return this.updateOne({ email }, { password: hashedPassword });
   }
-  
 
   async registerRestaurent(
     id: string,
     data: IRestaurantRegisterData
   ): Promise<AdminDocument | null> {
-     const place = await getPlaceName(parseFloat(data.latitude),parseFloat(data.longitude));
-     console.log("place is here ",place)
+    const place = await getPlaceName(
+      parseFloat(data.latitude),
+      parseFloat(data.longitude)
+    );
     const updateData = {
       restaurantName: data.restaurantName,
       ownerName: data.ownerName,
@@ -69,27 +70,30 @@ export class AdminAuthRepository
       openingTime: data.openingTime,
       closingTime: data.closingTime,
       address: data.restaurantAddress,
-      restaurantPhoto: data.restaurantPhoto?.path,
-      proofDocument: data.proofDocument?.path,
+      restaurantPhoto: data.restaurantPhoto,
+      proofDocument: data.proofDocument,
       location: {
         type: "Point",
         coordinates: [parseFloat(data.longitude), parseFloat(data.latitude)],
       },
       status: "pending",
-      placeName:place,
+      placeName: place,
     };
 
     return await this.model.findByIdAndUpdate(id, updateData, { new: true });
   }
 
-
- async getAllRestaurant(): Promise<AdminDocument[]> {
-  try {
-    return await this.getAll();  
-  } catch (error: any) {
-    console.error("Error fetching restaurants:", error);
-    throw error;
+  async getAllRestaurant(): Promise<AdminDocument[]> {
+    try {
+      return await this.getAll();
+    } catch (error: any) {
+      console.error("Error fetching restaurants:", error);
+      throw error;
+    }
   }
-}
 
+
+   async updateById(id: string, updateData: Partial<AdminDocument>): Promise<AdminDocument | null> {
+    return this.findByIdAndUpdate(id, updateData);
+  }
 }

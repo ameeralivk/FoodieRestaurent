@@ -10,7 +10,9 @@ export interface RestaurantApprovalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApprove: () => void;
+  loading:boolean;
     data: {
+    _id: string;
     restaurantName: string;
     location: string;
     owner: string;

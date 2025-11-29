@@ -1,5 +1,6 @@
 import { UserDocument } from "../../../../models/user";
 import { IUser } from "../../../../types/usert";
+import { IMappedUserData } from "../../../../utils/dto/userDto";
 
 export default interface IUserAuthService {
   register(
@@ -20,7 +21,7 @@ export default interface IUserAuthService {
   ): Promise<{
     success: boolean;
     message: string;
-    data: { user: UserDocument };
+    data: { user: IMappedUserData};
     accesstoken: string;
   }>;
   createLink(email: string): Promise<{ success: boolean; message: string }>;

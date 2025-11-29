@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import WarningSwal from "../../../Components/Helpers/WarningSwal";
 import { handleUserForgetPasswordSubmit } from "../../../services/userAuth";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -52,7 +53,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <div className="bg-amber-950 h-3.5 w-full"></div>
-
+      <ToastContainer />
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="bg-white rounded-lg shadow-lg p-12 w-full max-w-md">

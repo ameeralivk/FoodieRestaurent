@@ -1,18 +1,9 @@
-import {
-  ADMIN_NOT_FOUND,
-  OTP_RESENT_SUCCESS,
-  OTP_SENT_SUCCESS,
-  OTP_VERIFY_sUCCESS,
-  PASS_CHANGE_SUCCESS,
-  USER_ALREADY_EXIST,
-  USER_CREATED_SUCCESS,
-  USER_NOT_FOUND,
-} from "../../../../constants/messages";
+import { MESSAGES } from "../../../../constants/messages";
 import axios from "axios";
 import IUserAuthService from "../interface/IUserAuthService";
 import IUserAuthRepository from "../../../../Repositories/user/auth/interface/IUserAuthRepository";
 import bcrypt from "bcrypt";
-import { generateOtp } from "../../../../utils/dto/generateOtp";
+import { generateOtp } from "../../../../helpers/generateOtp";
 import { generateToken } from "../../../../middleware/jwt";
 import crypto from "crypto";
 import { generateRefreshToken } from "../../../../middleware/jwt";
@@ -20,11 +11,12 @@ import {
   resendOtpEmail,
   sendResetPasswordEmail,
   sentOtp,
-} from "../../../../utils/dto/sentOtp";
+} from "../../../../helpers/sentOtp";
 import redisClient from "../../../../config/redisClient";
 import HttpStatus from "../../../../constants/htttpStatusCode";
 import { IUser } from "../../../../types/usert";
 import { AppError } from "../../../../utils/Error";
+import { mapUserToDto } from "../../../../utils/dto/userDto";
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 export class UserAuthService implements IUserAuthService {
@@ -38,7 +30,7 @@ export class UserAuthService implements IUserAuthService {
     try {
       let isExist = await this._userAuthRepository.findByEmail(email);
       if (isExist) {
-        return { success: false, message: USER_ALREADY_EXIST };
+        return { success: false, message: MESSAGES.USER_ALREADY_EXIST };
       }
       const redisDataKey = `userData:${email}`;
       const redisOtpKey = `otp:${email}`;
@@ -52,7 +44,7 @@ export class UserAuthService implements IUserAuthService {
       await redisClient.setEx(redisDataKey, 600, JSON.stringify(data));
       await redisClient.setEx(redisOtpKey, 120, hashedOtp);
       let res = await sentOtp(email, otp);
-      return { success: true, message: OTP_SENT_SUCCESS };
+      return { success: true, message: MESSAGES.OTP_SENT_SUCCESS };
     } catch (error) {
       let err = error as Error;
       throw new Error(err.message);
@@ -87,7 +79,7 @@ export class UserAuthService implements IUserAuthService {
   ): Promise<{ user: IUser; token: string; refreshToken: string }> {
     const user = await this._userAuthRepository.findByEmail(email);
     if (!user) {
-      throw new AppError(ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND);
+      throw new AppError(MESSAGES.ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -133,7 +125,7 @@ export class UserAuthService implements IUserAuthService {
       userData.Email,
       userData.password
     );
-
+    const mapedUser = mapUserToDto(createdUser.user)
     await redisClient.del(redisOtpKey);
     await redisClient.del(redisDataKey);
     const accesstoken = generateToken(createdUser.user._id as string, "user");
@@ -143,8 +135,8 @@ export class UserAuthService implements IUserAuthService {
     );
     return {
       success: true,
-      message: OTP_VERIFY_sUCCESS,
-      data: createdUser,
+      message: MESSAGES.OTP_VERIFY_SUCCESS,
+      data: mapedUser,
       accesstoken,
     };
   }
@@ -153,10 +145,10 @@ export class UserAuthService implements IUserAuthService {
     email: string
   ): Promise<{ success: boolean; message: string }> => {
     const admin = await this._userAuthRepository.findByEmail(email);
-    if (!admin) throw new Error(ADMIN_NOT_FOUND);
+    if (!admin) throw new Error(MESSAGES.ADMIN_NOT_FOUND);
     const token = crypto.randomBytes(32).toString("hex");
     await redisClient.setEx(`resetPassword:${email}`, 120, token);
-    await sendResetPasswordEmail(email, token,"user");
+    await sendResetPasswordEmail(email, token, "user");
     return { success: true, message: "Password reset link sent to your email" };
   };
 
@@ -168,7 +160,7 @@ export class UserAuthService implements IUserAuthService {
 
     await resendOtpEmail(email, otp);
 
-    return { success: true, message: OTP_RESENT_SUCCESS };
+    return { success: true, message: MESSAGES.OTP_RESENT_SUCCESS };
   };
 
   async updatePassword(
@@ -183,18 +175,18 @@ export class UserAuthService implements IUserAuthService {
         return { success: false, message: "Invalid or expired token" };
       }
       const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-      console.log(hashedPassword,'password')
+      console.log(hashedPassword, "password");
       const user = await this._userAuthRepository.updatePasswordByEmail(
         email,
         hashedPassword
       );
-      console.log(user,'resdaf')
+      console.log(user, "resdaf");
       if (!user) {
-        return { success: false, message:USER_NOT_FOUND};
+        return { success: false, message: MESSAGES.USER_NOT_FOUND };
       }
       await redisClient.del(`resetPassword:${email}`);
 
-      return { success: true, message: PASS_CHANGE_SUCCESS };
+      return { success: true, message: MESSAGES.PASS_CHANGE_SUCCESS };
     } catch (error) {
       console.error("Error in updatePassword:", error);
       return { success: false, message: "Internal Server Error" };
