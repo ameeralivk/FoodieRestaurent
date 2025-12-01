@@ -31,6 +31,8 @@ export interface AdminType {
   googleId: string;
   imageUrl: string;
   status:string;
+  rejectionReason?:string
+  rejectedAt?:Date|null
 }
 
 export interface ForgetPasswordFormData {
@@ -55,4 +57,10 @@ export interface RegisterFormData {
   proofDocument?: File|null;
   latitude: string;
   longitude: string;
+}
+
+export interface AdminStatus {
+  status: string;
+  rejectedAt: string | null;
+  reason: string | null;
 }

@@ -1,8 +1,8 @@
 import ISuperAdminService from "../interface/ISuperAdminService";
 import { IAdminAuthRepository } from "../../../Repositories/Admin/interface/IAdminRepositories";
-import { IMappedAdminData } from "../../../utils/dto/adminDto";
+import { IMappedAdminData } from "../../../utils/dto/SuperAdminDto";
 import { AppError } from "../../../utils/Error";
-import { adminDataMapping } from "../../../utils/dto/adminDto";
+import { SuperadminDataMapping } from "../../../utils/dto/SuperAdminDto";
 export class SuperAdminService implements ISuperAdminService {
   constructor(private _adminAuthRepository: IAdminAuthRepository) {}
 
@@ -14,7 +14,7 @@ export class SuperAdminService implements ISuperAdminService {
       const restaurants = await this._adminAuthRepository.getAllRestaurant();
       console.log(restaurants, "1");
       const mappedRestaurants = restaurants.map((restaurant) =>
-        adminDataMapping(restaurant)
+        SuperadminDataMapping(restaurant)
       );
       console.log(mappedRestaurants, "2");
       return {
@@ -35,6 +35,20 @@ export class SuperAdminService implements ISuperAdminService {
     // Update status to "approved"
     const updated = await this._adminAuthRepository.updateById(id, {
       status: "approved",
+    });
+    return updated;
+  }
+
+  async rejectRestaurant(id: string, reason: string) {
+    const restaurant = await this._adminAuthRepository.findById(id);
+    if (!restaurant) {
+      throw new Error("Restaurant not found");
+    }
+
+    const updated = await this._adminAuthRepository.updateById(id, {
+      status: "rejected",
+      rejectionReason: reason,
+      rejectedAt: new Date(),
     });
     return updated;
   }

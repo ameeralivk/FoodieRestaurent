@@ -13,32 +13,39 @@ import type {
   RestaurantFormData,
 } from "../../types/AdminTypes";
 import StaticMap from "../../Components/Component/RestaurantMainRegistraction/Map";
+import { updateDocument } from "../../services/Auth";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutAction, updateStatus } from "../../redux/slice/adminSlice";
 import type { RootState } from "../../redux/store/store";
 import { validateRestaurantForm } from "../../Validation/mainRegisterFormValidation";
 import ErrorPTag from "../../Components/Elements/ErrorParagraph";
-import { registerRestaurant } from "../../services/Auth";
+import { getStatus, registerRestaurant } from "../../services/Auth";
 import { ToastContainer } from "react-toastify";
 import RegistrationSuccessModal from "../../Components/modals/registractionCompletedModal";
 import { useNavigate } from "react-router-dom";
 import Admin_Navbar from "../../Components/Layouts/Admin_Navbar";
+import RejectionModal from "../../Components/modals/reuploadModal";
+import type { AdminStatus } from "../../types/AdminTypes";
+
 const RestaurantMainRegistration = () => {
   const dispatch = useDispatch();
   const [search, setSearch] = useState("");
   const [errors, setErrors] = useState<
     Partial<Record<keyof RestaurantFormData, string>>
   >({});
+  const [loading, setLoading] = useState(false);
   const [showSuccessModal, setSuccessModal] = useState(false);
   const [position, setPosition] = useState<[number, number]>([11.051, 76.0711]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const restaurantName =
     useSelector((state: RootState) => state.auth.admin?.restaurantName) || "";
   const email = useSelector(
     (state: RootState) => state.auth.admin?.email || ""
   );
-   const navigate = useNavigate();
-  const status = useSelector((state: RootState) => state.auth.admin?.status);
+  const navigate = useNavigate();
+  const adminId = useSelector((state: RootState) => state.auth.admin?._id);
+  const [adminStatus, setAdminStatus] = useState<AdminStatus | null>(null);
   const [formData, setFormData] = useState<RestaurantFormData>({
     email: email,
     restaurantName: restaurantName,
@@ -53,84 +60,76 @@ const RestaurantMainRegistration = () => {
     longitude: "",
   });
 
-  // const handleSearch = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (!search.trim()) return;
-
-  //   try {
-  //     const response = await fetch(
-  //       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-  //         search
-  //       )}`
-  //     );
-  //     const data = await response.json();
-
-  //     if (data.length > 0) {
-  //       const { lat, lon } = data[0];
-  //       setPosition([parseFloat(lat), parseFloat(lon)]);
-  //     } else {
-  //       alert("Location not found!");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching location:", error);
-  //   }
-  // };
-
-
-
   const handleSearch = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!search.trim()) return;
+    e.preventDefault();
+    if (!search.trim()) return;
 
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        search
-      )}`
-    );
-    const data = await response.json();
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          search
+        )}`
+      );
+      const data = await response.json();
+      if (data.length > 0) {
+        const { lat, lon } = data[0];
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lon);
 
-    if (data.length > 0) {
-      const { lat, lon } = data[0];
-      const latitude = parseFloat(lat);
-      const longitude = parseFloat(lon);
+        // Move the map
+        setPosition([latitude, longitude]);
 
-      // Move the map
-      setPosition([latitude, longitude]);
+        // Also select the location in formData
+        setFormData((prev) => ({
+          ...prev,
+          latitude: latitude.toString(),
+          longitude: longitude.toString(),
+        }));
 
-      // Also select the location in formData
-      setFormData((prev) => ({
-        ...prev,
-        latitude: latitude.toString(),
-        longitude: longitude.toString(),
-      }));
-
-      // Clear any previous errors related to location
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.latitude;
-        delete newErrors.longitude;
-        return newErrors;
-      });
-    } else {
-      alert("Location not found!");
+        // Clear any previous errors related to location
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.latitude;
+          delete newErrors.longitude;
+          return newErrors;
+        });
+      } else {
+        alert("Location not found!");
+      }
+    } catch (error) {
+      console.error("Error fetching location:", error);
     }
-  } catch (error) {
-    console.error("Error fetching location:", error);
-  }
-};
-
+  };
 
   useEffect(() => {
-    if (status === "pending") {
+    const fetchStatus = async () => {
+      if (!adminId) return;
+
+      try {
+        const data = await getStatus(adminId);
+        console.log(data, "status data");
+        setAdminStatus(data); // ⬅️ Store received API response in state
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchStatus();
+  }, [adminId]);
+
+  useEffect(() => {
+    if (adminStatus?.status === "pending"||adminStatus?.status === "resubmitted") {
       setSuccessModal(true);
     } else {
       setSuccessModal(false);
     }
-    if (status === "approved") {
+    if (adminStatus?.status === "approved") {
       navigate("/admin/subscription");
     }
-  }, [status, navigate]);
+    if (adminStatus?.status === "rejected") {
+      setIsModalOpen(true);
+    }
+  }, [adminStatus, navigate]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -159,7 +158,6 @@ const RestaurantMainRegistration = () => {
     });
   };
 
-
   const handleSubmit = async () => {
     const { isValid, errors } = validateRestaurantForm(formData);
     if (!isValid) {
@@ -167,20 +165,48 @@ const RestaurantMainRegistration = () => {
       setErrors(errors);
       return;
     }
+    setLoading(true);
     console.log(formData);
     const res = await registerRestaurant(formData);
     if (res.success) {
+      setLoading(false);
       dispatch(updateStatus("pending"));
+      window.location.reload()
     }
   };
 
+  async function handleReupload(file: File) {
+    try {
+
+       const result = await updateDocument(adminId?adminId:"", file);
+  
+      console.log("Updated:", result);
+
+      setAdminStatus({
+        status: "resubmitted",
+        reason: "",
+        rejectedAt: "",
+      });
+
+      setIsModalOpen(false); 
+    } catch (error) {
+      console.log("Reupload failed:", error);
+    }
+  }
+
   return (
     <>
-       <Admin_Navbar role={"admin"}/>
+      <Admin_Navbar role={"admin"} />
       <ToastContainer />
       <div className="min-h-screen bg-black p-8">
-        
         {showSuccessModal && <RegistrationSuccessModal />}
+        <RejectionModal
+          isOpen={isModalOpen}
+          // onClose={() => setIsModalOpen(false)}
+          rejectionReason={adminStatus?.reason ? adminStatus?.reason : ""}
+          documentType="proof"
+          onReupload={handleReupload}
+        />
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <h1 className="text-5xl font-bold text-yellow-500 text-center mb-12">
@@ -352,12 +378,44 @@ const RestaurantMainRegistration = () => {
               </div>
 
               {/* Submit Button */}
-              <button
+              {/* <button
                 type="button"
                 onClick={handleSubmit}
                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg mt-8"
               >
                 Register Restaurant
+              </button> */}
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading} // Prevent multiple clicks
+                className={`w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg mt-8 flex items-center justify-center`}
+              >
+                {loading ? (
+                  // Spinner
+                  <svg
+                    className="animate-spin h-5 w-5 text-black"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                ) : (
+                  "Register Restaurant"
+                )}
               </button>
             </div>
           </div>

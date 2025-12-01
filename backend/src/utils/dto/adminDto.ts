@@ -1,43 +1,55 @@
 import { AdminDocument } from "../../models/admin";
 import { Types } from "mongoose";
-export interface IMappedAdminData {
+export interface AdminDTO {
   _id: Types.ObjectId;
-  restaurantName: string;
-  ownerName?: string;
-  email: string;
   role: string;
-  status: "pending" | "approved" | "rejected";
-  isBlocked: boolean;
-  contactNumber?: Number;
-  placeName?: string;
-  location?: {
-    type: "Point";
-    coordinates: number[];
-  };
-  imageUrl?: string;
-  restaurantPhoto?: string;
-  openingTime?: string;
-  closingTime?: string;
-  proofDocument: string;
+  restaurantName: string;
+  email: string;
+  googleId: string | null;
+  imageUrl: string | null;
+  status: string;
+  rejectedAt: Date | null;
+  rejectionReason: string | null;
 }
-export const adminDataMapping = (
-  restaurant: AdminDocument
-): IMappedAdminData => {
+
+export interface AdminStatusDTO {
+  status: "pending" | "approved" | "rejected" | "resubmitted" | undefined;
+  role: string;
+  isBlocked: boolean;
+  restaurantName: string;
+  email: string;
+  rejectionReason?: string;
+  rejectedAt?: Date | null;
+}
+
+export const adminDTO = (admin: AdminDocument): AdminDTO => {
   return {
-    _id: restaurant.id,
-    restaurantName: restaurant.restaurantName,
-    ownerName: restaurant.ownerName,
-    email: restaurant.email,
-    role: restaurant.role,
-    status: restaurant.status as "pending" | "approved" | "rejected",
-    isBlocked: restaurant.isBlocked,
-    contactNumber: restaurant.contactNumber,
-    placeName: restaurant.placeName,
-    location: restaurant.location,
-    imageUrl: restaurant.imageUrl,
-    restaurantPhoto: restaurant.restaurantPhoto,
-    openingTime: restaurant.openingTime,
-    closingTime: restaurant.closingTime,
-    proofDocument: restaurant.proofDocument,
+    _id: admin.id,
+    role: admin.role,
+    restaurantName: admin.restaurantName,
+    email: admin.email,
+    googleId: admin.googleID || null,
+    imageUrl: admin.imageUrl || null,
+    status: admin.status??"",
+    rejectedAt: admin.rejectedAt || null,
+    rejectionReason: admin.rejectionReason || null,
   };
+};
+
+
+export const mapAdminStatusDTO = (admin: AdminDocument): AdminStatusDTO => {
+  const dto: AdminStatusDTO = {
+    status:admin.status,
+    role: admin.role,
+    isBlocked: admin.isBlocked,
+    restaurantName: admin.restaurantName,
+    email: admin.email,
+  };
+
+  if (admin.status === "rejected") {
+    dto.rejectionReason = admin.rejectionReason || "";
+    dto.rejectedAt = admin.rejectedAt || null;
+  }
+
+  return dto;
 };

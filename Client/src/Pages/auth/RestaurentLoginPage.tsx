@@ -55,7 +55,7 @@ const RestaurentLoginPage = () => {
       }
 
       const response = await handleLogin(formData.email, formData.password);
-      console.log(response);
+      console.log(response, "ameeer");
       const saveddata: AdminType = {
         _id: response.admin._id,
         restaurantName: response.admin.restaurantName,

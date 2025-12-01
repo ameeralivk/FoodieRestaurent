@@ -23,5 +23,7 @@ export interface RestaurantApprovalModalProps {
     amount: string;
     restaurantImage: string;
     verificationDocument: string;
+    rejectedAt:Date,
+    reason:string
   };
 }

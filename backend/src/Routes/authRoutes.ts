@@ -5,6 +5,7 @@ import { AdminAuthController } from "../Controller/admin/implementation/adminAut
 import { asyncHandler } from "../middleware/asyncHandler";
 import { upload } from "../config/multerConfig";
 import { verifyAccessToken } from "../middleware/jwt";
+import { updateDocumentUpload } from "../config/multerConfig";
 const router = express.Router();
 
 const adminAuthRepository = new AdminAuthRepository();
@@ -17,6 +18,8 @@ router.route("/resent-otp").post(asyncHandler(authController.resendOtp));
 router.route("/googleAuth").post(asyncHandler(authController.googleAuth));
 router.route("/refresh-token").get(asyncHandler(authController.refreshToken));
 router.route("/login").post(asyncHandler(authController.login));
+router.route("/getStatus/:id").get(verifyAccessToken,asyncHandler(authController.getStatus));
+router.route("/update-doc/:id").put(verifyAccessToken,updateDocumentUpload,authController.updateDoc)
 router
   .route("/forget-password")
   .post(asyncHandler(authController.forgetPassword))

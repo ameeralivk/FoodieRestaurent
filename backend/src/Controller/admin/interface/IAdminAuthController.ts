@@ -11,4 +11,6 @@ export default interface IAdminAuthController {
   login(req:Request,res:Response): Promise<void>;
   updatePassword(req:Request,res:Response): Promise<void>;
   registerRestaurant(req:Request,res:Response): Promise<void>;
+  getStatus(req:Request,res:Response):Promise<void>;
+  updateDoc(req:Request,res:Response):Promise<void>;
 }

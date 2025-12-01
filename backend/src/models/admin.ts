@@ -33,8 +33,10 @@ const adminSchema = new Schema<IAdmin>(
     placeName:{type:String},
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected" , "resubmitted"],
     },
+    rejectionReason:{type:string},
+    rejectedAt:{type:Date}
   },
   {
     timestamps: true,

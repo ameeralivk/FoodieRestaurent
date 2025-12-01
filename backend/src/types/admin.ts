@@ -22,8 +22,10 @@ export interface IAdmin extends Document {
   googleID: string;
   imageUrl: string;
   isBlocked: boolean;
-  placeName:string;
-  status?: "pending" | "approved" | "rejected";
+  placeName: string;
+  status?: "pending" | "approved" | "rejected" | "resubmitted";
+  rejectionReason?: string;
+  rejectedAt?: Date; 
 }
 
 export interface adminData extends Document {
@@ -36,12 +38,10 @@ export interface adminData extends Document {
   isBlocked: boolean;
 }
 
-
 export interface GeoLocation {
   type: "Point";
   coordinates: [number, number]; // [longitude, latitude]
 }
-
 
 export interface IRestaurantRegisterData {
   email: string;
@@ -53,6 +53,15 @@ export interface IRestaurantRegisterData {
   closingTime: Date;
   latitude: string;
   longitude: string;
-  restaurantPhoto: string|undefined;
-  proofDocument: string|undefined;
+  restaurantPhoto: string | undefined;
+  proofDocument: string | undefined;
+}
+
+
+export interface IAdminStatusBase {
+  status: "pending" | "approved" | "rejected" | "resubmitted";
+  role: string;
+  isBlocked: boolean;
+  restaurantName: string;
+  email: string;
 }

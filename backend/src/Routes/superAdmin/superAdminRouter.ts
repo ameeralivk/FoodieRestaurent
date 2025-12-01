@@ -13,5 +13,5 @@ router
   .get(verifyAccessToken, asyncHandler(superAdminController.getAllRestaurent));
 
 router.route("/approve/:id").patch(verifyAccessToken,asyncHandler(superAdminController.approveRestaurant))
-
+router.route("/reject/:id").patch(verifyAccessToken,asyncHandler(superAdminController.rejectRestaurant))
 export default router

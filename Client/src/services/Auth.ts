@@ -12,6 +12,7 @@ import { AfterLoading, loadingToast } from "../Components/Elements/Loading";
 import { useNavigate } from "react-router-dom";
 import type { RegisterFormData } from "../types/AdminTypes";
 import type { ForgetPasswordFormData } from "../types/AdminTypes";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 interface registerFormData {
   restaurantName: string;
   email: string;
@@ -147,36 +148,6 @@ export const handleLogin = async (email: string, password: string) => {
   }
 };
 
-// export const handleForgetPasswordSubmit = async (
-//   formData: ForgetPasswordFormData
-// ) => {
-//   try {
-//     const response = await axios.post(
-//       "http://localhost:3000/api/admin/auth/forget-password",
-//       {
-//         email: formData.email,
-//       }
-//     );
-//     console.log(response.data, "response is here");
-//     if (response.data.succes) {
-
-//       showSuccessToast(
-//         response.data.message || "Check your email for reset link!"
-//       );
-//     } else {
-//       showErrorToast(response.data.message || "Failed to send reset link!");
-//     }
-//   } catch (error: any) {
-//     if (axios.isAxiosError(error)) {
-//       showErrorToast(error.response?.data?.message || "Something went wrong!");
-//     } else if (error instanceof Error) {
-//       showErrorToast(error.message);
-//     } else {
-//       showErrorToast("An unknown error occurred");
-//     }
-//   }
-// };
-
 export const handleForgetPasswordSubmit = async (
   formData: ForgetPasswordFormData
 ) => {
@@ -251,7 +222,6 @@ export const handleresetPasswordForm = async (
   }
 };
 
-
 export const registerRestaurant = async (formData: RegisterFormData) => {
   try {
     const data = new FormData();
@@ -268,13 +238,9 @@ export const registerRestaurant = async (formData: RegisterFormData) => {
       console.log(key, value, "ready");
     }
 
-    const response = await api.post(
-      "/admin/auth/on-boarding",
-      data,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await api.post("/admin/auth/on-boarding", data, {
+      withCredentials: true,
+    });
     showSuccessToast("Restaurant registered successfully!");
     return response.data;
   } catch (error: any) {
@@ -287,3 +253,54 @@ export const registerRestaurant = async (formData: RegisterFormData) => {
   }
 };
 
+export const getStatus = async (adminId: string) => {
+  try {
+    const response = await api.get(`/admin/auth/getStatus/${adminId}`, {
+      withCredentials: true,
+    });
+    return {
+      status: response.data.status.status,
+      rejectedAt: response.data.status.rejectedAt,
+      reason: response.data.status.rejectionReason,
+    };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.error("SignUp Error:", error.response);
+      throw new Error(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    }
+    throw new Error("Something went wrong. Please try again.");
+  }
+};
+
+
+export const updateDocument = async (adminId: string, file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("proofDocument", file);
+
+    const response = await api.put(
+      `/admin/auth/update-doc/${adminId}`,
+      formData,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.error("Update Document Error:", error.response);
+      throw new Error(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    }
+    throw new Error("Something went wrong. Please try again.");
+  }
+};

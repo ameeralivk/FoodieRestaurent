@@ -103,3 +103,9 @@ export const upload = uploadFile.fields([
   { name: "restaurantPhoto", maxCount: 1 },
   { name: "proofDocument", maxCount: 1 },
 ]);
+
+export const updateDocumentUpload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).single("proofDocument");
+

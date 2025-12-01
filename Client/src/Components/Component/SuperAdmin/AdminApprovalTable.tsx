@@ -134,7 +134,7 @@ export default function TableExample() {
   useEffect(() => {
     fetchRestaurants();
   }, []);
-
+  console.log(restaurants, "hi restuar");
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-950 via-stone-900 to-neutral-950 p-8">
       <div className="max-w-7xl mx-auto">
@@ -202,11 +202,13 @@ export default function TableExample() {
                           nextDueDate: rest.nextDueDate || "N/A",
                           amount: rest.amount || "N/A",
                           restaurantImage: rest.restaurantPhoto
-                            ?rest.restaurantPhoto
+                            ? rest.restaurantPhoto
                             : undefined,
                           verificationDocument: rest.proofDocument
                             ? rest.proofDocument
                             : undefined,
+                          reason: rest.reason,
+                          rejectedAt: rest.rejectedAt,
                         });
                         setModalLoading(false);
                       }, 500); // 0.5s delay to show spinner

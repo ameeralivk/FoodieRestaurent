@@ -5,7 +5,7 @@ import { AxiosError } from "axios";
 import { showSuccessToast } from "../Components/Elements/SuccessToast";
 export const getAllRestaurent = async () => {
   try {
-    const response = await api.get("/superadmin/getallrestaurent",{
+    const response = await api.get("/superadmin/getallrestaurent", {
       withCredentials: true,
     });
     if (response) {
@@ -27,14 +27,16 @@ export const getAllRestaurent = async () => {
   }
 };
 
-
-
 export const approveRestaurant = async (restaurantId: string) => {
   try {
-    console.log(restaurantId,'od')
-    const response = await api.patch(`/superadmin/approve/${restaurantId}`, null, {
-      withCredentials: true,
-    });
+    console.log(restaurantId, "od");
+    const response = await api.patch(
+      `/superadmin/approve/${restaurantId}`,
+      null,
+      {
+        withCredentials: true,
+      }
+    );
 
     if (response.data.success) {
       showSuccessToast("Restaurant approved successfully!");
@@ -46,7 +48,44 @@ export const approveRestaurant = async (restaurantId: string) => {
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
       showErrorToast(
-        error.response?.data?.message || "Something went wrong. Please try again."
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    } else if (error instanceof Error) {
+      showErrorToast(error.message);
+    } else {
+      showErrorToast("An unknown error occurred!");
+    }
+    throw error;
+  }
+};
+
+export const rejectRestaurant = async (
+  restaurantId: string,
+  rejectionReason: string
+) => {
+  try {
+    console.log(restaurantId, "od");
+    const response = await api.patch(
+      `/superadmin/reject/${restaurantId}`,
+      { reason: rejectionReason },
+      {
+        withCredentials: true,
+      }
+    );
+
+    if (response.data.success) {
+      showSuccessToast("Restaurant approved successfully!");
+      return response.data;
+    } else {
+      showErrorToast(response.data.message || "Failed to approve restaurant!");
+      return null;
+    }
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      showErrorToast(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
       );
     } else if (error instanceof Error) {
       showErrorToast(error.message);

@@ -227,9 +227,13 @@ import React from "react";
 import { X } from "lucide-react";
 import type { RestaurantApprovalModalProps } from "../../../types/SuperAdmin";
 import Swal from "sweetalert2";
-import { approveRestaurant } from "../../../services/superAdmin";
+import {
+  approveRestaurant,
+  rejectRestaurant,
+} from "../../../services/superAdmin";
 import { useState } from "react";
 import handleDownload from "../../../utils/superAdmin/download";
+import ErrorPTag from "../../Elements/ErrorParagraph";
 const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
   isOpen,
   onClose,
@@ -240,7 +244,7 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
   const [showRejectReason, setShowRejectReason] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectLoading, setRejectLoading] = useState(false);
-
+  const [error, setError] = useState("");
   if (!isOpen) return null;
 
   const handleApprove = async () => {
@@ -269,7 +273,36 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
       }
     }
   };
-
+  console.log(data, "data is here");
+  const handleReject = async () => {
+    if (!data?._id) return;
+    if (rejectReason === "") {
+      setError("Enter the Reason To continue");
+      return;
+    }
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to reject this restaurant?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, reject it!",
+      cancelButtonText: "Cancel",
+    });
+    if (result.isConfirmed) {
+      try {
+        await rejectRestaurant(data._id, rejectReason);
+        Swal.fire("rejected!", "Restaurant has been rejected.", "success");
+        onApprove();
+        onClose();
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error!", "Failed to approve the restaurant.", "error");
+      }
+    }
+  };
+  console.log(data, "data is here");
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div className="bg-neutral-900 rounded-lg w-full max-w-5xl max-h-[90vh] overflow-y-auto">
@@ -424,20 +457,24 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
 
               {/* Buttons */}
               <div className="flex justify-end gap-3">
-                <button
-                  onClick={onClose}
-                  className="px-6 py-2 bg-neutral-700 rounded-md text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => setShowRejectReason((prev) => !prev)}
-                  className="px-6 py-2 bg-red-600 rounded-md text-white hover:bg-red-700 transition"
-                >
-                  Reject
-                </button>
+                {data.status != "approved" && data.status != "rejected" && (
+                  <>
+                    <button
+                      onClick={onClose}
+                      className="px-6 py-2 bg-neutral-700 rounded-md text-white"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => setShowRejectReason((prev) => !prev)}
+                      className="px-6 py-2 bg-red-600 rounded-md text-white hover:bg-red-700 transition"
+                    >
+                      Reject
+                    </button>
+                  </>
+                )}
 
-                {data.status != "approved" && (
+                {data.status != "approved" && data.status != "rejected" && (
                   <button
                     onClick={handleApprove}
                     className="px-6 py-2 bg-amber-600 rounded-md text-white cursor-pointer"
@@ -448,7 +485,7 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
               </div>
             </>
           )}
-          {showRejectReason && (
+          {showRejectReason && data.status != "rejected" && (
             <div className="mt-4 bg-neutral-800 p-4 rounded-lg space-y-2">
               <label className="text-white font-semibold">
                 Enter rejection reason:
@@ -460,12 +497,47 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
                 className="w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
                 placeholder="Type the reason for rejection"
               />
+              <ErrorPTag Text={error} />
               <button
+                onClick={handleReject}
                 disabled={rejectLoading || !rejectReason.trim()}
                 className="px-4 py-2 bg-red-500 rounded-md text-white hover:bg-red-600 transition disabled:opacity-50"
               >
                 {rejectLoading ? "Submitting..." : "Submit Rejection"}
               </button>
+            </div>
+          )}
+          {((data?.status != "approved" && data?.status == "rejected") ||
+            (data?.status == "resubmitted" && data?.rejectedAt)) && (
+            <div className="bg-gray-900 mt-6 text-white p-6 rounded-lg shadow-md border border-gray-700 max-w-5xl mx-auto">
+              <h2 className="text-xl font-bold mb-2 flex items-center">
+                <svg
+                  className="w-6 h-6 text-red-500 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+                {data?.reason
+                  ? "Document Previously Rejected — Reason:"
+                  : "Document Rejected"}
+              </h2>
+
+              <p className="text-gray-400 mb-1">
+                <span className="font-semibold">Rejected At:</span>{" "}
+                {new Date(data?.rejectedAt).toLocaleString()}
+              </p>
+
+              <p className="text-gray-400">
+                <span className="font-semibold">Reason:</span> {data?.reason}
+              </p>
             </div>
           )}
         </div>

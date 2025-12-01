@@ -3,7 +3,6 @@ import IAdminAuthService from "../../../services/admin/interface/IAdminAuthServi
 import IAdminAuthController from "../interface/IAdminAuthController";
 import { AppError } from "../../../utils/Error";
 import HttpStatus from "../../../constants/htttpStatusCode";
-import { getS3SignedUrl } from "../../../config/Bucket";
 import { loginSchema, registerSchema } from "../../../helpers/zodvalidation";
 import crypto from "crypto";
 import { http } from "winston";
@@ -100,18 +99,8 @@ export class AdminAuthController implements IAdminAuthController {
   googleAuth = async (req: Request, res: Response): Promise<void> => {
     try {
       const { token } = req.body;
-      const { admin, accesstoken, refreshToken } =
+      const { mapedAdmin, accesstoken, refreshToken } =
         await this._adminauthService.googleAuth(token);
-      const data = {
-        _id: admin._id,
-        role: admin.role,
-        restaurantName: admin.restaurantName,
-        email: admin.email,
-        googleId: admin.googleID,
-        imageUrl: admin.imageUrl,
-        status: admin.status,
-      };
-
       res.cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: false,
@@ -120,7 +109,7 @@ export class AdminAuthController implements IAdminAuthController {
       });
       res.status(200).json({
         success: true,
-        data,
+        data: mapedAdmin,
         accesstoken,
       });
     } catch (error) {
@@ -163,10 +152,8 @@ export class AdminAuthController implements IAdminAuthController {
       }
       const { email, password } = parsed.data;
 
-      const { admin, token, refreshToken } = await this._adminauthService.login(
-        email,
-        password
-      );
+      const { mapedAdmin, token, refreshToken } =
+        await this._adminauthService.login(email, password);
 
       res.cookie("refresh_token", refreshToken, {
         httpOnly: true,
@@ -174,7 +161,7 @@ export class AdminAuthController implements IAdminAuthController {
         sameSite: "strict",
         maxAge: refreshTokenMaxAge,
       });
-      res.json({ admin, token });
+      res.json({ admin: mapedAdmin, token });
     } catch (error) {
       const err = error as Error;
       res
@@ -256,43 +243,20 @@ export class AdminAuthController implements IAdminAuthController {
             proofDocument?: Express.Multer.File[];
           }
         | undefined;
-      // const restaurantPhotoPath = files?.restaurantPhoto?.[0]?.path;
-      // const proofDocumentPath = files?.proofDocument?.[0]?.path;
-      // const restaurantPhoto = files?.restaurantPhoto?.[0]?.location;
-      // const proofDocument = files?.proofDocument?.[0]?.location;
-      // const restaurantPhotoKey = files?.restaurantPhoto?.[0]?.key;
-      // const proofDocumentKey = files?.proofDocument?.[0]?.key;
+      const restaurantPhotoKey = files?.restaurantPhoto?.[0]?.key;
+      const proofDocumentKey = files?.proofDocument?.[0]?.key;
 
-      // const restaurantPhoto = restaurantPhotoKey
-      //   ? await getS3SignedUrl(restaurantPhotoKey)
-      //   : undefined;
+      // Construct public URLs directly
+      const bucketName = process.env.S3_BUCKET_NAME;
+      const region = process.env.AWS_REGION || "ap-south-1";
 
-      // const proofDocument = proofDocumentKey
-      //   ? await getS3SignedUrl(proofDocumentKey)
-      //   : undefined;
-       const restaurantPhotoKey = files?.restaurantPhoto?.[0]?.key;
-    const proofDocumentKey = files?.proofDocument?.[0]?.key;
+      const restaurantPhoto = restaurantPhotoKey
+        ? `https://${bucketName}.s3.${region}.amazonaws.com/${restaurantPhotoKey}`
+        : undefined;
 
-    // Construct public URLs directly
-    const bucketName = process.env.S3_BUCKET_NAME;
-    const region = process.env.AWS_REGION || "ap-south-1";
-
-    const restaurantPhoto = restaurantPhotoKey
-      ? `https://${bucketName}.s3.${region}.amazonaws.com/${restaurantPhotoKey}`
-      : undefined;
-
-    const proofDocument = proofDocumentKey
-      ? `https://${bucketName}.s3.${region}.amazonaws.com/${proofDocumentKey}`
-      : undefined;
-
-      // const restaurantPhoto = restaurantPhotoPath
-      //   ? "/uploads/" + restaurantPhotoPath.split(/[/\\]/).pop()
-      //   : undefined;
-
-      // const proofDocument = proofDocumentPath
-      //   ? "/uploads/" + proofDocumentPath.split(/[/\\]/).pop()
-      //   : undefined;
-
+      const proofDocument = proofDocumentKey
+        ? `https://${bucketName}.s3.${region}.amazonaws.com/${proofDocumentKey}`
+        : undefined;
       console.log(restaurantPhoto, proofDocument);
       const response = await this._adminauthService.registerRestaurant({
         email,
@@ -317,5 +281,47 @@ export class AdminAuthController implements IAdminAuthController {
     }
   };
 
- 
+  getStatus = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const adminId = req.params.id as string;
+      const responseStatus = await this._adminauthService.getStatus(adminId);
+      res.status(200).json({
+        success: true,
+        status: responseStatus,
+      });
+    } catch (error: any) {
+      throw new AppError(error?.message || "Something went wrong");
+    }
+  };
+
+ updateDoc = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const adminId = req.params.id;
+
+    if (!adminId) {
+      throw new AppError("Admin ID is required", HttpStatus.BAD_REQUEST);
+    }
+       const proofDocument = req.file;
+       console.log(proofDocument,'document is ehr')
+      const bucketName = process.env.S3_BUCKET_NAME;
+      const region = process.env.AWS_REGION || "ap-south-1";  
+       const Document = proofDocument
+        ? `https://${bucketName}.s3.${region}.amazonaws.com/${proofDocument.key}`
+        : undefined;   
+        const file = Document
+    if (!file) {
+      throw new AppError("No document uploaded", HttpStatus.BAD_REQUEST);
+    }
+    console.log(file,'file is here ameer ali vk')
+    const updatedAdmin = await this._adminauthService.updateDocument(adminId,file);
+    res.status(200).json({
+      success: true,
+      message: "Document updated successfully",
+      admin: updatedAdmin,
+    });
+  } catch (error:any) {
+     throw new AppError(error?.message || "Something went wrong");
+  }
+};
+
 }

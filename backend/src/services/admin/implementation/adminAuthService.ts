@@ -5,11 +5,12 @@ import { generateOtp } from "../../../helpers/generateOtp";
 import { AppError } from "../../../utils/Error";
 import redisClient from "../../../config/redisClient";
 import bcrypt from "bcrypt";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import axios from "axios";
 import { sendResetPasswordEmail, sentOtp } from "../../../helpers/sentOtp";
 import crypto from "crypto";
 import { resendOtpEmail } from "../../../helpers/sentOtp";
-
+import s3 from "../../../config/Bucket";
 import {
   generateRefreshToken,
   generateToken,
@@ -18,7 +19,7 @@ import {
 import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
 import { email, string, success } from "zod";
 import IAdminAuthService from "../interface/IAdminAuthService";
-import { adminDataMapping, IMappedAdminData } from "../../../utils/dto/adminDto";
+import { AdminDTO, adminDTO } from "../../../utils/dto/adminDto";
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 export class AdminAuthService implements IAdminAuthService {
   constructor(private _adminAuthRepository: IAdminAuthRepository) {}
@@ -77,8 +78,8 @@ export class AdminAuthService implements IAdminAuthService {
       admin?._id as string,
       admin?.role
     );
-
-    return { admin, accesstoken, refreshToken };
+    const mapedAdmin = adminDTO(admin);
+    return { mapedAdmin, accesstoken, refreshToken };
   };
 
   async verifyOtp(email: string, otp: string) {
@@ -181,7 +182,7 @@ export class AdminAuthService implements IAdminAuthService {
   async login(
     email: string,
     password: string
-  ): Promise<{ admin: IAdmin; token: string; refreshToken: string }> {
+  ): Promise<{ mapedAdmin: AdminDTO; token: string; refreshToken: string }> {
     const admin = await this._adminAuthRepository.findByEmail(email);
     if (!admin) {
       throw new AppError(MESSAGES.ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -194,8 +195,8 @@ export class AdminAuthService implements IAdminAuthService {
 
     const token = generateToken(admin._id as string, admin.role);
     const refreshToken = generateRefreshToken(admin._id as string, admin.role);
-
-    return { admin, token, refreshToken };
+    const mapedAdmin = adminDTO(admin);
+    return { mapedAdmin, token, refreshToken };
   }
 
   async updatePassword(
@@ -227,7 +228,6 @@ export class AdminAuthService implements IAdminAuthService {
     }
   }
 
-
   async registerRestaurant(
     data: IRestaurantRegisterData
   ): Promise<{ success: boolean; message: string }> {
@@ -246,5 +246,63 @@ export class AdminAuthService implements IAdminAuthService {
     } catch (error: any) {
       throw new AppError(error);
     }
+  }
+
+  async getStatus(adminId: string) {
+    const admin = await this._adminAuthRepository.findById(adminId);
+    console.log(admin, "admin is here");
+    if (!admin) return null;
+
+    const responseStatus: any = {
+      status: admin.status,
+      role: admin.role,
+      isBlocked: admin.isBlocked,
+      restaurantName: admin.restaurantName,
+      email: admin.email,
+    };
+
+    if (admin.status === "rejected") {
+      responseStatus.rejectionReason = admin.rejectionReason || "";
+      responseStatus.rejectedAt = admin.rejectedAt || null;
+    }
+
+    return responseStatus;
+  }
+
+  async updateDocument(adminId: string, file: string) {
+    const admin = await this._adminAuthRepository.findById(adminId);
+
+    if (!admin) {
+      throw new AppError("Admin not found", HttpStatus.NOT_FOUND);
+    }
+
+    const oldKey = admin.proofDocument;
+    console.log(oldKey, "oldkey is here");
+    if (oldKey) {
+      const bucketName = process.env.S3_BUCKET_NAME!;
+      const region = process.env.AWS_REGION || "ap-south-1";
+
+      // Extract the S3 object key from full URL
+      const key = oldKey.replace(
+        `https://${bucketName}.s3.${region}.amazonaws.com/`,
+        ""
+      );
+      console.log(key, "key is here");
+
+      if (key) {
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: bucketName,
+            Key: key,
+          })
+        );
+      }
+    }
+    const updatedAdmin = await this._adminAuthRepository.updateById(adminId, {
+      proofDocument: file,
+      status:"resubmitted"
+    });
+
+    return { success: true, message: MESSAGES.DOC_IMAGE_UPDATED };
   }
 }

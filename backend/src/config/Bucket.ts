@@ -11,17 +11,17 @@ const s3 = new S3Client({
 });
 
 
-export const getS3SignedUrl = async (key: string): Promise<string> => {
-  if (!key) return ""; // or return undefined if you prefer
+// export const getS3SignedUrl = async (key: string): Promise<string> => {
+//   if (!key) return ""; // or return undefined if you prefer
 
-  const command = new GetObjectCommand({
-    Bucket: process.env.S3_BUCKET_NAME,
-    Key: key,
-  });
+//   const command = new GetObjectCommand({
+//     Bucket: process.env.S3_BUCKET_NAME,
+//     Key: key,
+//   });
 
-  // URL will expire in 1 hour (3600 seconds)
-  const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
-  return url;
-};
+//   // URL will expire in 1 hour (3600 seconds)
+//   const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+//   return url;
+// };
 
 export default s3;

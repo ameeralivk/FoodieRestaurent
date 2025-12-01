@@ -39,4 +39,26 @@ export class SuperAdminController implements ISuperAdminController {
       });
     }
   };
+
+
+   rejectRestaurant = async (req: Request, res: Response) => {
+    try {
+      const { id} = req.params;
+      const {reason} = req.body
+      const updatedRestaurant = await this._superAdminService.rejectRestaurant(
+        id as string,
+        reason as string
+      );
+      res.status(200).json({
+        success: true,
+        message: "Restaurant rejection successfully",
+        data: updatedRestaurant,
+      });
+    } catch (err: any) {
+      res.status(400).json({
+        success: false,
+        message: err.message || "Failed to approve restaurant",
+      });
+    }
+  };
 }

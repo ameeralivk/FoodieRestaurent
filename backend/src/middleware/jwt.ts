@@ -4,6 +4,7 @@ import { Request, Response, NextFunction } from "express";
 import logger from "../config/logger";
 import { Http } from "winston/lib/winston/transports";
 import HttpStatus from "../constants/htttpStatusCode";
+import { MESSAGES } from "../constants/messages";
 const generateToken = (
   id: string | mongoose.Types.ObjectId | undefined,
   role: string | undefined
@@ -70,16 +71,22 @@ export const verifyAccessToken = (
       return;
     }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    ) as DecodedUser;
-
-    (req as any).user = decoded;
-    next(); 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedUser;
+    const user = ((req as any).user = decoded);
+    const role = user.role;
+    console.log(role, "role is here");
+    if (role === "admin" || role === "superadmin") {
+      next();
+    } else {
+      res
+        .status(HttpStatus.FORBIDDEN)
+        .json({ message: MESSAGES.ADMIN_UNAUTHERIZED_ERROR });
+    }
   } catch (error: any) {
     console.error("Token verification failed:", error.message);
-    res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid or expired token" });
+    res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ message: "Invalid or expired token" });
   }
 };
 

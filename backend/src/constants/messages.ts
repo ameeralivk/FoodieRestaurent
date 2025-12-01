@@ -45,5 +45,7 @@ export const MESSAGES = {
   USER_CREATED_SUCCESS: "User created Successfully",
   USER_CREATED_FAILED: "User creation Failed",
   USER_ALREADY_EXIST: "User is already exist with same Email",
-  USER_NOT_FOUND: "User not Found"
+  USER_NOT_FOUND: "User not Found",
+  ADMIN_UNAUTHERIZED_ERROR:"Forbidden: Admins only",
+  DOC_IMAGE_UPDATED:"Document Updated Successfully"
 };

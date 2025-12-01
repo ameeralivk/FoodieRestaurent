@@ -2,7 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import storage from "redux-persist/lib/storage";
 const typedStorage = storage as unknown as import("redux-persist").Storage;
 export default typedStorage;
-import authReducer from '../slice/adminSlice'
+import authReducer from "../slice/adminSlice"
 import userAuthSlice from "../slice/userSlice"
 import persistReducer from "redux-persist/es/persistReducer";
 import persistStore from "redux-persist/es/persistStore";

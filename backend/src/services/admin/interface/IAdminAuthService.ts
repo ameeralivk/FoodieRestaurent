@@ -1,14 +1,14 @@
 import { otpResponse } from "../../../helpers/sentOtp";
 import { AdminDocument } from "../../../models/admin";
 import { IAdmin } from "../../../types/admin";
-import type { IRestaurantRegisterData } from "../../../types/admin";
+import type { IAdminStatusBase, IRestaurantRegisterData } from "../../../types/admin";
 import type { GeoLocation } from "../../../types/admin";
-import { IMappedAdminData } from "../../../utils/dto/adminDto";
+import { AdminDTO } from "../../../utils/dto/adminDto";
 export default interface IAdminAuthService {
   login(
     email: string,
     password: string
-  ): Promise<{ admin: IAdmin; token: string; refreshToken: string }>;
+  ): Promise<{ mapedAdmin: AdminDTO; token: string; refreshToken: string }>;
   register(
     restaurantName: String,
     email: String,
@@ -27,7 +27,11 @@ export default interface IAdminAuthService {
   resendOtp(email: string): Promise<{ success: boolean; message: string }>;
   googleAuth(
     accessToken: string
-  ): Promise<{ admin: IAdmin; accesstoken: string; refreshToken: string }>;
+  ): Promise<{
+    mapedAdmin: AdminDTO;
+    accesstoken: string;
+    refreshToken: string;
+  }>;
   refreshToken(refreshToken: string): Promise<{ newAccessToken: string }>;
   createLink(email: string): Promise<{ success: boolean; message: string }>;
   updatePassword(
@@ -38,4 +42,6 @@ export default interface IAdminAuthService {
   registerRestaurant(
     Data: IRestaurantRegisterData
   ): Promise<{ success: boolean; message: string }>;
+  getStatus(adminId: string): Promise<{ responseStatus:IAdminStatusBase}>;
+  updateDocument(adminId:string,file:string):Promise<{success:boolean,message:string}>
 }

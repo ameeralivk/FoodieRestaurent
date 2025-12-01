@@ -1,9 +1,10 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { AdminType } from "../../types/AdminTypes";
-
 interface AuthState {
   admin: AdminType | null;
   token: string | null;
+  loading:boolean;
+  error:string;
 }
 
 interface LoginPayload {
@@ -18,6 +19,8 @@ interface SetAccessTokenPayload {
 const initialState: AuthState = {
   admin: null,
   token: null,
+  loading:false,
+  error:"",
 };
 
 const authSlice = createSlice({
