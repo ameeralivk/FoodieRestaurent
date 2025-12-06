@@ -2,25 +2,24 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { AdminType } from "../../types/AdminTypes";
 interface AuthState {
   admin: AdminType | null;
-  token: string | null;
-  loading:boolean;
-  error:string;
+  loading: boolean;
+  isAuthenticated:boolean;
+  error: string;
 }
 
 interface LoginPayload {
   admin: AdminType;
-  token: string;
 }
 
-interface SetAccessTokenPayload {
-  newAccessToken: string;
-}
+// interface SetAccessTokenPayload {
+//   newAccessToken: string;
+// }
 
 const initialState: AuthState = {
   admin: null,
-  token: null,
-  loading:false,
-  error:"",
+  isAuthenticated:false,
+  loading: false,
+  error: "",
 };
 
 const authSlice = createSlice({
@@ -28,16 +27,24 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     loginAction: (state, action: PayloadAction<LoginPayload>) => {
-      const { admin, token } = action.payload;
+      const { admin} = action.payload;
       state.admin = { ...admin };
-      state.token = token;
     },
     logoutAction: (state) => {
       state.admin = null;
-      state.token = null;
     },
-    setAccessToken: (state, action: PayloadAction<SetAccessTokenPayload>) => {
-      state.token = action.payload.newAccessToken;
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setAuth: (
+      state,
+      action: PayloadAction<{ isAuthenticated: boolean; user?: any }>
+    ) => {
+      state.isAuthenticated = action.payload.isAuthenticated;
+    },
+
+    clearAuth: (state) => {
+      state.isAuthenticated = false;
     },
     updateStatus: (state, action: PayloadAction<string>) => {
       if (state.admin) {
@@ -47,5 +54,12 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginAction, logoutAction, setAccessToken , updateStatus } = authSlice.actions;
+export const {
+  loginAction,
+  logoutAction,
+  updateStatus,
+  setAuth,
+  setLoading,
+  clearAuth,
+} = authSlice.actions;
 export default authSlice.reducer;

@@ -73,7 +73,6 @@ export const userregisterSchema = z.object({
     ),
 });
 
-
 export const userloginSchema = z.object({
   email: z
     .string()
@@ -89,4 +88,27 @@ export const userloginSchema = z.object({
       /(?=.*[@$!%*?&])/,
       "Password must contain at least one special character"
     ),
+});
+
+
+
+export const subscriptionPlanSchema = z.object({
+  planName: z.string().min(1, "Plan name is required"),
+
+  price: z
+    .number({ message: "Price must be a number" })
+    .min(1, "Price must be positive"),
+
+  duration: z.coerce.string().min(1, "Duration is required"),
+
+
+  noOfStaff: z
+    .number({ message: "Staff must be a number" })
+    .min(1, "Staff must be positive"),
+
+  noOfDishes: z
+    .number({ message: "Dish count must be a number" })
+    .min(1, "Dish count must be positive"),
+
+  features: z.array(z.string()).optional().default([]),
 });

@@ -4,7 +4,7 @@ import { showSuccessToast } from "../Components/Elements/SuccessToast";
 import { showErrorToast } from "../Components/Elements/ErrorToast";
 import { AxiosError } from "axios";
 import api from "./Api";
-import { loginAction } from "../redux/slice/adminSlice";
+import { loginAction, setAuth } from "../redux/slice/adminSlice";
 import type { AppDispatch } from "../redux/store/store";
 import { toast } from "react-toastify";
 import type { AdminType, resetPassword } from "../types/AdminTypes";
@@ -12,7 +12,6 @@ import { AfterLoading, loadingToast } from "../Components/Elements/Loading";
 import { useNavigate } from "react-router-dom";
 import type { RegisterFormData } from "../types/AdminTypes";
 import type { ForgetPasswordFormData } from "../types/AdminTypes";
-import { createAsyncThunk } from "@reduxjs/toolkit";
 interface registerFormData {
   restaurantName: string;
   email: string;
@@ -105,10 +104,9 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
           dispatch(
             loginAction({
               admin: saveddata,
-              token: access_token,
             })
           );
-
+          dispatch(setAuth({isAuthenticated:true}))
           showSuccessToast("Google login successful!");
 
           navigate("/admin/onboarding");
@@ -275,7 +273,6 @@ export const getStatus = async (adminId: string) => {
   }
 };
 
-
 export const updateDocument = async (adminId: string, file: File) => {
   try {
     const formData = new FormData();
@@ -302,5 +299,29 @@ export const updateDocument = async (adminId: string, file: File) => {
       );
     }
     throw new Error("Something went wrong. Please try again.");
+  }
+};
+
+export const logoutRequest = async () => {
+  try {
+    const response = await api.post(
+      "/admin/auth/logout",
+      {},
+      { withCredentials: true }
+    );
+    console.log(response, "ameer");
+    if (response.data?.success) {
+      return response.data;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.message || "Logout failed";
+      showErrorToast(message);
+    } else {
+      showErrorToast("An unknown error occurred");
+    }
+    return null;
   }
 };

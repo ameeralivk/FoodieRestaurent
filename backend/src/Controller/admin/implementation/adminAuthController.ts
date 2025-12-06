@@ -17,7 +17,7 @@ export class AdminAuthController implements IAdminAuthController {
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void> => {
+  ): Promise<Response | void> => {
     try {
       const parsed = registerSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -32,21 +32,21 @@ export class AdminAuthController implements IAdminAuthController {
         role
       );
       if (message.success) {
-        res.status(HttpStatus.OK).json({ message });
+        return res.status(HttpStatus.OK).json({ message });
       } else {
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Failed to SentOtp" });
       }
     } catch (error) {
-      next(error);
+      return next(error);
     }
   };
   verifyOtp = async (
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void> => {
+  ): Promise<Response | void> => {
     try {
       const { email, otp } = req.body;
       const { success, message, data, accesstoken } =
@@ -54,7 +54,7 @@ export class AdminAuthController implements IAdminAuthController {
       if (success) {
         res.status(HttpStatus.OK).json({ message, data, accesstoken });
       } else {
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Failed to SentOtp" });
       }
@@ -66,7 +66,7 @@ export class AdminAuthController implements IAdminAuthController {
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void> => {
+  ): Promise<Response | void> => {
     try {
       const { email } = req.body;
       const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -81,12 +81,12 @@ export class AdminAuthController implements IAdminAuthController {
         email
       );
       if (success) {
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: message,
         });
       } else {
-        res.status(HttpStatus.BAD_REQUEST).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: message,
         });
@@ -96,7 +96,7 @@ export class AdminAuthController implements IAdminAuthController {
     }
   };
 
-  googleAuth = async (req: Request, res: Response): Promise<void> => {
+  googleAuth = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { token } = req.body;
       const { mapedAdmin, accesstoken, refreshToken } =
@@ -107,14 +107,22 @@ export class AdminAuthController implements IAdminAuthController {
         sameSite: "strict",
         maxAge: refreshTokenMaxAge,
       });
-      res.status(200).json({
+      res.cookie("access_token", accesstoken, {
+        httpOnly: true,
+        secure: false, 
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000, 
+      });
+      return res.status(200).json({
         success: true,
         data: mapedAdmin,
         accesstoken,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ success: false, message: "Google auth failed" });
+      return res
+        .status(500)
+        .json({ success: false, message: "Google auth failed" });
     }
   };
 
@@ -132,7 +140,12 @@ export class AdminAuthController implements IAdminAuthController {
       const { newAccessToken } = await this._adminauthService.refreshToken(
         refreshToken
       );
-
+       res.cookie("access_token", newAccessToken, {
+        httpOnly: true,
+        secure: false, 
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000, 
+      });
       res.status(HttpStatus.OK).json({ accessToken: newAccessToken });
     } catch (error) {
       const err = error as Error;
@@ -143,7 +156,7 @@ export class AdminAuthController implements IAdminAuthController {
     }
   };
 
-  login = async (req: Request, res: Response): Promise<void> => {
+  login = async (req: Request, res: Response): Promise<Response> => {
     try {
       const parsed = loginSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -154,66 +167,71 @@ export class AdminAuthController implements IAdminAuthController {
 
       const { mapedAdmin, token, refreshToken } =
         await this._adminauthService.login(email, password);
-
+      res.cookie("access_token", token, {
+        httpOnly: true,
+        secure: false, 
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000, 
+      });
       res.cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: false,
         sameSite: "strict",
         maxAge: refreshTokenMaxAge,
       });
-      res.json({ admin: mapedAdmin, token });
+      return res.json({ admin: mapedAdmin, token });
     } catch (error) {
       const err = error as Error;
-      res
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: err?.message || MESSAGES.SERVER_ERROR });
     }
   };
 
-  forgetPassword = async (req: Request, res: Response): Promise<void> => {
+  forgetPassword = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { email } = req.body;
       if (!email) {
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ message: "Email is required" });
       }
       let response = await this._adminauthService.createLink(email);
       if (response.success) {
-        res
+        return res
           .status(HttpStatus.CREATED)
           .json({ succes: true, message: MESSAGES.LINK_SENT_SUCCESS });
       } else {
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ succes: false, message: MESSAGES.LINK_SENT_FAILED });
       }
     } catch (error: any) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message || "Something went Wrong",
       });
     }
   };
 
-  updatePassword = async (req: Request, res: Response): Promise<void> => {
+  updatePassword = async (req: Request, res: Response): Promise<Response> => {
     try {
       const token = req.query.token as string;
       const { newPassword, email } = req.body;
       if (!token) throw new AppError("Token is Missing");
       if (!newPassword)
-        res.status(400).json({ message: "New password is required" });
+        return res.status(400).json({ message: "New password is required" });
       let response = await this._adminauthService.updatePassword(
         token,
         newPassword,
         email
       );
       if (response.success) {
-        res
+        return res
           .status(HttpStatus.OK)
           .json({ success: true, message: MESSAGES.PASS_CHANGE_SUCCESS });
       } else {
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: response.message });
       }
@@ -223,7 +241,10 @@ export class AdminAuthController implements IAdminAuthController {
     }
   };
 
-  registerRestaurant = async (req: Request, res: Response): Promise<void> => {
+  registerRestaurant = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
     try {
       const {
         restaurantName,
@@ -272,7 +293,7 @@ export class AdminAuthController implements IAdminAuthController {
         proofDocument,
       });
       console.log(response, "ameer");
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: MESSAGES.RESTAURANT_REGISTER_COMPLETE,
       });
@@ -281,11 +302,11 @@ export class AdminAuthController implements IAdminAuthController {
     }
   };
 
-  getStatus = async (req: Request, res: Response): Promise<void> => {
+  getStatus = async (req: Request, res: Response): Promise<Response> => {
     try {
       const adminId = req.params.id as string;
       const responseStatus = await this._adminauthService.getStatus(adminId);
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         status: responseStatus,
       });
@@ -294,34 +315,36 @@ export class AdminAuthController implements IAdminAuthController {
     }
   };
 
- updateDoc = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const adminId = req.params.id;
+  updateDoc = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const adminId = req.params.id;
 
-    if (!adminId) {
-      throw new AppError("Admin ID is required", HttpStatus.BAD_REQUEST);
-    }
-       const proofDocument = req.file;
-       console.log(proofDocument,'document is ehr')
+      if (!adminId) {
+        throw new AppError("Admin ID is required", HttpStatus.BAD_REQUEST);
+      }
+      const proofDocument = req.file;
+      console.log(proofDocument, "document is ehr");
       const bucketName = process.env.S3_BUCKET_NAME;
-      const region = process.env.AWS_REGION || "ap-south-1";  
-       const Document = proofDocument
+      const region = process.env.AWS_REGION || "ap-south-1";
+      const Document = proofDocument
         ? `https://${bucketName}.s3.${region}.amazonaws.com/${proofDocument.key}`
-        : undefined;   
-        const file = Document
-    if (!file) {
-      throw new AppError("No document uploaded", HttpStatus.BAD_REQUEST);
+        : undefined;
+      const file = Document;
+      if (!file) {
+        throw new AppError("No document uploaded", HttpStatus.BAD_REQUEST);
+      }
+      console.log(file, "file is here ameer ali vk");
+      const updatedAdmin = await this._adminauthService.updateDocument(
+        adminId,
+        file
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Document updated successfully",
+        admin: updatedAdmin,
+      });
+    } catch (error: any) {
+      throw new AppError(error?.message || "Something went wrong");
     }
-    console.log(file,'file is here ameer ali vk')
-    const updatedAdmin = await this._adminauthService.updateDocument(adminId,file);
-    res.status(200).json({
-      success: true,
-      message: "Document updated successfully",
-      admin: updatedAdmin,
-    });
-  } catch (error:any) {
-     throw new AppError(error?.message || "Something went wrong");
-  }
-};
-
+  };
 }

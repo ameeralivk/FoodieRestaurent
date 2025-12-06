@@ -83,17 +83,32 @@ export class AdminAuthRepository
     return await this.model.findByIdAndUpdate(id, updateData, { new: true });
   }
 
-  async getAllRestaurant(): Promise<AdminDocument[]> {
+  async getAllRestaurant(
+    page: number,
+    limit: number,
+    filter: any = {}
+  ): Promise<{ data: AdminDocument[]; total: number }> {
     try {
-      return await this.getAll();
+      // return await this.getAll(
+      //   { role: "admin", status: { $exists: true } },
+      //   { page, limit }
+      // );
+      const finalFilter = {
+        role: "admin",
+        status: { $exists: true },
+        ...filter,
+      };
+      return await this.getAll(finalFilter,{page,limit});
     } catch (error: any) {
       console.error("Error fetching restaurants:", error);
       throw error;
     }
   }
 
-
-   async updateById(id: string, updateData: Partial<AdminDocument>): Promise<AdminDocument | null> {
+  async updateById(
+    id: string,
+    updateData: Partial<AdminDocument>
+  ): Promise<AdminDocument | null> {
     return this.findByIdAndUpdate(id, updateData);
   }
 }

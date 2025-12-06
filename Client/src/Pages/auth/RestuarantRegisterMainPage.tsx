@@ -8,15 +8,12 @@ import {
   FileText,
   Camera,
 } from "lucide-react";
-import type {
-  RegisterFormData,
-  RestaurantFormData,
-} from "../../types/AdminTypes";
+import type { RestaurantFormData } from "../../types/AdminTypes";
 import StaticMap from "../../Components/Component/RestaurantMainRegistraction/Map";
 import { updateDocument } from "../../services/Auth";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutAction, updateStatus } from "../../redux/slice/adminSlice";
+import { updateStatus } from "../../redux/slice/adminSlice";
 import type { RootState } from "../../redux/store/store";
 import { validateRestaurantForm } from "../../Validation/mainRegisterFormValidation";
 import ErrorPTag from "../../Components/Elements/ErrorParagraph";
@@ -118,13 +115,16 @@ const RestaurantMainRegistration = () => {
   }, [adminId]);
 
   useEffect(() => {
-    if (adminStatus?.status === "pending"||adminStatus?.status === "resubmitted") {
+    if (
+      adminStatus?.status === "pending" ||
+      adminStatus?.status === "resubmitted"
+    ) {
       setSuccessModal(true);
     } else {
       setSuccessModal(false);
     }
     if (adminStatus?.status === "approved") {
-      navigate("/admin/subscription");
+      navigate("/admin/dashboard");
     }
     if (adminStatus?.status === "rejected") {
       setIsModalOpen(true);
@@ -158,28 +158,40 @@ const RestaurantMainRegistration = () => {
     });
   };
 
+
   const handleSubmit = async () => {
-    const { isValid, errors } = validateRestaurantForm(formData);
-    if (!isValid) {
-      console.log(errors, "error");
-      setErrors(errors);
-      return;
-    }
-    setLoading(true);
-    console.log(formData);
-    const res = await registerRestaurant(formData);
-    if (res.success) {
+    try {
+      const { isValid, errors } = validateRestaurantForm(formData);
+
+      if (!isValid) {
+        console.log(errors, "error");
+        setErrors(errors);
+        return;
+      }
+
+      setLoading(true);
+
+      console.log(formData);
+
+      const res = await registerRestaurant(formData);
+
+      if (res.success) {
+        dispatch(updateStatus("pending"));
+        window.location.reload();
+      } else {
+        console.error("Registration failed:", res.message);
+      }
+    } catch (error) {
+      console.error("Error during submission:", error);
+    } finally {
       setLoading(false);
-      dispatch(updateStatus("pending"));
-      window.location.reload()
     }
   };
 
   async function handleReupload(file: File) {
     try {
+      const result = await updateDocument(adminId ? adminId : "", file);
 
-       const result = await updateDocument(adminId?adminId:"", file);
-  
       console.log("Updated:", result);
 
       setAdminStatus({
@@ -188,7 +200,7 @@ const RestaurantMainRegistration = () => {
         rejectedAt: "",
       });
 
-      setIsModalOpen(false); 
+      setIsModalOpen(false);
     } catch (error) {
       console.log("Reupload failed:", error);
     }

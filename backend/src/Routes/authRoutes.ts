@@ -18,8 +18,33 @@ router.route("/resent-otp").post(asyncHandler(authController.resendOtp));
 router.route("/googleAuth").post(asyncHandler(authController.googleAuth));
 router.route("/refresh-token").get(asyncHandler(authController.refreshToken));
 router.route("/login").post(asyncHandler(authController.login));
-router.route("/getStatus/:id").get(verifyAccessToken,asyncHandler(authController.getStatus));
-router.route("/update-doc/:id").put(verifyAccessToken,updateDocumentUpload,authController.updateDoc)
+router
+  .route("/getStatus/:id")
+  .get(verifyAccessToken, asyncHandler(authController.getStatus));
+router
+  .route("/update-doc/:id")
+  .put(verifyAccessToken, updateDocumentUpload, authController.updateDoc);
+router.get("/auth/me", verifyAccessToken, (req, res) => {
+  return res.json({
+    authenticated: true,
+    user: (req as any).user,
+  });
+});
+router.post("/logout", (req, res) => {
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "strict",
+  });
+  res.clearCookie("refresh_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+  res.clearCookie("accessToken");
+  return res.json({ success: true, message: "Logged out ready ayi mone" });
+});
+
 router
   .route("/forget-password")
   .post(asyncHandler(authController.forgetPassword))

@@ -2,7 +2,6 @@ import { verifyOtp, resendOtp } from "../../../services/Auth";
 import { showSuccessToast } from "../../Elements/SuccessToast";
 import { showErrorToast } from "../../Elements/ErrorToast";
 import type { AdminType } from "../../../types/AdminTypes";
-import { loginAction } from "../../../redux/slice/adminSlice";
 import { userResendOtp, userVerifyOtp } from "../../../services/userAuth";
 import { userLoginAction } from "../../../redux/slice/userSlice";
 import { useNavigate } from "react-router-dom";
@@ -55,8 +54,8 @@ export const createOtpHandlers = (dispatch: any, email: string) => {
         imageUrl: "",
         status: res.data.user.status || "",
       };
-      dispatch(userLoginAction({ user: data, token: res.accesstoken }));
-      navigate('/user')
+      dispatch(userLoginAction({ user: data }));
+      navigate("/user");
     } catch (err: any) {
       showErrorToast(err.message);
     }

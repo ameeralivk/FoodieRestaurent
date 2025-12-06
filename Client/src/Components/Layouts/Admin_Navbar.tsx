@@ -1,25 +1,30 @@
 import React, { useState } from "react";
 import { ChefHat, Menu, X, LogOut } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { logoutAction } from "../../redux/slice/adminSlice";
+import { logoutAction, setAuth } from "../../redux/slice/adminSlice";
 import { showConfirm } from "../Elements/ConfirmationSwall";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { logoutRequest } from "../../services/Auth";
 interface role {
   role: String;
 }
 const Admin_Navbar: React.FC<role> = ({ role }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-   const dispatch = useDispatch();
-   const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   function handleLogout() {
     console.log("hi");
     showConfirm("Logout", "Do you really want to logout?", "Logout", "Cancel")
-      .then((confirmed) => {
+      .then(async (confirmed) => {
         if (confirmed) {
-          dispatch(logoutAction());
-          Swal.fire("Logged out!", "You have been logged out.", "success");
-          navigate('/admin/login')
+          const res = await logoutRequest();
+          if (res) {
+            dispatch(logoutAction());
+            dispatch(setAuth({ isAuthenticated: false }));
+            Swal.fire("Logged out!", "You have been logged out.", "success");
+            navigate("/admin/login");
+          }
         }
       })
       .catch((err) => console.error(err));
@@ -29,7 +34,7 @@ const Admin_Navbar: React.FC<role> = ({ role }) => {
       {/* Left section - Logo */}
       <div className="flex items-center gap-3">
         <ChefHat size={22} className="text-[#EDAB12]" />
-        <span className="cursor-pointer font-semibold tracking-wide text-sm sm:text-base">
+        <span className="cursor-pointer font-semibold tracking-wide text-sm ml-6 sm:text-base">
           FOODIE PALACE
         </span>
       </div>
@@ -58,7 +63,7 @@ const Admin_Navbar: React.FC<role> = ({ role }) => {
         <button className="bg-[#383329] w-24 rounded-md h-[30px] hover:bg-[#4a4033] transition">
           Sign Up
         </button>
-        {role=="admin" && <LogOut color="white" onClick={handleLogout} />}
+        {role == "admin" && <LogOut color="white" onClick={handleLogout} />}
       </ul>
 
       <button

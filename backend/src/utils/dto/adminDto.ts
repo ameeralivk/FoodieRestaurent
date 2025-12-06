@@ -30,16 +30,15 @@ export const adminDTO = (admin: AdminDocument): AdminDTO => {
     email: admin.email,
     googleId: admin.googleID || null,
     imageUrl: admin.imageUrl || null,
-    status: admin.status??"",
+    status: admin.status ?? "",
     rejectedAt: admin.rejectedAt || null,
     rejectionReason: admin.rejectionReason || null,
   };
 };
 
-
 export const mapAdminStatusDTO = (admin: AdminDocument): AdminStatusDTO => {
   const dto: AdminStatusDTO = {
-    status:admin.status,
+    status: admin.status,
     role: admin.role,
     isBlocked: admin.isBlocked,
     restaurantName: admin.restaurantName,

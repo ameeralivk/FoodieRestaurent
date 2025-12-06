@@ -13,7 +13,7 @@ const refreshTokenMaxAge =
 export class UserAuthController implements IUserAuthController {
   constructor(private _userAuthService: IUserAuthService) {}
 
-  register = async (req: Request, res: Response): Promise<void> => {
+  register = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { name, email, password } = req.body;
       let parsed = userregisterSchema.safeParse(req.body);
@@ -25,7 +25,7 @@ export class UserAuthController implements IUserAuthController {
       if (!result.success) {
         throw new Error(result.message);
       }
-      res
+     return res
         .status(HttpStatus.CREATED)
         .json({ success: true, message: MESSAGES.OTP_SENT_SUCCESS });
     } catch (error) {
@@ -38,24 +38,24 @@ export class UserAuthController implements IUserAuthController {
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void> => {
+  ): Promise<Response> => {
     try {
       const { email, otp } = req.body;
       const { success, message, data, accesstoken } =
         await this._userAuthService.verifyOtp(email, otp);
       if (success) {
-        res.status(HttpStatus.OK).json({ message, data, accesstoken });
+       return res.status(HttpStatus.OK).json({ message, data, accesstoken });
       } else {
-        res
+       return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: MESSAGES.OTP_INCORRECT });
       }
-    } catch (error) {
-      next(error);
+    } catch (error:any) {
+      throw new AppError(error.message)
     }
   };
 
-  login = async (req: Request, res: Response): Promise<void> => {
+  login = async (req: Request, res: Response): Promise<Response> => {
     try {
       const parsed = userloginSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -75,16 +75,22 @@ export class UserAuthController implements IUserAuthController {
         sameSite: "strict",
         maxAge: refreshTokenMaxAge,
       });
-      res.json({ user, token });
+       res.cookie("access_token", token, {
+        httpOnly: true,
+        secure: false, 
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000, 
+      });
+     return  res.json({ user, token });
     } catch (error) {
       const err = error as Error;
-      res
+     return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: err?.message || MESSAGES.SERVER_ERROR });
     }
   };
 
-  googleAuth = async (req: Request, res: Response): Promise<void> => {
+  googleAuth = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { token } = req.body;
       const { user, accesstoken, refreshToken } =
@@ -104,61 +110,67 @@ export class UserAuthController implements IUserAuthController {
         sameSite: "strict",
         maxAge: refreshTokenMaxAge,
       });
-      res.status(200).json({
+       res.cookie("access_token", accesstoken, {
+        httpOnly: true,
+        secure: false, 
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000, 
+      });
+     return res.status(200).json({
         success: true,
         data,
         accesstoken,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ success: false, message: "Google auth failed" });
+     return res.status(500).json({ success: false, message: "Google auth failed" });
     }
   };
 
-  forgetPassword = async (req: Request, res: Response): Promise<void> => {
+  forgetPassword = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { email } = req.body;
       if (!email) {
-        res
+       return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ message: "Email is required" });
       }
       let response = await this._userAuthService.createLink(email);
       if (response.success) {
-        res
+       return res
           .status(HttpStatus.CREATED)
           .json({ succes: true, message: MESSAGES.LINK_SENT_SUCCESS });
       } else {
-        res
+       return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ succes: false, message: MESSAGES.LINK_SENT_FAILED });
       }
     } catch (error: any) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message || "Something went Wrong",
       });
     }
   };
 
-  updatePassword = async (req: Request, res: Response): Promise<void> => {
+  updatePassword = async (req: Request, res: Response): Promise<Response> => {
     try {
       const token = req.query.token as string;
       const { newPassword, email } = req.body;
       if (!token) throw new AppError("Token is Missing");
       if (!newPassword)
-        res.status(400).json({ message: "New password is required" });
+       return res.status(400).json({ message: "New password is required" });
       let response = await this._userAuthService.updatePassword(
         token,
         newPassword,
         email
       );
       if (response.success) {
-        res
+        return res
           .status(HttpStatus.OK)
           .json({ success: true, message: MESSAGES.PASS_CHANGE_SUCCESS });
       } else {
-        res
+       return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: response.message });
       }
@@ -172,7 +184,7 @@ export class UserAuthController implements IUserAuthController {
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void> => {
+  ): Promise<Response> => {
     try {
       const { email } = req.body;
       const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -185,18 +197,18 @@ export class UserAuthController implements IUserAuthController {
       }
       const { message, success } = await this._userAuthService.resendOtp(email);
       if (success) {
-        res.status(HttpStatus.OK).json({
+      return  res.status(HttpStatus.OK).json({
           success: true,
           message: message,
         });
       } else {
-        res.status(HttpStatus.BAD_REQUEST).json({
+       return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: message,
         });
       }
-    } catch (error) {
-      next(error);
+    } catch (error:any) {
+      throw new AppError(error.message)
     }
   };
 }

@@ -7,7 +7,8 @@ import RestaurantMainRegistration from "../Pages/auth/RestuarantRegisterMainPage
 import ProtectedRoute from "./protectedRoute";
 import PublicRoute from "./publicRoute";
 import ResetPasswordPage from "../Pages/auth/forgetPasswordResetPage";
-import SubscriptionPlans from "../Pages/admin/SubscriptionPage";
+import AdminDashboard from "../Pages/admin/AdminDashboard";
+import AdminSubscriptionPage from "../Pages/admin/AdminSubscriptionPage";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -18,7 +19,8 @@ const AdminRoutes = () => {
       {/* <Route path="/otp" element={<OTPVerificationModal modalOpen={true} email=""/>}/> */}
       <Route path="/reset-password" element={<ResetPasswordPage/>}/>
       <Route path="/*" element={<PageNotFound />} />
-      <Route path="/subscription" element={<ProtectedRoute><SubscriptionPlans/></ProtectedRoute>}/>
+      <Route path="/dashboard" element={<ProtectedRoute><AdminDashboard/></ProtectedRoute>}/>
+       <Route path="/subscriptionplan" element={<AdminSubscriptionPage/>}/>
     </Routes>
   );
 };

@@ -38,8 +38,6 @@ import { useNavigate } from "react-router-dom";
 //   }
 // };
 
-
-
 export const handleUserLogin = async (
   email: string,
   password: string,
@@ -66,7 +64,6 @@ export const handleUserLogin = async (
       dispatch(
         userLoginAction({
           user: userData,
-          token: response.data.token,
         })
       );
 
@@ -156,7 +153,7 @@ export const userResendOtp = async (email: string) => {
 };
 
 export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
-    const navigate= useNavigate()
+  const navigate = useNavigate();
   return useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -166,7 +163,6 @@ export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
         console.log(res.data, "data is here");
         if (res.data.success) {
           console.log(res.data, "data is here");
-          const access_token = res.data.accesstoken;
 
           const saveddata: AdminType = {
             _id: res.data.data._id,
@@ -181,12 +177,11 @@ export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
           dispatch(
             userLoginAction({
               user: saveddata,
-              token: access_token,
             })
           );
 
           showSuccessToast("Google login successful!");
-          navigate('/user')
+          navigate("/user");
         } else {
           showErrorToast("Google authentication failed!");
         }
@@ -208,7 +203,6 @@ export const handleUserForgetPasswordSubmit = async (
       email: formData.email,
     });
 
-    // Update toast based on API response
     console.log(response, "res ");
     if (response.data.success || response.data.succes) {
       await AfterLoading(

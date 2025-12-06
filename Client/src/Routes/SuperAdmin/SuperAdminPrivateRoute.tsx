@@ -1,12 +1,11 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type{ RootState } from "../../redux/store/store";
-
 const SuperAdminRoute: React.FC = () => {
-  const token = useSelector((state: RootState) => state.auth.token);
   const admin = useSelector((state: RootState) => state.auth.admin);
-
-  if (!token) {
+  const authenticated = useSelector((state:RootState)=>state.auth.isAuthenticated)
+  console.log(authenticated,'auth')
+  if (!admin || authenticated === false) {
     return <Navigate to="/admin/login" replace />;
   }
 

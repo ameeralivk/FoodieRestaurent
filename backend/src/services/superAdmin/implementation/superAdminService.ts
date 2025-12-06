@@ -3,23 +3,43 @@ import { IAdminAuthRepository } from "../../../Repositories/Admin/interface/IAdm
 import { IMappedAdminData } from "../../../utils/dto/SuperAdminDto";
 import { AppError } from "../../../utils/Error";
 import { SuperadminDataMapping } from "../../../utils/dto/SuperAdminDto";
+import { AdminDocument } from "../../../models/admin";
 export class SuperAdminService implements ISuperAdminService {
   constructor(private _adminAuthRepository: IAdminAuthRepository) {}
 
-  async getAllRestaurants(): Promise<{
+  async getAllRestaurants(
+    page: number,
+    limit: number,
+    filter:string
+  ): Promise<{
     success: boolean;
     data: IMappedAdminData[];
+    pagination: {
+      total: number;
+      totalPages: number;
+      page: number;
+      limit: number;
+    };
   }> {
     try {
-      const restaurants = await this._adminAuthRepository.getAllRestaurant();
-      console.log(restaurants, "1");
-      const mappedRestaurants = restaurants.map((restaurant) =>
+      const { data, total } = await this._adminAuthRepository.getAllRestaurant(
+        page,
+        limit,
+        filter
+      );
+      const mappedRestaurants = data.map((restaurant) =>
         SuperadminDataMapping(restaurant)
       );
       console.log(mappedRestaurants, "2");
       return {
         success: true,
         data: mappedRestaurants,
+        pagination: {
+          total,
+          totalPages: Math.ceil(total / limit),
+          page,
+          limit,
+        },
       };
     } catch (error: any) {
       throw new AppError(error.message || "Failed to fetch restaurants");
@@ -52,4 +72,5 @@ export class SuperAdminService implements ISuperAdminService {
     });
     return updated;
   }
+
 }

@@ -4,7 +4,19 @@ import AdminRoutes from "./Routes/AdminRoutes";
 import PublicRoute from "./Routes/publicRoute";
 import UserRoutes from "./Routes/userRoutes";
 import SuperAdminRoutes from "./Routes/SuperAdminRoutes";
+import { useEffect, useState } from "react";
+import AppLoader from "./Components/Elements/AppLoader";
 const App = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <AppLoader />;
   return (
     <Routes>
       <Route

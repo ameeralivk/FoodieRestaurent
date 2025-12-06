@@ -9,11 +9,11 @@ interface PublicRouteProps {
 }
 
 const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-  const adminToken = useSelector((state: RootState) => state.auth.token);
   const admin = useSelector((state: RootState) => state.auth.admin);
-  if (adminToken && admin?.role != "superadmin") {
+
+  if (admin && admin?.role != "superadmin") {
     return <Navigate to="/admin/onboarding" replace />;
-  } else if (adminToken && admin?.role === "superadmin") {
+  } else if (admin && admin?.role === "superadmin") {
     return <Navigate to="/superadmin" replace />;
   }
 

@@ -27,3 +27,22 @@ export interface RestaurantApprovalModalProps {
     reason:string
   };
 }
+
+
+export interface SubscriptionPlan {
+  planName: string;
+  price: number;
+  duration:string;     
+  noOfDishes:number; 
+  noOfStaff: number;
+  features: string[];    
+}
+
+export interface Subscription {
+  id: number;
+  planName: string;
+  price: number;
+  duration: string;
+  features: string[];
+}
+

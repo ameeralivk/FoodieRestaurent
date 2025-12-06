@@ -2,9 +2,9 @@ import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
 
 export default function UserPublicRoute() {
-  const token = useSelector((state: any) => state.userAuth.token);
+  const user = useSelector((state: any) => state.userAuth.user);
 
-  if (token) {
+  if (user) {
     return <Navigate to="/user" replace />;
   }
 

@@ -7,7 +7,7 @@ import { ToastContainer } from "react-toastify";
 import WarningSwal from "../../Components/Helpers/WarningSwal";
 import ErrorPTag from "../../Components/Elements/ErrorParagraph";
 import type { AdminType } from "../../types/AdminTypes";
-import { loginAction } from "../../redux/slice/adminSlice";
+import { loginAction, setAuth } from "../../redux/slice/adminSlice";
 import { useGoogleLoginHandler } from "../../services/Auth";
 import { useDispatch } from "react-redux";
 import { GoogleLoginButton } from "../../Components/Elements/googleLoginButton";
@@ -33,7 +33,6 @@ const RestaurentLoginPage = () => {
   };
   // const dispatch = useDispatch();
   // const googleLogin = useGoogleLoginHandler(dispatch);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -69,10 +68,9 @@ const RestaurentLoginPage = () => {
       dispatch(
         loginAction({
           admin: saveddata,
-          token: response.token,
-        })
+        }),
       );
-
+      dispatch(setAuth({isAuthenticated:true}))
       if (saveddata.role === "superadmin") {
         navigate("/superadmin/dashboard");
       } else {

@@ -23,7 +23,7 @@ export interface IAdminAuthRepository {
     id: string,
     data: IRestaurantRegisterData
   ): Promise<AdminDocument | null>;
-  getAllRestaurant(): Promise<AdminDocument[]>;
+  getAllRestaurant(page:number,limit:number,filter:string): Promise<{data: AdminDocument[]; total: number }>;
   updateById(id: string, updateData: Partial<AdminDocument>): Promise<AdminDocument | null>
 
 }

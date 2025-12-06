@@ -2,13 +2,14 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Clock } from "lucide-react";
-import { logoutAction } from "../../redux/slice/adminSlice"; // adjust path as needed
+import { logoutAction, setAuth } from "../../redux/slice/adminSlice"; // adjust path as needed
 const RegistrationSuccessModal: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleGotIt = () => {
     dispatch(logoutAction());
+    dispatch(setAuth({isAuthenticated:false}))
     navigate("/login");
   };
 

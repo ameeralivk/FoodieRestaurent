@@ -17,9 +17,9 @@ import {
   verifyRefreshToken,
 } from "../../../middleware/jwt";
 import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
-import { email, string, success } from "zod";
 import IAdminAuthService from "../interface/IAdminAuthService";
 import { AdminDTO, adminDTO } from "../../../utils/dto/adminDto";
+import { AdminDocument } from "../../../models/admin";
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 export class AdminAuthService implements IAdminAuthService {
   constructor(private _adminAuthRepository: IAdminAuthRepository) {}
@@ -305,4 +305,5 @@ export class AdminAuthService implements IAdminAuthService {
 
     return { success: true, message: MESSAGES.DOC_IMAGE_UPDATED };
   }
+
 }

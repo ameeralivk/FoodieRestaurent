@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 import { IUser } from "../types/usert";
-import { boolean } from "zod";
+
 
 const UserSchema: Schema<IUser> = new Schema(
   {

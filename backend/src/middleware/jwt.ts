@@ -12,7 +12,7 @@ const generateToken = (
   logger.info(`id: ${id}, role: ${role}`);
 
   return jwt.sign({ id: id, role: role }, process.env.JWT_SECRET as string, {
-    expiresIn: "1m",
+    expiresIn: "15m",
   });
 };
 
@@ -57,15 +57,16 @@ export const verifyAccessToken = (
   next: NextFunction
 ): void => {
   try {
-    console.log(req.headers);
-    const authHeader = req.headers["authorization"];
+    // console.log('hi fdlsja')
+    // const authHeader = req.headers["authorization"];
+    // if (!authHeader) {
+    //   res.status(401).json({ message: "Authorization header missing" });
+    //   return;
+    // }
 
-    if (!authHeader) {
-      res.status(401).json({ message: "Authorization header missing" });
-      return;
-    }
-
-    const token = authHeader.split(" ")[1];
+    // const token = authHeader.split(" ")[1];
+    // console.log(token,'token')
+    const token = req.cookies.access_token;
     if (!token) {
       res.status(401).json({ message: "Token missing" });
       return;

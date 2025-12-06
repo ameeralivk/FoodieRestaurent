@@ -3,25 +3,28 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { showConfirm } from "../../Elements/ConfirmationSwall";
 import Swal from "sweetalert2";
+import { logoutRequest } from "../../../services/Auth";
 import { userLogoutAction } from "../../../redux/slice/userSlice";
 const Navbar = () => {
-    const dispatch = useDispatch()
-     const navigate = useNavigate();
-   const handleLogout = async() =>{
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    const confirmed = await showConfirm(
+      "Logout",
+      "Do you really want to logout?",
+      "Logout",
+      "Cancel"
+    );
 
-  const confirmed = await showConfirm(
-    "Logout",
-    "Do you really want to logout?",
-    "Logout",
-    "Cancel"
-  );
-
-  if (confirmed) {
-    dispatch(userLogoutAction());
-    navigate("/user/login"); 
-    Swal.fire("Logged out!", "You have been logged out.", "success");
-  }
-   }
+    if (confirmed) {
+      const res = await logoutRequest();
+      if (res) {
+        dispatch(userLogoutAction());
+        navigate("/user/login");
+        Swal.fire("Logged out!", "You have been logged out.", "success");
+      }
+    }
+  };
   return (
     <header className="bg-white shadow-sm sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

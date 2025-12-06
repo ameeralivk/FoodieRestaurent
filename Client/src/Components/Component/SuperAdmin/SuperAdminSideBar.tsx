@@ -14,22 +14,21 @@ const SuperAdminSidebar: React.FC<SidebarProps> = ({
 }) => {
   const [activeItem, setActiveItem] = useState("Dashboard");
   const navigate = useNavigate();
-   const location = useLocation();
+  const location = useLocation();
   const menuItems = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/superadmin" },
     { name: "Pending Request", icon: Clock, path: "/superadmin/approval" },
-    {
-      name: "Restaurant Management",
-      icon: Building2,
-      path: "/superadmin/restaurent",
-    },
     {
       name: "Subscription",
       icon: CreditCard,
       path: "/superadmin/subscription",
     },
+    {
+      name: "Restaurant Management",
+      icon: Building2,
+      path: "/superadmin/restaurent",
+    },
   ];
-
 
   useEffect(() => {
     const current = menuItems.find((item) => item.path === location.pathname);
@@ -38,11 +37,8 @@ const SuperAdminSidebar: React.FC<SidebarProps> = ({
     }
   }, [location.pathname]);
 
-
-
   return (
     <>
-
       {isOpen && (
         <div
           className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"

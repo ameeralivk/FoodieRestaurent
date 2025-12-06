@@ -1,81 +1,3 @@
-// import React from "react";
-// import RestaurantRow from "../../Elements/SuperAdmin/AdminTableRow";
-// import TableHeader from "../../Elements/SuperAdmin/TableHeader";
-// import type{ TableColumn } from "../../../types/SuperAdmin";
-// import { useState } from "react";
-// import RestaurantApprovalModal from "../../modals/SuperAdmin/RestaurentApprovalModal";
-// const Table: React.FC<{ children: React.ReactNode; className?: string }> = ({
-//   children,
-//   className = "",
-// }) => {
-//   return (
-//     <div className={`overflow-x-auto ${className}`}>
-//       <table className="w-full border-collapse">{children}</table>
-//     </div>
-//   );
-// };
-
-// const TableBody: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-//   return <tbody>{children}</tbody>;
-// };
-
-// export default function TableExample() {
-//      const [modalOpen, setModalOpen] = useState(false);
-//       const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
-//   const columns: TableColumn[] = [
-//     { header: "Restaurant Name" },
-//     { header: "Owner" },
-//     { header: "Location" },
-//     { header: "Subscription Plan" },
-//     { header: "Status" },
-//     { header: "Action" },
-//   ];
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-amber-950 via-stone-900 to-neutral-950 p-8">
-//       <div className="max-w-7xl mx-auto">
-//         <h1 className="text-2xl font-semibold text-amber-100 mb-6">
-//           Restaurant Management
-//         </h1>
-//         <RestaurantApprovalModal
-//         isOpen={modalOpen}
-//         onClose={() => setModalOpen(false)}
-//         onApprove={() => console.log("Approved!")}
-//         data={selectedRestaurant}
-//         />
-//         <div className="bg-black/30 backdrop-blur-sm rounded-lg border border-amber-900/30 p-6">
-//           <Table>
-//             <TableHeader columns={columns} />
-//             <TableBody>
-//               <RestaurantRow
-//                 name="KFC"
-//                 owner="John Doe"
-//                 location="New York"
-//                 plan="Premium"
-//                 status="pending"
-//                 isBlocked={false}
-//                 onView={() => {
-//                   setSelectedRestaurant({
-//                     restaurantName: "KFC",
-//                     owner: "John Doe",
-//                     location: "New York",
-//                     contact: "9876543210",
-//                     planName: "Premium",
-//                     status: "Pending",
-//                     nextDueDate: "20 Nov 2025",
-//                     amount: "$60",
-//                     restaurantImage: "https://picsum.photos/seed/kfc/300",
-//                     verificationDocument: "https://picsum.photos/seed/doc/600",
-//                   });
-//                   setModalOpen(true);
-//                 }}
-//               />
-//             </TableBody>
-//           </Table>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 
 import React, { useState, useEffect } from "react";
 import RestaurantRow from "../../Elements/SuperAdmin/AdminTableRow";
@@ -106,6 +28,11 @@ export default function TableExample() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
   const [modalLoading, setModalLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const totalPages = Math.ceil(total / limit);
+  const [searchTerm, setSearchTerm] = useState("");
   const columns: TableColumn[] = [
     { header: "Restaurant Name" },
     { header: "Owner" },
@@ -118,11 +45,12 @@ export default function TableExample() {
   const fetchRestaurants = async () => {
     setLoading(true);
     try {
-      const response = await getAllRestaurent();
+      const response = await getAllRestaurent(page, limit, searchTerm);
       if (response && response.success) {
         // Minimum delay to show loading spinner
         await new Promise((res) => setTimeout(res, 500)); // 0.5s delay
         setRestaurants(response.data);
+        setTotal(response.pagination.total);
       }
     } catch (error) {
       console.error("Error fetching restaurants:", error);
@@ -132,9 +60,24 @@ export default function TableExample() {
   };
 
   useEffect(() => {
-    fetchRestaurants();
-  }, []);
-  console.log(restaurants, "hi restuar");
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllRestaurent(page, limit, searchTerm);
+        if (response && response.success) {
+          await new Promise((res) => setTimeout(res, 300));
+          setRestaurants(response.data);
+          setTotal(response.pagination.total);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [page, searchTerm]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-950 via-stone-900 to-neutral-950 p-8">
       <div className="max-w-7xl mx-auto">
@@ -161,6 +104,19 @@ export default function TableExample() {
 
         {/* Table */}
         <div className="bg-black/30 backdrop-blur-sm rounded-lg border border-amber-900/30 p-6">
+          <div className="mb-4 flex items-center gap-4">
+            <input
+              type="text"
+              placeholder="Search restaurants..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1); // reset to first page when searching
+              }}
+              className="px-4 py-2 rounded border border-amber-700 bg-black/20 text-amber-100 w-full"
+            />
+          </div>
+
           <Table>
             <TableHeader columns={columns} />
             <TableBody>
@@ -218,6 +174,27 @@ export default function TableExample() {
               )}
             </TableBody>
           </Table>
+        </div>
+        <div className="flex justify-center items-center gap-6 mt-6 text-amber-100">
+          <button
+            className="px-4 py-2 bg-amber-700 rounded disabled:opacity-40"
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {page} / {totalPages || 1}
+          </span>
+
+          <button
+            className="px-4 py-2 bg-amber-700 rounded disabled:opacity-40"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
