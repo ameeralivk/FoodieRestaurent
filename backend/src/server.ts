@@ -23,7 +23,7 @@ connectRedis()
 connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use("/api/admin/auth", authRouter);
 app.use("/api/user/auth", userAuthRouter);
 app.use("/api/superadmin",superAdminRouter)

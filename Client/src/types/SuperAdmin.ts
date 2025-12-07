@@ -30,6 +30,7 @@ export interface RestaurantApprovalModalProps {
 
 
 export interface SubscriptionPlan {
+  _id?:string;
   planName: string;
   price: number;
   duration:string;     

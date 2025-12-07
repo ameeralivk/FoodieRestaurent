@@ -35,7 +35,7 @@ export const PlanAddingValidation = (
   }
 
   // Duration
-  if (!data.duration || !data.duration.trim()) {
+  if (!data.duration ) {
     errors.duration = "Duration is required";
   }
 

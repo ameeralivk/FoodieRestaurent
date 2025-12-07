@@ -24,32 +24,48 @@ export class AdminPlanService implements IAdminPlanService {
     return { success: true, message: MESSAGES.PLAN_ADDED_SUCCESSFULL };
   }
 
-  async getAllPlan(): Promise<{ success: boolean; data: ISubscriptionPlan[] }> {
-    const res = await this._adminPlanRepository.findAll();
-    const mappeddata = res.map((ele)=>subscriptionPlanDTO(ele))
-    if (mappeddata.length > 0) {
-      return { success: true, data: mappeddata };
-    } else {
-      return { success: true, data: [] };
+  async getAllPlan(
+    page: number,
+    limit: number
+  ): Promise<{
+    success: boolean;
+    data: ISubscriptionPlan[];
+    total:number;
+  }> {
+   try {
+    const result = await this._adminPlanRepository.findAll(page, limit);
+
+    const mappedData = result.data.map((ele) => subscriptionPlanDTO(ele));
+
+    return {
+      success: true,
+      data: mappedData,
+      total: result.total,
+    };
+  } catch (error: any) {
+    console.error("Error fetching plans:", error);
+    return { success: false, data: [], total: 0 };
+  }
+  }
+
+  async editPlan(
+    id: string,
+    newData: ISubscriptionPlan
+  ): Promise<{ success: boolean; message: string }> {
+    const find = await this._adminPlanRepository.find(id);
+    if (!find) {
+      return { success: false, message: MESSAGES.PLAN_NOT_FOUND };
     }
+    await this._adminPlanRepository.findAndUpdate(id, newData);
+    return { success: true, message: MESSAGES.PLAN_UPDATED_SUCCESS };
   }
 
-
-  async editPlan(id: string, newData: ISubscriptionPlan): Promise<{ success: boolean; message: string; }> {
-       const find = await this._adminPlanRepository.find(id)
-       if(!find){
-        return {success:false,message:MESSAGES.PLAN_NOT_FOUND}
-       }
-       await this._adminPlanRepository.findAndUpdate(id,newData)
-       return {success:true,message:MESSAGES.PLAN_UPDATED_SUCCESS}
-  }
-
-  async deletePlan(id: string): Promise<{ success: boolean; message: string; }> {
-      const find = await this._adminPlanRepository.find(id)
-      if(!find){
-        return {success:false,message:MESSAGES.PLAN_DEL_FAILED}
-      }
-      await this._adminPlanRepository.findByIdDel(id)
-      return {success:true,message:MESSAGES.PLAN_DEL_SUCCESS}
+  async deletePlan(id: string): Promise<{ success: boolean; message: string }> {
+    const find = await this._adminPlanRepository.find(id);
+    if (!find) {
+      return { success: false, message: MESSAGES.PLAN_DEL_FAILED };
+    }
+    await this._adminPlanRepository.findByIdDel(id);
+    return { success: true, message: MESSAGES.PLAN_DEL_SUCCESS };
   }
 }

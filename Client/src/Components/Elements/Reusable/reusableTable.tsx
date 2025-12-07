@@ -1,6 +1,6 @@
 import React from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
-
+import LoadingRow from "../SuperAdmin/LoadingRow";
 interface Column {
   header: string;
   accessor: string;
@@ -19,6 +19,7 @@ interface ReusableTableProps {
   columns: Column[];
   data: any[];
   actions?: Action[]; // optional actions
+  loading: boolean;
   minWidth?: string; // optional min width like "min-w-[800px]"
 }
 
@@ -26,8 +27,11 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
   columns,
   data,
   actions,
+  loading,
   minWidth = "min-w-[1100px]", // default min width
 }) => {
+  const colSpan = columns.length + (actions ? 1 : 0);
+  console.log(loading, "loading");
   return (
     <div>
       <div className={`max-w-7xl mx-auto ${minWidth}`}>
@@ -52,54 +56,69 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
             </thead>
 
             <tbody>
-              {data.map((row: any) => (
-                <tr
-                  key={row.id}
-                  className="border-b border-gray-700 hover:bg-gray-800 transition"
-                >
-                  {columns.map((col, idx) => (
-                    <td key={idx} className="py-4 px-6 text-gray-300">
-                      {col.render
-                        ? col.render(row[col.accessor], row)
-                        : row[col.accessor]}
-                    </td>
-                  ))}
-
-                  {actions && (
-                    <td className="py-4 px-6 flex gap-3">
-                      {actions.map((action, idx) => {
-                        let color = "";
-                        let icon: React.ReactNode = null;
-
-                        switch (action.type) {
-                          case "view":
-                            color = "text-blue-400 hover:text-blue-300";
-                            icon = <Eye size={18} />;
-                            break;
-                          case "edit":
-                            color = "text-amber-400 hover:text-amber-300";
-                            icon = <Pencil size={18} />;
-                            break;
-                          case "delete":
-                            color = "text-red-400 hover:text-red-300";
-                            icon = <Trash2 size={18} />;
-                            break;
-                        }
-
-                        return (
-                          <button
-                            key={idx}
-                            onClick={() => action.onClick(row)}
-                            className={color}
-                          >
-                            {icon}
-                          </button>
-                        );
-                      })}
-                    </td>
-                  )}
+              {loading ? (
+                <>
+                  <LoadingRow colSpan={colSpan} />
+                </>
+              ) : data.length === 0 ? (
+                // ⚠️ No data after loading is done
+                <tr>
+                  <td
+                    colSpan={colSpan}
+                    className="text-center py-6 text-gray-400"
+                  >
+                    No plans found.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                data.map((row: any) => (
+                  <tr
+                    key={row._id || row.id}
+                    className="border-b border-gray-700 hover:bg-gray-800 transition"
+                  >
+                    {columns.map((col, idx) => (
+                      <td key={idx} className="py-4 px-6 text-gray-300">
+                        {col.render
+                          ? col.render(row[col.accessor], row)
+                          : row[col.accessor]}
+                      </td>
+                    ))}
+                    {actions && (
+                      <td className="py-4 px-6 flex gap-3">
+                        {actions.map((action, idx) => {
+                          let color = "";
+                          let icon: React.ReactNode = null;
+
+                          switch (action.type) {
+                            case "view":
+                              color = "text-blue-400 hover:text-blue-300";
+                              icon = <Eye size={18} />;
+                              break;
+                            case "edit":
+                              color = "text-amber-400 hover:text-amber-300";
+                              icon = <Pencil size={18} />;
+                              break;
+                            case "delete":
+                              color = "text-red-400 hover:text-red-300";
+                              icon = <Trash2 size={18} />;
+                              break;
+                          }
+
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => action.onClick(row)}
+                              className={color}
+                            >
+                              {icon}
+                            </button>
+                          );
+                        })}
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

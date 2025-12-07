@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SuperAdminNavbar from "../../Components/Component/SuperAdmin/SuperAdminNavbar";
 import SuperAdminSidebar from "../../Components/Component/SuperAdmin/SuperAdminSideBar";
 import SubscriptionModal from "../../Components/modals/SuperAdmin/GeneralModal";
 import ReusableTable from "../../Components/Elements/Reusable/reusableTable";
 import type { SubscriptionPlan } from "../../types/SuperAdmin";
 import Pagination from "../../Components/Elements/Reusable/Pagination";
-import { createPlan } from "../../services/planService";
+import { createPlan, deletePlan } from "../../services/planService";
 import { showErrorToast } from "../../Components/Elements/ErrorToast";
 import { showSuccessToast } from "../../Components/Elements/SuccessToast";
 import { ToastContainer } from "react-toastify";
 import { PlanAddingValidation } from "../../Validation/planAddingvalidation";
 import type { ISubscriptionPlan } from "../../services/planService";
-import { getAllPlan } from "../../services/planService";
+import { showConfirm } from "../../Components/Elements/ConfirmationSwall";
+import { getAllPlan, editPlan } from "../../services/planService";
 export default function SubscriptionPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -19,26 +20,31 @@ export default function SubscriptionPage() {
   const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
   const [currentPage, setCurrentPage] = useState(1);
   const [modalErrors, setModalErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<SubscriptionPlan | any>({});
   const [plan, setPlans] = useState<ISubscriptionPlan[]>([]);
-  const totalPages = 1;
+  const [totalPages, setTotalPages] = useState(1);
+  const fetchPlans = async (page = 1) => {
+    try {
+      setLoading(true);
+      const response = await getAllPlan(page, 10);
+      console.log(response, "ameer resonse");
+      await new Promise((res) => setTimeout(res, 300));
+      setPlans(response.data.data);
+      setTotalPages(response.pagination.totalPages);
+    } catch (error) {
+      console.error("Error loading plans:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
   useEffect(() => {
-    async function fetchPlans() {
-      try {
-        const response = await getAllPlan();
-        setPlans(response.data.data);
-      } catch (error) {
-        console.error("Error loading plans:", error);
-      }
-    }
-
-    fetchPlans();
-  }, []);
-
+    fetchPlans(currentPage);
+  }, [currentPage]);
   const columns = [
     { header: "Plan Name", accessor: "planName" },
     { header: "Price", accessor: "price" },
@@ -47,7 +53,7 @@ export default function SubscriptionPage() {
     { header: "No Of Staff", accessor: "noOfStaff" },
   ];
 
-  const handleSubmit = (data: SubscriptionPlan) => {
+  const handleSubmit = async (data: SubscriptionPlan) => {
     try {
       const errors = PlanAddingValidation(data);
       if (Object.keys(errors).length) {
@@ -55,19 +61,53 @@ export default function SubscriptionPage() {
         return;
       } else {
         if (modalMode == "add") {
+          const confirmed = await showConfirm(
+            "Add this plan?",
+            `Are you sure you want to Add "${data.planName}"?`,
+            "Add",
+            "Cancel"
+          );
+
+          if (!confirmed) return;
           const create = async () => {
             const res = await createPlan(data);
             if (res.success) {
               setModalOpen(false);
               setModalErrors({});
               showSuccessToast(res.message);
+              fetchPlans();
             } else {
               showErrorToast(res.message);
             }
           };
           create();
         } else if (modalMode == "edit") {
-            
+          try {
+            const edit = async () => {
+              const id = currentRow._id;
+              const confirmed = await showConfirm(
+                "Edit this plan?",
+                `Are you sure you want to Add "${data.planName}"?`,
+                "Edit",
+                "Cancel"
+              );
+
+              if (!confirmed) return;
+              const res = await editPlan(id, data);
+              if (res.success) {
+                setModalOpen(false);
+                setModalErrors({});
+                showSuccessToast(res.message);
+                fetchPlans();
+                setCurrentRow(null);
+              } else {
+                showErrorToast(res.message);
+              }
+            };
+            edit();
+          } catch (error: any) {
+            showErrorToast(error.message);
+          }
         }
       }
     } catch (error: any) {
@@ -95,9 +135,31 @@ export default function SubscriptionPage() {
     setModalOpen(true);
   };
   const handleDelete = (row: any) => {
-    console.log("Delete:", row);
-  };
+    try {
+      const del = async () => {
+        const confirmed = await showConfirm(
+          "Delete this plan?",
+          `Are you sure you want to delete "${row.planName}"?`,
+          "Delete",
+          "Cancel"
+        );
 
+        if (!confirmed) return;
+        const res = await deletePlan(row._id);
+        if (res.success) {
+          setModalOpen(false);
+          setModalErrors({});
+          showSuccessToast(res.message);
+          fetchPlans();
+        } else {
+          showErrorToast(res.message);
+        }
+      };
+      del();
+    } catch (error: any) {
+      showErrorToast(error.message);
+    }
+  };
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
       {/* NAVBAR FIXED */}
@@ -133,6 +195,7 @@ export default function SubscriptionPage() {
             title="Subscription Plans"
             columns={columns}
             data={plan}
+            loading={loading}
             actions={[
               { type: "view", onClick: handleView },
               { type: "edit", onClick: handleEdit },

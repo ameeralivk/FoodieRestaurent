@@ -1,16 +1,22 @@
 import { SubscriptionDocument } from "../../../models/plan";
-import { BaseRepository } from "../../IBaseRepository"
+import { BaseRepository } from "../../IBaseRepository";
 import SubscriptionPlan from "../../../models/plan";
 import { IAdminPlanRepository } from "../interface/IAdminPlanRepositories";
-import { ISubscriptionPlan ,ISubscription } from "../../../types/plan";
+import { ISubscriptionPlan, ISubscription } from "../../../types/plan";
 import { UpdateQuery } from "mongoose";
 import { AppError } from "../../../utils/Error";
-export class AdminPlanRepository extends BaseRepository<SubscriptionDocument> implements IAdminPlanRepository{
-    constructor(){
-        super(SubscriptionPlan)
-    }
-    async add(data: ISubscriptionPlan): Promise<ISubscription | null> {
+export class AdminPlanRepository
+  extends BaseRepository<SubscriptionDocument>
+  implements IAdminPlanRepository
+{
+  constructor() {
+    super(SubscriptionPlan);
+  }
+  async add(data: ISubscriptionPlan): Promise<ISubscription | null> {
     try {
+      if (Number(data.duration)) {
+        data.duration = `${data.duration} days`;
+      }
       return await this.create(data);
     } catch (error) {
       console.error("Error creating subscription plan:", error);
@@ -27,39 +33,49 @@ export class AdminPlanRepository extends BaseRepository<SubscriptionDocument> im
     }
   }
 
-  async findAll(): Promise<ISubscription[]> {
+  async findAll(page?: number, limit?: number): Promise<{data:ISubscription[];total:number}> {
     try {
-      const result = await this.getAll();
-      return result.data;
+      const finalFilter = {}; 
+
+      if (page && limit) {
+        return await this.getAll(finalFilter, { page, limit });
+      }
+      return await this.getAll(finalFilter);
     } catch (error) {
       console.error("Error fetching plans:", error);
-      return [];
+      console.error("Error fetching plans:", error);
+      throw error;
     }
   }
-  async find(id: string): Promise<ISubscription|null> {
+  async find(id: string): Promise<ISubscription | null> {
     try {
-       const result = await this.getById(id)
-       return result
-    } catch (error:any) {
-      throw new AppError(error.message)
+      const result = await this.getById(id);
+      return result;
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
-
   }
-  async findAndUpdate(id: string, update: UpdateQuery<SubscriptionDocument>): Promise<ISubscription|null> {
-     try {
-        const result = await this.findByIdAndUpdate(id,update)
-        return result
-     } catch (error:any) {
-       throw new AppError(error.message)
-     }
-  }
-
-  async findByIdDel(id: string): Promise<ISubscription|null> {
+  async findAndUpdate(
+    id: string,
+    update: UpdateQuery<SubscriptionDocument>
+  ): Promise<ISubscription | null> {
     try {
-      const result = await this.findByIdAndDel(id)
-      return result
-    } catch (error:any) {
-       throw new AppError(error.message)
+      if (Number(update.duration)) {
+        update.duration = `${update.duration} days`;
+      }
+      const result = await this.findByIdAndUpdate(id, update);
+      return result;
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  }
+
+  async findByIdDel(id: string): Promise<ISubscription | null> {
+    try {
+      const result = await this.findByIdAndDel(id);
+      return result;
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
   }
 }

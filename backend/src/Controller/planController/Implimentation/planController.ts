@@ -35,65 +35,82 @@ export class PlanController implements IPlanController {
     }
   };
 
-  getAllPlan = async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const plans = await this._adminPlanService.getAllPlan();
-      if (plans.success) {
-        return res.status(HttpStatus.OK).json({
-          success: true,
-          data: plans,
-        });
-      } else {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Something wentwrong",
-        });
-      }
-    } catch (error: any) {
-      throw new AppError(error.message);
+
+getAllPlan = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const page = req.query.page ? Number(req.query.page) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+
+    const result = await this._adminPlanService.getAllPlan(page, limit);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to fetch plans",
+      });
     }
-  };
+
+    return res.status(HttpStatus.OK).json({
+      success: true,
+      data: {
+        data: result.data,
+      },
+      pagination: {
+        currentPage: page || 1,
+        totalPages: page && limit ? Math.ceil(result.total / limit) : 1,
+        totalItems: result.total,
+        limit: limit || result.total,
+      },
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
   editPlan = async (req: Request, res: Response): Promise<Response> => {
     try {
       const planId = req.params.id as string;
       const newData = req.body;
-      const result = await this._adminPlanService.editPlan(planId,newData)
-      if(result.success){
-         return res.status(HttpStatus.OK).json({
-            success:true,
-            message:MESSAGES.PLAN_UPDATED_SUCCESS,
-         })
-      }else{
-         return res.status(HttpStatus.BAD_REQUEST).json({
-            success:true,
-            message:MESSAGES.PLAN_UPDATED_FAILED,
-         })
+      const result = await this._adminPlanService.editPlan(planId, newData);
+      if (result.success) {
+        return res.status(HttpStatus.OK).json({
+          success: true,
+          message: MESSAGES.PLAN_UPDATED_SUCCESS,
+        });
+      } else {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: true,
+          message: MESSAGES.PLAN_UPDATED_FAILED,
+        });
       }
     } catch (error: any) {
       throw new AppError(error.message);
     }
   };
 
-
-  delPlan = async(req: Request, res: Response): Promise<Response> => {
-      try {
-         const planId = req.params.id as string
-         const result = await this._adminPlanService.deletePlan(planId)
-         console.log('hi')
-         if(result.success){
-             return res.status(HttpStatus.OK).json({
-              success:true,
-              message:MESSAGES.PLAN_DEL_SUCCESS
-             })
-         }else{
-             return res.status(HttpStatus.OK).json({
-              success:false,
-              message:MESSAGES.PLAN_DEL_FAILED
-             })
-         }
-      } catch (error:any) {
-         throw new AppError(error.message)
+  delPlan = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const planId = req.params.id as string;
+      const result = await this._adminPlanService.deletePlan(planId);
+      console.log("hi");
+      if (result.success) {
+        return res.status(HttpStatus.OK).json({
+          success: true,
+          message: MESSAGES.PLAN_DEL_SUCCESS,
+        });
+      } else {
+        return res.status(HttpStatus.OK).json({
+          success: false,
+          message: MESSAGES.PLAN_DEL_FAILED,
+        });
       }
-  }
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  };
 }

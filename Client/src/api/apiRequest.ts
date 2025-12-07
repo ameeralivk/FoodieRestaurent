@@ -1,7 +1,40 @@
-import axios from "axios";
+// import axios from "axios";
+// import { showErrorToast } from "../Components/Elements/ErrorToast";
+// import type { AxiosRequestConfig } from "axios";
+// const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+
+// export const apiRequest = async <T>(
+//   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+//   url: string,
+//   data?: any,
+//   config?: AxiosRequestConfig
+// ): Promise<T> => {
+//   try {
+//     const response = await axios({
+//       method,
+//       url: `${BASE_URL}${url}`,
+//       data,
+//       withCredentials: true,
+//       ...config,
+//     });
+
+//     return response.data as T;
+//   } catch (error: unknown) {
+//     if (axios.isAxiosError(error)) {
+//       const message = error.response?.data.message;
+//       showErrorToast(message);
+//     } else if (error instanceof Error) {
+//       showErrorToast(error.message);
+//     } else {
+//       showErrorToast("An unknown error occurred");
+//     }
+//     throw new Error("Something went wrong. Please try again.");
+//   }
+// };
+
+import api from "../services/Api";
+import axios, { type AxiosRequestConfig } from "axios";
 import { showErrorToast } from "../Components/Elements/ErrorToast";
-import type { AxiosRequestConfig } from "axios";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export const apiRequest = async <T>(
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
@@ -10,24 +43,26 @@ export const apiRequest = async <T>(
   config?: AxiosRequestConfig
 ): Promise<T> => {
   try {
-    const response = await axios({
+    const response = await api({
       method,
-      url: `${BASE_URL}${url}`,
+      url,
       data,
-      withCredentials: true,
       ...config,
     });
 
     return response.data as T;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      const message = error.response?.data.message;
-      showErrorToast(message);
+      const message = error.response?.data?.message;
+      showErrorToast(message ?? "Request failed");
     } else if (error instanceof Error) {
       showErrorToast(error.message);
     } else {
       showErrorToast("An unknown error occurred");
     }
-    throw new Error("Something went wrong. Please try again.");
+
+    throw error; // keep original error
   }
 };
+
+

@@ -1,11 +1,20 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Check, X, ChevronLeft, ChevronRight } from "lucide-react";
-
+import type { ISubscriptionPlan } from "../../../services/planService";
+import { getAllPlan } from "../../../services/planService";
+import { loadStripe } from "@stripe/stripe-js";
+import LoadingCard from "../../Elements/Reusable/CardLoading";
+import CheckoutForm from "../../modals/StripModal";
+import { Elements } from "@stripe/react-stripe-js";
 const AdminSubscriptionPlans: React.FC = () => {
+  const [plan, setPlans] = useState<ISubscriptionPlan[]>([]);
+  const [fullplan, setFullPlan] = useState<ISubscriptionPlan[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{Id:string | null,amount:number|null}>({Id:null,amount:null});
+  const [openModal, setOpenModal] = useState(false);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly"
-  );
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  ); // <- new state
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -14,6 +23,10 @@ const AdminSubscriptionPlans: React.FC = () => {
       scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
     }
   };
+  const  PUBLISHABLEKEY= import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+  const stripePromise = loadStripe(
+      PUBLISHABLEKEY
+  );
 
   const scrollRight = () => {
     if (scrollRef.current) {
@@ -21,66 +34,61 @@ const AdminSubscriptionPlans: React.FC = () => {
     }
   };
 
-  const plans = [
-    {
-      id: "basic",
-      name: "Basic",
-      price: billingCycle === "monthly" ? 29 : 290,
-      period: billingCycle === "monthly" ? "/month" : "/year",
-      features: [
-        { text: "Up to 5 tables", included: true },
-        { text: "Basic QR code generation", included: true },
-        { text: "Order management", included: true },
-        { text: "Basic analytics", included: true },
-        { text: "Email support", included: true },
-        { text: "Custom branding", included: false },
-      ],
-    },
-    {
-      id: "professional",
-      name: "Professional",
-      price: billingCycle === "monthly" ? 79 : 790,
-      period: billingCycle === "monthly" ? "/month" : "/year",
-      features: [
-        { text: "Up to 20 tables", included: true },
-        { text: "Advanced QR customization", included: true },
-        { text: "Order management", included: true },
-        { text: "Advanced analytics & reports", included: true },
-        { text: "Priority support", included: true },
-      ],
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise",
-      price: billingCycle === "monthly" ? 199 : 1990,
-      period: billingCycle === "monthly" ? "/month" : "/year",
-      features: [
-        { text: "Unlimited tables", included: true },
-        { text: "Full QR customization", included: true },
-        { text: "Real-time analytics", included: true },
-        { text: "24/7 priority support", included: true },
-        { text: "Multiple locations", included: true },
-      ],
-    },
-    {
-      id: "enterprise2",
-      name: "Enterprise Plus",
-      price: billingCycle === "monthly" ? 299 : 2990,
-      period: billingCycle === "monthly" ? "/month" : "/year",
-      features: [
-        { text: "Unlimited tables", included: true },
-        { text: "AI-powered insights", included: true },
-        { text: "Team access", included: true },
-        { text: "Dedicated account manager", included: true },
-        { text: "Enterprise-level security", included: true },
-      ],
-    },
-  ];
+  const fetchPlans = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllPlan();
+      await new Promise((res) => setTimeout(res, 300));
+      setFullPlan(response.data.data);
+
+      // Filter initial monthly plans
+      const monthlyPlans = response.data.data.filter((p: ISubscriptionPlan) => {
+        const day = p.duration.split(" ")[0];
+        return Number(day) < 364 && p.duration != "1 Year"; // monthly < 1 year
+      });
+      setPlans(monthlyPlans);
+    } catch (error) {
+      console.error("Error loading plans:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const handleBillingCycle = (cycle: "monthly" | "yearly") => {
+    setBillingCycle(cycle);
+    setLoading(true);
+
+    setTimeout(() => {
+      const filteredPlans = fullplan.filter((p) => {
+        const [value, unit] = p.duration.split(" ");
+        const num = Number(value);
+
+        if (cycle === "monthly") {
+          return (
+            (unit.toLowerCase().includes("day") && num < 365) ||
+            (unit.toLowerCase().includes("month") && num * 30 < 365)
+          );
+        } else {
+          return (
+            unit.toLowerCase().includes("year") ||
+            (unit.toLowerCase().includes("day") && num >= 365) ||
+            (unit.toLowerCase().includes("month") && num * 30 >= 365)
+          );
+        }
+      });
+
+      setPlans(filteredPlans);
+      setLoading(false);
+    }, 300);
+  };
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white p-8">
       <div className="max-w-6xl mx-auto relative">
-        {/* Heading */}
         <h1 className="text-3xl font-bold mb-2">Subscription Plans</h1>
         <p className="text-gray-400 mb-6">
           Choose the plan that fits your business.
@@ -89,7 +97,7 @@ const AdminSubscriptionPlans: React.FC = () => {
         {/* Billing cycle buttons */}
         <div className="flex gap-4 mb-10">
           <button
-            onClick={() => setBillingCycle("monthly")}
+            onClick={() => handleBillingCycle("monthly")}
             className={`px-6 py-2 rounded-lg border border-gray-700 ${
               billingCycle === "monthly"
                 ? "bg-white text-black"
@@ -100,7 +108,7 @@ const AdminSubscriptionPlans: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setBillingCycle("yearly")}
+            onClick={() => handleBillingCycle("yearly")}
             className={`px-6 py-2 rounded-lg border border-gray-700 ${
               billingCycle === "yearly"
                 ? "bg-white text-black"
@@ -110,10 +118,25 @@ const AdminSubscriptionPlans: React.FC = () => {
             Yearly
           </button>
         </div>
+        {openModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+            <div className="relative w-full max-w-md">
+              {/* Close button */}
+              <button
+                onClick={() => setOpenModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
 
-        {plans.length > 3 && (
+              <Elements stripe={stripePromise}>
+                <CheckoutForm closeModal={() => setOpenModal(false)} amount={selectedPlan.amount} />
+              </Elements>
+            </div>
+          </div>
+        )}
+        {plan.length > 3 && (
           <>
-            {/* LEFT ARROW */}
             <button
               onClick={scrollLeft}
               className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#1a1a1a] p-2 rounded-full border border-gray-700 hover:bg-gray-800 z-10 mt-15"
@@ -121,7 +144,6 @@ const AdminSubscriptionPlans: React.FC = () => {
               <ChevronLeft size={45} />
             </button>
 
-            {/* RIGHT ARROW */}
             <button
               onClick={scrollRight}
               className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#1a1a1a] p-2 rounded-full border border-gray-700 hover:bg-gray-800 z-10 mt-15"
@@ -131,56 +153,62 @@ const AdminSubscriptionPlans: React.FC = () => {
           </>
         )}
 
-        {/* Scrollable Plans */}
         <div ref={scrollRef} className="overflow-x-auto scrollbar-hide">
           <div className="flex gap-6 min-w-max pb-4">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className="bg-[#1a1a1a] w-80 p-6 rounded-lg border border-gray-800 flex-shrink-0"
-              >
-                <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+            {loading
+              ? [...Array(3)].map((_, i) => <LoadingCard key={i} />)
+              : plan.map((plan) => (
+                  <div
+                    key={plan._id}
+                    className="bg-[#1a1a1a] w-80 p-6 rounded-lg border border-gray-800 flex-shrink-0"
+                  >
+                    <h3 className="text-xl font-semibold mb-2">
+                      {plan.planName}
+                    </h3>
 
-                <p className="text-3xl font-bold">
-                  ${plan.price}
-                  <span className="text-sm font-normal text-gray-400 ml-1">
-                    {plan.period}
-                  </span>
-                </p>
-
-                <hr className="my-4 border-gray-800" />
-
-                <ul className="space-y-2 mb-6">
-                  {plan.features.map((f, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      {f.included ? (
-                        <Check className="w-5 h-5 text-green-400" />
-                      ) : (
-                        <X className="w-5 h-5 text-gray-600" />
-                      )}
-                      <span
-                        className={
-                          f.included ? "text-gray-300" : "text-gray-600"
-                        }
-                      >
-                        {f.text}
+                    <p className="text-3xl font-bold">
+                      ₹{plan.price}
+                      <span className="text-sm font-normal text-gray-400 ml-1">
+                        {plan.duration}
                       </span>
-                    </li>
-                  ))}
-                </ul>
+                    </p>
 
-                <button
-                  onClick={() => setSelectedPlan(plan.id)}
-                  className={`w-full py-2 rounded-lg border border-gray-700 font-semibold transition ${
-                    selectedPlan === plan.id
-                      ? "bg-white text-black"
-                      : "bg-gray-900 text-gray-300 hover:bg-gray-800"
-                  }`}
-                >
-                  {selectedPlan === plan.id ? "Selected" : "Select Plan"}
-                </button>
-              </div>
-            ))}
+                    <hr className="my-4 border-gray-800" />
+
+                    <ul className="space-y-2 mb-6">
+                      {plan.features.map((f, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          {f.length ? (
+                            <Check className="w-5 h-5 text-green-400" />
+                          ) : (
+                            <X className="w-5 h-5 text-gray-600" />
+                          )}
+                          <span
+                            className={
+                              f.length ? "text-gray-300" : "text-gray-600"
+                            }
+                          >
+                            {f}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <button
+                      onClick={() => {
+                        setSelectedPlan({Id:plan._id,amount:plan.price});
+                        setOpenModal(true);
+                      }}
+                      className={`w-full py-2 rounded-lg border border-gray-700 font-semibold transition ${
+                        selectedPlan.Id === plan._id 
+                          ? "bg-white text-black"
+                          : "bg-gray-900 text-gray-300 hover:bg-gray-800"
+                      }`}
+                    >
+                      {selectedPlan.Id === plan._id ? "Selected" : "Select Plan"}
+                    </button>
+                  </div>
+                ))}
           </div>
         </div>
       </div>
