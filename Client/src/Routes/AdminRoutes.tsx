@@ -9,18 +9,64 @@ import PublicRoute from "./publicRoute";
 import ResetPasswordPage from "../Pages/auth/forgetPasswordResetPage";
 import AdminDashboard from "../Pages/admin/AdminDashboard";
 import AdminSubscriptionPage from "../Pages/admin/AdminSubscriptionPage";
+import PaymentSuccessModal from "../Components/Component/Admin/PaymentSuccessmodal";
+import PaymentFailedPage from "../Components/Component/Admin/PaymentFailedModal";
 const AdminRoutes = () => {
   return (
     <Routes>
-      <Route path="/login" element={<PublicRoute><RestaurentLoginPage /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><AdminRegisterPage /></PublicRoute>} />
-      <Route path="/forgetPassword" element={<PublicRoute><ForgetPasswordPage/></PublicRoute>}/>
-      <Route path="/onboarding" element={<ProtectedRoute><RestaurantMainRegistration/></ProtectedRoute>} />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <RestaurentLoginPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <AdminRegisterPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/forgetPassword"
+        element={
+          <PublicRoute>
+            <ForgetPasswordPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/onboarding"
+        element={
+          <ProtectedRoute>
+            <RestaurantMainRegistration />
+          </ProtectedRoute>
+        }
+      />
       {/* <Route path="/otp" element={<OTPVerificationModal modalOpen={true} email=""/>}/> */}
-      <Route path="/reset-password" element={<ResetPasswordPage/>}/>
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/*" element={<PageNotFound />} />
-      <Route path="/dashboard" element={<ProtectedRoute><AdminDashboard/></ProtectedRoute>}/>
-       <Route path="/subscriptionplan" element={<AdminSubscriptionPage/>}/>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/payment-success" element={<PaymentSuccessModal />} />
+       <Route path="/admin/payment-failed" element={<PaymentFailedPage />} />
+      <Route
+        path="/subscriptionplan"
+        element={
+          <ProtectedRoute>
+            <AdminSubscriptionPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

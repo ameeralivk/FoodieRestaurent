@@ -1,16 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ISubscriptionPlan } from "../../../services/planService";
-import { getAllPlan } from "../../../services/planService";
-import { loadStripe } from "@stripe/stripe-js";
+import { getAllPlan, makePayment } from "../../../services/planService";
 import LoadingCard from "../../Elements/Reusable/CardLoading";
-import CheckoutForm from "../../modals/StripModal";
-import { Elements } from "@stripe/react-stripe-js";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../redux/store/store";
 const AdminSubscriptionPlans: React.FC = () => {
+  const restuarentId = useSelector(
+    (state: RootState) => state.auth.admin?._id as string
+  );
   const [plan, setPlans] = useState<ISubscriptionPlan[]>([]);
   const [fullplan, setFullPlan] = useState<ISubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<{Id:string | null,amount:number|null}>({Id:null,amount:null});
+  const [selectedPlan, setSelectedPlan] = useState<{
+    Id: string | null;
+    amount: number | null;
+  }>({ Id: "", amount: null });
   const [openModal, setOpenModal] = useState(false);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly"
@@ -23,10 +28,20 @@ const AdminSubscriptionPlans: React.FC = () => {
       scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
     }
   };
-  const  PUBLISHABLEKEY= import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-  const stripePromise = loadStripe(
-      PUBLISHABLEKEY
-  );
+
+  const handlePayment = async (plan: { Id: string | null; amount: number | null }) => {
+    try {
+      const res = await makePayment(
+        plan.amount,
+        restuarentId,
+        plan.Id
+      );
+      window.location.href = res.data.url;
+    } catch (error) {
+      console.log(error);
+    }
+    `x`;
+  };
 
   const scrollRight = () => {
     if (scrollRef.current) {
@@ -129,9 +144,9 @@ const AdminSubscriptionPlans: React.FC = () => {
                 <X className="w-6 h-6" />
               </button>
 
-              <Elements stripe={stripePromise}>
+              {/* <Elements stripe={stripePromise}>
                 <CheckoutForm closeModal={() => setOpenModal(false)} amount={selectedPlan.amount} />
-              </Elements>
+              </Elements> */}
             </div>
           </div>
         )}
@@ -196,16 +211,18 @@ const AdminSubscriptionPlans: React.FC = () => {
 
                     <button
                       onClick={() => {
-                        setSelectedPlan({Id:plan._id,amount:plan.price});
-                        setOpenModal(true);
+                        setSelectedPlan({ Id: plan._id, amount: plan.price });
+                        handlePayment({ Id: plan._id, amount: plan.price });
                       }}
                       className={`w-full py-2 rounded-lg border border-gray-700 font-semibold transition ${
-                        selectedPlan.Id === plan._id 
+                        selectedPlan.Id === plan._id
                           ? "bg-white text-black"
                           : "bg-gray-900 text-gray-300 hover:bg-gray-800"
                       }`}
                     >
-                      {selectedPlan.Id === plan._id ? "Selected" : "Select Plan"}
+                      {selectedPlan.Id === plan._id
+                        ? "Selected"
+                        : "Select Plan"}
                     </button>
                   </div>
                 ))}

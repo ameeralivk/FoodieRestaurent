@@ -71,14 +71,23 @@ export const deletePlan = async (
 };
 
 export const makePayment = async (
-  amount: number,
-  currency: string
-): Promise<{ success: boolean; data: { clientSecret: string } }> => {
-  console.log(amount, currency, "ldajfsdlkj");
+  amount: number|null,
+  restaurentId:string,
+  planId:string|null,
+): Promise<{ success: boolean; data: { url: string } }> => {
+  console.log(amount,restaurentId,planId)
   const res = await apiRequest<{
     success: boolean;
-    data: { clientSecret: string };
-  }>("POST", "/create-payment", { amount, currency });
-
+    data: { url: string };
+  }>("POST", "/admin/create-payment", { amount, restaurentId,planId });
+  console.log(res,'response')
   return res;
+};
+
+
+
+export const getPaymentBySession = async (
+  sessionId: string
+): Promise<{ success: boolean; data: any }> => {
+  return apiRequest("GET", `/admin/payment/session/${sessionId}`);
 };

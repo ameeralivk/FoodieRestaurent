@@ -11,7 +11,6 @@ export class PlanController implements IPlanController {
 
   addPlan = async (req: Request, res: Response): Promise<Response> => {
     try {
-      console.log(req.body, "fldkjsafldjsaklfdjaklf");
       const planData = req.body;
       const parsed = subscriptionPlanSchema.safeParse(planData);
       if (!parsed.success) {
