@@ -1,4 +1,4 @@
-import { ISubscriptionPlan } from "../../types/plan";
+
 export interface ISubscriptionPlanDTO {
   _id:string;
   planName: string;

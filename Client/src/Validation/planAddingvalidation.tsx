@@ -17,7 +17,6 @@ export const PlanAddingValidation = (
   data: SubscriptionData
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
-  console.log(data, "fldsjafldjsfkldjlafjd=====================");
   // Plan Name
   if (!data.planName || !data.planName.trim()) {
     errors.planName = "Plan Name is required";

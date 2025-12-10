@@ -1,16 +1,27 @@
 import { IPaymentService } from "../Interface/IPaymentService";
 import Stripe from "stripe";
+import { inject, injectable } from "inversify";
 import { IPaymentRepository } from "../../../Repositories/payment/Interface/interface";
+import { TYPES } from "../../../DI/types";
+import mongoose from "mongoose";
+import { ISubcriptionService } from "../../subscription/interface/ISubscriptionServer";
 const stripe = new Stripe(process.env.STRIP_SECRET_KEY as string, {
   apiVersion: "2024-06-20" as unknown as Stripe.LatestApiVersion,
 });
-export class PaymentService implements IPaymentService {
 
-    constructor(private _paymentRepository:IPaymentRepository){}
+@injectable()
+export class PaymentService implements IPaymentService {
+  constructor(
+    @inject(TYPES.PaymentRepository)
+    private _paymentRepository: IPaymentRepository,
+    @inject(TYPES.SubcriptionService)
+    private _subcriptionServer: ISubcriptionService
+  ) {}
   async paymentCreate(
     amount: number,
     restaurentId: string,
-    planId: string
+    planId: string,
+    planName:string
   ): Promise<{ success: boolean; message: string; url: string }> {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -35,6 +46,7 @@ export class PaymentService implements IPaymentService {
         restaurentId,
         planId,
         amount,
+        planName
       },
     });
 
@@ -45,109 +57,74 @@ export class PaymentService implements IPaymentService {
     };
   }
 
-//  async handleWebhook(event: Stripe.Event): Promise<void> {
-//   if (event.type === "checkout.session.completed") {
-//     const session = event.data.object as Stripe.Checkout.Session;
-//     const sessionId = session.id;
-//     const paymentIntentId = session.payment_intent as string;
-//     const restaurentId = session.metadata?.restaurentId!;
-//     const planId = session.metadata?.planId!;
-//     const amountInRupees = session.amount_total ? session.amount_total / 100 : 0;
+  async handleWebhook(event: Stripe.Event): Promise<void> {
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
 
-//     await this._paymentRepository.addPayment(
-//       sessionId,
-//       "paid",
-//       restaurentId,
-//       planId,
-//       amountInRupees,
-//       paymentIntentId
-//     );
+      const metadata = session.metadata ?? {};
 
-//   } else if (event.type === "payment_intent.payment_failed") {
-//     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-//     const sessionId = paymentIntent.metadata?.sessionId!;
-//     const restaurentId = paymentIntent.metadata?.restaurentId!;
-//     const planId = paymentIntent.metadata?.planId!;
-//     const amountInRupees = paymentIntent.amount ? paymentIntent.amount / 100 : 0;
+      await this._paymentRepository.addPayment(
+        session.id,
+        "paid",
+        metadata.restaurentId || null,
+        metadata.planId || null,
+        (session.amount_total ?? 0) / 100,
+        session.payment_intent as string
+      );
+      const restaurentObjectId = new mongoose.Types.ObjectId(metadata.restaurentId);
+      const planObjectId = new mongoose.Types.ObjectId(metadata.planId);
+      await this._subcriptionServer.addSubcription({
+        restaurentId: restaurentObjectId,
+        planId: planObjectId,
+        planName: metadata.planName,
+        planPrice: Number(metadata.amount),
+        stripeSessionId: session.id,
+        stripePaymentIntentId: session.payment_intent as string,
+      });
+      return;
+    }
+    if (event.type === "payment_intent.payment_failed") {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-//     await this._paymentRepository.addPayment(
-//       sessionId,
-//       "failed",
-//       restaurentId,
-//       planId,
-//       amountInRupees,
-//       paymentIntent.id
-//     );
-//   }
-// }
+      const sessions = await stripe.checkout.sessions.list({
+        payment_intent: paymentIntent.id,
+        limit: 1,
+      });
 
+      const session = sessions.data[0];
+      if (!session) {
+        return;
+      }
 
+      const metadata = session.metadata ?? {};
 
-async handleWebhook(event: Stripe.Event): Promise<void> {
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+      await this._paymentRepository.addPayment(
+        session.id,
+        "failed",
+        metadata.restaurentId || null,
+        metadata.planId || null,
+        (paymentIntent.amount ?? 0) / 100,
+        paymentIntent.id
+      );
 
-    const metadata = session.metadata ?? {};
-
-    await this._paymentRepository.addPayment(
-      session.id,
-      "paid",
-      metadata.restaurentId || null,
-      metadata.planId || null,
-      (session.amount_total ?? 0) / 100,
-      session.payment_intent as string
-    );
-
-    return;
-  }
-  if (event.type === "payment_intent.payment_failed") {
-    const paymentIntent = event.data.object as Stripe.PaymentIntent;
-
-    const sessions = await stripe.checkout.sessions.list({
-      payment_intent: paymentIntent.id,
-      limit: 1,
-    });
-
-    const session = sessions.data[0];
-    if (!session) {
-      console.log("⚠️ No Checkout Session found for failed payment");
       return;
     }
 
-    const metadata = session.metadata ?? {};
+    if (event.type === "checkout.session.expired") {
+      const session = event.data.object as Stripe.Checkout.Session;
 
-    await this._paymentRepository.addPayment(
-      session.id,
-      "failed",
-      metadata.restaurentId || null,
-      metadata.planId || null,
-      (paymentIntent.amount ?? 0) / 100,
-      paymentIntent.id
-    );
+      const metadata = session.metadata ?? {};
 
-    return;
+      await this._paymentRepository.addPayment(
+        session.id,
+        "failed",
+        metadata.restaurentId || null,
+        metadata.planId || null,
+        (session.amount_total ?? 0) / 100,
+        null
+      );
+
+      return;
+    }
   }
-
-  if (event.type === "checkout.session.expired") {
-    const session = event.data.object as Stripe.Checkout.Session;
-
-    const metadata = session.metadata ?? {};
-
-    await this._paymentRepository.addPayment(
-      session.id,
-      "failed",
-      metadata.restaurentId || null,
-      metadata.planId || null,
-      (session.amount_total ?? 0) / 100,
-      null
-    );
-
-    return;
-  }
-
-  console.log(`Unhandled event type: ${event.type}`);
-}
-
-
-
 }

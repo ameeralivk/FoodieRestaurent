@@ -3,9 +3,12 @@ import { IAdminAuthRepository } from "../../../Repositories/Admin/interface/IAdm
 import { IMappedAdminData } from "../../../utils/dto/SuperAdminDto";
 import { AppError } from "../../../utils/Error";
 import { SuperadminDataMapping } from "../../../utils/dto/SuperAdminDto";
-import { AdminDocument } from "../../../models/admin";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../DI/types";
+
+@injectable()
 export class SuperAdminService implements ISuperAdminService {
-  constructor(private _adminAuthRepository: IAdminAuthRepository) {}
+  constructor(@inject(TYPES.AdminAuthRepository) private _adminAuthRepository: IAdminAuthRepository) {}
 
   async getAllRestaurants(
     page: number,
@@ -30,7 +33,6 @@ export class SuperAdminService implements ISuperAdminService {
       const mappedRestaurants = data.map((restaurant) =>
         SuperadminDataMapping(restaurant)
       );
-      console.log(mappedRestaurants, "2");
       return {
         success: true,
         data: mappedRestaurants,

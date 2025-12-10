@@ -1,4 +1,4 @@
-import { UserDocument } from "../../../../models/user";
+
 import { IUser } from "../../../../types/usert";
 import { IMappedUserData } from "../../../../utils/dto/userDto";
 

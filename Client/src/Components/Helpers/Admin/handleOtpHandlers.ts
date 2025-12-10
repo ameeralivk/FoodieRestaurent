@@ -22,7 +22,6 @@ export const createOtpHandlers = (dispatch: any, email: string) => {
         imageUrl: "",
         status: res.data.admin.status,
       };
-      console.log(res, "response");
       // dispatch(loginAction({ admin: data, token: res.accesstoken }));
       setTimeout(() => {
         navigate("/admin/login");
@@ -44,7 +43,6 @@ export const createOtpHandlers = (dispatch: any, email: string) => {
     try {
       const res = await userVerifyOtp(otp, email);
       showSuccessToast(res.message);
-      console.log(res, "response");
       const data: AdminType = {
         _id: res.data.user._id,
         restaurantName: res.data.user.restaurantName,

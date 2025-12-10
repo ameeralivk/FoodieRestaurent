@@ -1,4 +1,4 @@
-import { SubscriptionDocument } from "../../../models/plan";
+import { PlanDocument } from "../../../models/plan";
 import { BaseRepository } from "../../IBaseRepository";
 import SubscriptionPlan from "../../../models/plan";
 import { IAdminPlanRepository } from "../interface/IAdminPlanRepositories";
@@ -6,7 +6,7 @@ import { ISubscriptionPlan, ISubscription } from "../../../types/plan";
 import { UpdateQuery } from "mongoose";
 import { AppError } from "../../../utils/Error";
 export class AdminPlanRepository
-  extends BaseRepository<SubscriptionDocument>
+  extends BaseRepository<PlanDocument>
   implements IAdminPlanRepository
 {
   constructor() {
@@ -57,7 +57,7 @@ export class AdminPlanRepository
   }
   async findAndUpdate(
     id: string,
-    update: UpdateQuery<SubscriptionDocument>
+    update: UpdateQuery<PlanDocument>
   ): Promise<ISubscription | null> {
     try {
       if (Number(update.duration)) {

@@ -6,8 +6,11 @@ import { MESSAGES } from "../../../constants/messages";
 import { subscriptionPlanSchema } from "../../../helpers/zodvalidation";
 import HttpStatus from "../../../constants/htttpStatusCode";
 import { success } from "zod";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../DI/types";
+@injectable()
 export class PlanController implements IPlanController {
-  constructor(private _adminPlanService: IAdminPlanService) {}
+  constructor(@inject(TYPES.AdminPlanService) private _adminPlanService: IAdminPlanService) {}
 
   addPlan = async (req: Request, res: Response): Promise<Response> => {
     try {
@@ -96,7 +99,6 @@ getAllPlan = async (req: Request, res: Response): Promise<Response> => {
     try {
       const planId = req.params.id as string;
       const result = await this._adminPlanService.deletePlan(planId);
-      console.log("hi");
       if (result.success) {
         return res.status(HttpStatus.OK).json({
           success: true,

@@ -1,23 +1,21 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
 import cors from "cors";
 import connectDB from "./config/db";
 import cookieParser from "cookie-parser";
 import authRouter from "./Routes/authRoutes";
 import { errorHandler } from "./middleware/errorHandler";
+import { startSubscriptionScheduler } from "./cronjob/subcriptionScheduler";
 import { connectRedis } from "./config/redisClient";
 import userAuthRouter from "./Routes/user/authRoutes";
 import superAdminRouter from "./Routes/superAdmin/superAdminRouter";
 import AdminRouter from "./Routes/Admin/adminRouter";
+import { container } from "./DI/container";
 import { PaymentController } from "./Controller/paymentController/Implimentation/paymentController";
-import path = require("path");
-import { PaymentService } from "./services/paymentService/Implimentation/paymentService";
-import { PaymentRepository } from "./Repositories/payment/implimentation/implimentation";
-const router = express.Router();
-const paymentRepository = new PaymentRepository()
-const paymentService = new PaymentService(paymentRepository)
-const paymentController = new PaymentController(paymentService);
-dotenv.config();
+import { TYPES } from "./DI/types";
+import "reflect-metadata";
+const paymentController = container.get<PaymentController>(TYPES.PaymentController)
 const app = express();
 app.use(
   cors({
@@ -31,7 +29,7 @@ connectRedis();
 connectDB();
 app.post(
   "/payment/webhook",
-  express.raw({ type: "application/json" }), 
+  express.raw({ type: "application/json" }),
   (req, res) => paymentController.webhook(req, res)
 );
 app.use(express.json());
@@ -44,4 +42,5 @@ app.use(errorHandler);
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`server created at ${port}`);
+  startSubscriptionScheduler();
 });

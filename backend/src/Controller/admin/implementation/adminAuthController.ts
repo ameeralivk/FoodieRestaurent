@@ -4,15 +4,17 @@ import IAdminAuthController from "../interface/IAdminAuthController";
 import { AppError } from "../../../utils/Error";
 import HttpStatus from "../../../constants/htttpStatusCode";
 import { loginSchema, registerSchema } from "../../../helpers/zodvalidation";
-import crypto from "crypto";
-import { http } from "winston";
-import { any, string, success } from "zod";
-import { generateToken } from "../../../middleware/jwt";
 import { MESSAGES } from "../../../constants/messages";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../DI/types";
+
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
+@injectable()
 export class AdminAuthController implements IAdminAuthController {
-  constructor(private _adminauthService: IAdminAuthService) {}
+  constructor(
+    @inject(TYPES.AdminAuthService) private _adminauthService: IAdminAuthService
+  ) {}
   register = async (
     req: Request,
     res: Response,
@@ -109,9 +111,9 @@ export class AdminAuthController implements IAdminAuthController {
       });
       res.cookie("access_token", accesstoken, {
         httpOnly: true,
-        secure: false, 
+        secure: false,
         sameSite: "strict",
-        maxAge: 15 * 60 * 1000, 
+        maxAge: 15 * 60 * 1000,
       });
       return res.status(200).json({
         success: true,
@@ -140,11 +142,11 @@ export class AdminAuthController implements IAdminAuthController {
       const { newAccessToken } = await this._adminauthService.refreshToken(
         refreshToken
       );
-       res.cookie("access_token", newAccessToken, {
+      res.cookie("access_token", newAccessToken, {
         httpOnly: true,
-        secure: false, 
+        secure: false,
         sameSite: "strict",
-        maxAge: 15 * 60 * 1000, 
+        maxAge: 15 * 60 * 1000,
       });
       res.status(HttpStatus.OK).json({ accessToken: newAccessToken });
     } catch (error) {
@@ -169,9 +171,9 @@ export class AdminAuthController implements IAdminAuthController {
         await this._adminauthService.login(email, password);
       res.cookie("access_token", token, {
         httpOnly: true,
-        secure: false, 
+        secure: false,
         sameSite: "strict",
-        maxAge: 15 * 60 * 1000, 
+        maxAge: 15 * 60 * 1000,
       });
       res.cookie("refresh_token", refreshToken, {
         httpOnly: true,
@@ -236,7 +238,6 @@ export class AdminAuthController implements IAdminAuthController {
           .json({ success: false, message: response.message });
       }
     } catch (error: any) {
-      console.log(error.message, "eer");
       throw new AppError(error);
     }
   };
@@ -278,7 +279,6 @@ export class AdminAuthController implements IAdminAuthController {
       const proofDocument = proofDocumentKey
         ? `https://${bucketName}.s3.${region}.amazonaws.com/${proofDocumentKey}`
         : undefined;
-      console.log(restaurantPhoto, proofDocument);
       const response = await this._adminauthService.registerRestaurant({
         email,
         restaurantName,
@@ -292,7 +292,6 @@ export class AdminAuthController implements IAdminAuthController {
         restaurantPhoto,
         proofDocument,
       });
-      console.log(response, "ameer");
       return res.status(200).json({
         success: true,
         message: MESSAGES.RESTAURANT_REGISTER_COMPLETE,
@@ -323,7 +322,6 @@ export class AdminAuthController implements IAdminAuthController {
         throw new AppError("Admin ID is required", HttpStatus.BAD_REQUEST);
       }
       const proofDocument = req.file;
-      console.log(proofDocument, "document is ehr");
       const bucketName = process.env.S3_BUCKET_NAME;
       const region = process.env.AWS_REGION || "ap-south-1";
       const Document = proofDocument
@@ -333,7 +331,6 @@ export class AdminAuthController implements IAdminAuthController {
       if (!file) {
         throw new AppError("No document uploaded", HttpStatus.BAD_REQUEST);
       }
-      console.log(file, "file is here ameer ali vk");
       const updatedAdmin = await this._adminauthService.updateDocument(
         adminId,
         file

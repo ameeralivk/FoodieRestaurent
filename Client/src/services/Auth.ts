@@ -45,7 +45,6 @@ export const verifyOtp = async (otp: string, email: string) => {
     const response = await api.post("/admin/auth/verify-otp", data, {
       withCredentials: true,
     });
-    console.log(response.data, "fdalfdajk");
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -65,7 +64,6 @@ export const resendOtp = async (email: string) => {
     const response = await api.post("/admin/auth/resent-otp", data, {
       withCredentials: true,
     });
-    console.log(response.data, "fdalfdajk");
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -88,8 +86,6 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
           token: tokenResponse.access_token,
         });
         if (res.data.success) {
-          console.log(res.data, "data is here");
-          const access_token = res.data.accesstoken;
 
           const saveddata: AdminType = {
             _id: res.data.data._id,
@@ -157,7 +153,6 @@ export const handleForgetPasswordSubmit = async (
     });
 
     // Update toast based on API response
-    console.log(response, "res ");
     if (response.data.success || response.data.succes) {
       await AfterLoading(
         "Sending reset link...",
@@ -174,7 +169,6 @@ export const handleForgetPasswordSubmit = async (
       return false;
     }
 
-    console.log(response.data, "response is here");
   } catch (error: any) {
     toast.update(loadingId, {
       render: axios.isAxiosError(error)
@@ -204,7 +198,6 @@ export const handleresetPasswordForm = async (
       newPassword: resetPassword.newPassword,
     });
 
-    console.log(response, "res");
 
     if (response.data.success || response.data.succes) {
       return { success: true, message: response.data.message };
@@ -232,9 +225,6 @@ export const registerRestaurant = async (formData: RegisterFormData) => {
         }
       }
     });
-    for (const [key, value] of data.entries()) {
-      console.log(key, value, "ready");
-    }
 
     const response = await api.post("/admin/auth/on-boarding", data, {
       withCredentials: true,
@@ -309,7 +299,6 @@ export const logoutRequest = async () => {
       {},
       { withCredentials: true }
     );
-    console.log(response, "ameer");
     if (response.data?.success) {
       return response.data;
     } else {

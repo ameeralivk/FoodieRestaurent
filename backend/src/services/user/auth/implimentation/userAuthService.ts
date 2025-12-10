@@ -17,10 +17,15 @@ import HttpStatus from "../../../../constants/htttpStatusCode";
 import { IUser } from "../../../../types/usert";
 import { AppError } from "../../../../utils/Error";
 import { mapUserToDto } from "../../../../utils/dto/userDto";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../../DI/types";
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
+
+
+@injectable()
 export class UserAuthService implements IUserAuthService {
-  constructor(private _userAuthRepository: IUserAuthRepository) {}
+  constructor(@inject(TYPES.UserAuthRepository) private _userAuthRepository: IUserAuthRepository) {}
 
   async register(
     name: string,
@@ -43,7 +48,7 @@ export class UserAuthService implements IUserAuthService {
       const { hashedOtp, otp } = generateOtp();
       await redisClient.setEx(redisDataKey, 600, JSON.stringify(data));
       await redisClient.setEx(redisOtpKey, 120, hashedOtp);
-      let res = await sentOtp(email, otp);
+      await sentOtp(email, otp);
       return { success: true, message: MESSAGES.OTP_SENT_SUCCESS };
     } catch (error) {
       let err = error as Error;
@@ -171,16 +176,13 @@ export class UserAuthService implements IUserAuthService {
     try {
       const storedToken = await redisClient.get(`resetPassword:${email}`);
       if (!storedToken || storedToken !== token) {
-        console.log("Token is invalid or expired");
         return { success: false, message: "Invalid or expired token" };
       }
       const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-      console.log(hashedPassword, "password");
       const user = await this._userAuthRepository.updatePasswordByEmail(
         email,
         hashedPassword
       );
-      console.log(user, "resdaf");
       if (!user) {
         return { success: false, message: MESSAGES.USER_NOT_FOUND };
       }

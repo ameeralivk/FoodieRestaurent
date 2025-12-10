@@ -8,10 +8,14 @@ import {
   userloginSchema,
   userregisterSchema,
 } from "../../../../helpers/zodvalidation";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../../DI/types";
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
+
+@injectable()
 export class UserAuthController implements IUserAuthController {
-  constructor(private _userAuthService: IUserAuthService) {}
+  constructor(@inject(TYPES.UserAuthService) private _userAuthService: IUserAuthService) {}
 
   register = async (req: Request, res: Response): Promise<Response> => {
     try {
@@ -175,7 +179,6 @@ export class UserAuthController implements IUserAuthController {
           .json({ success: false, message: response.message });
       }
     } catch (error: any) {
-      console.log(error.message, "eer");
       throw new AppError(error);
     }
   };

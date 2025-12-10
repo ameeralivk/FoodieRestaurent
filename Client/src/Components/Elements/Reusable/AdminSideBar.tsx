@@ -51,7 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               key={item.name}
               onClick={() => {
                 setActiveItem(item.name);
-                console.log(item.path, "pat");
                 navigate(item.path ? item.path : "");
               }}
               className={`w-full flex items-center gap-4 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white transition-all ${

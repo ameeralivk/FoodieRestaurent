@@ -24,7 +24,6 @@ export class AdminAuthRepository
 
     // const data = JSON.parse(cachedData ? cachedData : "");
     try {
-      console.log(adminData, "data");
       const admin = await this.model.create({
         role: adminData.role,
         restaurantName: adminData.restaurantName,

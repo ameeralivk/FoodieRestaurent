@@ -31,5 +31,7 @@ export const MESSAGES = {
   PLAN_UPDATED_FAILED:"plan Updating Failed",
   PLAN_NOT_FOUND:"Plan Not Found",
   PLAN_DEL_SUCCESS:"Plan Deleted Successfully",
-  PLAN_DEL_FAILED:"Plan Deleted Failed"
+  PLAN_DEL_FAILED:"Plan Deleted Failed",
+  SUBCRIPTION_ADDED_FAILED:"Subscription Added Failed",
+  SUBCRIPTION_ADDED_SUCCESS:"Subcription Added Success"
 };

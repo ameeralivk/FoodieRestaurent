@@ -29,16 +29,17 @@ const AdminSubscriptionPlans: React.FC = () => {
     }
   };
 
-  const handlePayment = async (plan: { Id: string | null; amount: number | null }) => {
+  const handlePayment = async (plan: { Id: string | null; amount: number | null ; planName:string }) => {
     try {
       const res = await makePayment(
         plan.amount,
         restuarentId,
-        plan.Id
+        plan.Id,
+        plan.planName
       );
       window.location.href = res.data.url;
     } catch (error) {
-      console.log(error);
+      alert(error);
     }
     `x`;
   };
@@ -212,7 +213,7 @@ const AdminSubscriptionPlans: React.FC = () => {
                     <button
                       onClick={() => {
                         setSelectedPlan({ Id: plan._id, amount: plan.price });
-                        handlePayment({ Id: plan._id, amount: plan.price });
+                        handlePayment({ Id: plan._id, amount: plan.price ,planName:plan.planName });
                       }}
                       className={`w-full py-2 rounded-lg border border-gray-700 font-semibold transition ${
                         selectedPlan.Id === plan._id

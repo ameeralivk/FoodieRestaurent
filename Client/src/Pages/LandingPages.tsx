@@ -5,11 +5,9 @@ import { useNavigate } from "react-router-dom";
 const LandingPage = () => {
   const navigate = useNavigate();
   const handleRestaurentButton = () => {
-    console.log("hi");
     navigate("/admin/Login");
   };
   const handleUserButton = () => {
-    console.log("hi");
     navigate("/user/Login");
   };
   return (

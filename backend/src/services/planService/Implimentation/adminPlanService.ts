@@ -4,8 +4,11 @@ import { IAdminPlanRepository } from "../../../Repositories/planRepositories/int
 import { MESSAGES } from "../../../constants/messages";
 import { subscriptionPlanDTO } from "../../../utils/dto/subscriptionPlanDto";
 import { idnEmail } from "zod/v4/core/regexes.cjs";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../DI/types";
+@injectable()
 export class AdminPlanService implements IAdminPlanService {
-  constructor(private _adminPlanRepository: IAdminPlanRepository) {}
+  constructor(@inject(TYPES.AdminPlanRepository) private _adminPlanRepository: IAdminPlanRepository) {}
   async addPlan(
     PlanData: ISubscriptionPlan
   ): Promise<{ success: boolean; message: string }> {

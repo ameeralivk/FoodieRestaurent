@@ -8,7 +8,6 @@ export const searchLocation = async (query: string) => {
       )}`
     );
     const data = await response.json();
-    console.log(data, "d");
     if (data.length > 0) {
       const { lat, lon } = data[0];
       return {

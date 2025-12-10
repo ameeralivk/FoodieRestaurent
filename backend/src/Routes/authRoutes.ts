@@ -6,11 +6,17 @@ import { asyncHandler } from "../middleware/asyncHandler";
 import { upload } from "../config/multerConfig";
 import { verifyAccessToken } from "../middleware/jwt";
 import { updateDocumentUpload } from "../config/multerConfig";
+import { container } from "../DI/container";
+import { TYPES } from "../DI/types";
 const router = express.Router();
 
-const adminAuthRepository = new AdminAuthRepository();
-const adminAuthService = new AdminAuthService(adminAuthRepository);
-const authController = new AdminAuthController(adminAuthService);
+// const adminAuthRepository = new AdminAuthRepository();
+// const adminAuthService = new AdminAuthService(adminAuthRepository);
+// const authController = new AdminAuthController(adminAuthService);
+
+const authController = container.get<AdminAuthController>(
+  TYPES.AdminAuthController
+);
 
 router.route("/signup").post(asyncHandler(authController.register));
 router.route("/verify-otp").post(asyncHandler(authController.verifyOtp));

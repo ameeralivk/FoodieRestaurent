@@ -20,9 +20,13 @@ import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
 import IAdminAuthService from "../interface/IAdminAuthService";
 import { AdminDTO, adminDTO } from "../../../utils/dto/adminDto";
 import { AdminDocument } from "../../../models/admin";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../DI/types";
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
+
+@injectable()
 export class AdminAuthService implements IAdminAuthService {
-  constructor(private _adminAuthRepository: IAdminAuthRepository) {}
+  constructor(@inject(TYPES.AdminAuthRepository) private _adminAuthRepository: IAdminAuthRepository) {}
 
   async register(
     restaurantName: string,
@@ -44,7 +48,6 @@ export class AdminAuthService implements IAdminAuthService {
       role,
     };
     const { hashedOtp, otp } = generateOtp();
-    console.log(otp, "otp");
     await redisClient.setEx(redisDataKey, 600, JSON.stringify(data));
     await redisClient.setEx(redisOtpKey, 120, hashedOtp);
     let res = await sentOtp(email, otp);
@@ -134,7 +137,6 @@ export class AdminAuthService implements IAdminAuthService {
 
     const redisOtpKey = `otp:${email}`;
     await redisClient.setEx(redisOtpKey, 120, hashedOtp);
-    console.log(otp, "otp");
     await resendOtpEmail(email, otp);
 
     return { success: true, message: MESSAGES.OTP_RESENT_SUCCESS };
@@ -207,7 +209,6 @@ export class AdminAuthService implements IAdminAuthService {
     try {
       const storedToken = await redisClient.get(`resetPassword:${email}`);
       if (!storedToken || storedToken !== token) {
-        console.log("Token is invalid or expired");
         return { success: false, message: "Invalid or expired token" };
       }
       const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
@@ -250,7 +251,6 @@ export class AdminAuthService implements IAdminAuthService {
 
   async getStatus(adminId: string) {
     const admin = await this._adminAuthRepository.findById(adminId);
-    console.log(admin, "admin is here");
     if (!admin) return null;
 
     const responseStatus: any = {
@@ -277,7 +277,6 @@ export class AdminAuthService implements IAdminAuthService {
     }
 
     const oldKey = admin.proofDocument;
-    console.log(oldKey, "oldkey is here");
     if (oldKey) {
       const bucketName = process.env.S3_BUCKET_NAME!;
       const region = process.env.AWS_REGION || "ap-south-1";
@@ -287,7 +286,6 @@ export class AdminAuthService implements IAdminAuthService {
         `https://${bucketName}.s3.${region}.amazonaws.com/`,
         ""
       );
-      console.log(key, "key is here");
 
       if (key) {
         await s3.send(

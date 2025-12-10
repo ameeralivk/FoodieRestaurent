@@ -2,9 +2,7 @@ import api from "../services/Api";
 
 export const checkAuth = async (): Promise<boolean> => {
   try {
-    console.log("a");
     const res = await api.get("/admin/auth/auth/me");
-    console.log(res, "re");
     if (!res.data.authenticated) {
       return false;
     }

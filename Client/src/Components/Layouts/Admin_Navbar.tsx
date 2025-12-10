@@ -14,7 +14,6 @@ const Admin_Navbar: React.FC<role> = ({ role }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   function handleLogout() {
-    console.log("hi");
     showConfirm("Logout", "Do you really want to logout?", "Logout", "Cancel")
       .then(async (confirmed) => {
         if (confirmed) {

@@ -10,13 +10,6 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const admin = useSelector((state: RootState) => state.auth.admin);
-  useEffect(() => {
-    const fetch = async () => {
-      const res = await checkAuth();
-      console.log(res,'re')
-    };
-    fetch();
-  }, []);
   if (!admin) {
     return <Navigate to="/admin/login" replace />;
   }

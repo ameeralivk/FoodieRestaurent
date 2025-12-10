@@ -57,15 +57,6 @@ export const verifyAccessToken = (
   next: NextFunction
 ): void => {
   try {
-    // console.log('hi fdlsja')
-    // const authHeader = req.headers["authorization"];
-    // if (!authHeader) {
-    //   res.status(401).json({ message: "Authorization header missing" });
-    //   return;
-    // }
-
-    // const token = authHeader.split(" ")[1];
-    // console.log(token,'token')
     const token = req.cookies.access_token;
     if (!token) {
       res.status(401).json({ message: "Token missing" });
@@ -75,7 +66,6 @@ export const verifyAccessToken = (
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedUser;
     const user = ((req as any).user = decoded);
     const role = user.role;
-    console.log(role, "role is here");
     if (role === "admin" || role === "superadmin") {
       next();
     } else {

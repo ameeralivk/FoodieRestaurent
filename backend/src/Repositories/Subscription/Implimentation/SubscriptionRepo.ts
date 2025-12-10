@@ -1,0 +1,32 @@
+import { ISubscriptiontype } from "../../../types/subscription";
+import { BaseRepository } from "../../IBaseRepository";
+import { ISubscriptionRepo } from "../Interface/ISubscriptionRepo";
+import subscription from "../../../models/subscription";
+import mongoose from "mongoose";
+export class SubscriptionRepo
+  extends BaseRepository<ISubscriptiontype>
+  implements ISubscriptionRepo
+{
+  constructor() {
+    super(subscription);
+  }
+
+  async addSubcription(data: {
+    restaurentId: mongoose.Types.ObjectId | undefined;
+    planId: mongoose.Types.ObjectId | undefined;
+    planName: string;
+    planPrice: number;
+    stripeSessionId: string;
+    stripePaymentIntentId: string;
+  }): Promise<ISubscriptiontype> {
+    return this.create(data);
+  }
+
+  async findOne(restaurentId: string): Promise<ISubscriptiontype|null> {
+    return this.getByFilter({
+      restaurentId,
+      status: "active",
+      renewalDate: { $gt: new Date() }
+    });
+  }
+}

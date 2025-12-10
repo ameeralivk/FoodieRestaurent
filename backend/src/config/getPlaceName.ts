@@ -1,5 +1,4 @@
 import axios from "axios"
-
 // Function to get place name from coordinates
 async function getPlaceName(lat: number, lon: number): Promise<void> {
   try {
@@ -20,7 +19,7 @@ async function getPlaceName(lat: number, lon: number): Promise<void> {
     if (response.data && response.data.display_name) {
       return response.data.display_name; 
     } else {
-      console.log("Place not found for these coordinates.");
+      return
     }
   } catch (error) {
     console.error("Error fetching place name:", error);

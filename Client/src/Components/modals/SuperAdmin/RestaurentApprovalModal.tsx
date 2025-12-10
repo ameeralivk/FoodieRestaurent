@@ -248,7 +248,6 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
   if (!isOpen) return null;
 
   const handleApprove = async () => {
-    console.log(data, "data is here");
     if (!data?._id) return;
 
     const result = await Swal.fire({
@@ -273,7 +272,6 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
       }
     }
   };
-  console.log(data, "data is here");
   const handleReject = async () => {
     if (!data?._id) return;
     if (rejectReason === "") {
@@ -302,7 +300,6 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
       }
     }
   };
-  console.log(data, "data is here");
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div className="bg-neutral-900 rounded-lg w-full max-w-5xl max-h-[90vh] overflow-y-auto">

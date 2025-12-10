@@ -54,7 +54,6 @@ const RestaurentLoginPage = () => {
       }
 
       const response = await handleLogin(formData.email, formData.password);
-      console.log(response, "ameeer");
       const saveddata: AdminType = {
         _id: response.admin._id,
         restaurantName: response.admin.restaurantName,
@@ -78,7 +77,7 @@ const RestaurentLoginPage = () => {
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error, "error");
+        showErrorToast(String(error))
       } else {
         showErrorToast(String(error));
       }

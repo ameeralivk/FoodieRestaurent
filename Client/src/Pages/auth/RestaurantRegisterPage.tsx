@@ -80,7 +80,6 @@ const AdminRegisterPage = () => {
         setLoading(true);
         let res = await register(registerData);
         if (res.message.success) {
-          console.log(res);
           toast.dismiss(toastId);
           await AfterLoading("Sending OTP...", "✅ OTP sent successfully!");
           setModalOpen(true);

@@ -15,13 +15,13 @@ const adminSchema = new Schema<IAdmin>(
     proofDocument: { type: String, required: false },
     location: {
       type: {
-        type: String, 
+        type: String,
         enum: ["Point"],
-        required: false, 
+        required: false,
         default: "Point",
       },
       coordinates: {
-        type: [Number], 
+        type: [Number],
         required: false,
       },
     },
@@ -30,13 +30,13 @@ const adminSchema = new Schema<IAdmin>(
     googleID: { type: String },
     imageUrl: { type: String },
     isBlocked: { type: Boolean, default: false },
-    placeName:{type:String},
+    placeName: { type: String },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected" , "resubmitted"],
+      enum: ["pending", "approved", "rejected", "resubmitted"],
     },
-    rejectionReason:{type:string},
-    rejectedAt:{type:Date}
+    rejectionReason: { type: string },
+    rejectedAt: { type: Date },
   },
   {
     timestamps: true,

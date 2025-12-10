@@ -1,15 +1,20 @@
 import ISuperAdminService from "../../../services/superAdmin/interface/ISuperAdminService";
 import ISuperAdminController from "../interface/ISuperAdminController";
 import { Request, Response } from "express";
+import { TYPES } from "../../../DI/types";
+import { inject, injectable } from "inversify";
+@injectable()
 export class SuperAdminController implements ISuperAdminController {
-  constructor(private _superAdminService: ISuperAdminService) {}
+  constructor(
+    @inject(TYPES.SuperAdminService)
+    private _superAdminService: ISuperAdminService
+  ) {}
 
   getAllRestaurent = async (req: Request, res: Response): Promise<Response> => {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const search = (req.query.searchTerm as string) || "";
-      console.log(search,'se')
       const filter: any = { role: "admin", status: { $exists: true } };
       if (search) {
         filter.$or = [
@@ -23,7 +28,6 @@ export class SuperAdminController implements ISuperAdminController {
         limit,
         filter
       );
-      console.log(result,'hi here ')
       return res.status(200).json({
         success: true,
         message: "Restaurants fetched successfully",

@@ -3,12 +3,11 @@ import { UserAuthRepository } from "../../Repositories/user/auth/implimentation/
 import { UserAuthService } from "../../services/user/auth/implimentation/userAuthService";
 import { UserAuthController } from "../../Controller/user/auth/implimentation/userAuthController";
 import { asyncHandler } from "../../middleware/asyncHandler";
+import { container } from "../../DI/container";
+import { TYPES } from "../../DI/types";
+
+const userController = container.get<UserAuthController>(TYPES.UserAuthController)
 const router = express.Router();
-
-const userAuthRepository = new UserAuthRepository();
-const userAuthService = new UserAuthService(userAuthRepository);
-const userController = new UserAuthController(userAuthService);
-
 router.route("/register").post(asyncHandler(userController.register));
 router.route("/login").post(asyncHandler(userController.login));
 router.route("/verify-otp").post(asyncHandler(userController.verifyOtp));

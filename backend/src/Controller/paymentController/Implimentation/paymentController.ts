@@ -1,26 +1,31 @@
 import HttpStatus from "../../../constants/htttpStatusCode";
 import { IPaymentService } from "../../../services/paymentService/Interface/IPaymentService";
 import { AppError } from "../../../utils/Error";
+import { inject, injectable } from "inversify";
 import { IPaymentController } from "../Interface/IPaymentController";
 import { Request, Response } from "express";
-import Stripe from "stripe"
+import Stripe from "stripe";
+import { TYPES } from "../../../DI/types";
+injectable();
 export class PaymentController implements IPaymentController {
-  constructor(private _paymentService: IPaymentService) {}
+  constructor(
+    @inject(TYPES.PaymentService) private _paymentService: IPaymentService
+  ) {}
 
   createPayment = async (req: Request, res: Response): Promise<Response> => {
     try {
       const data = req.body as any;
 
-      if (!data?.amount || !data.restaurentId || !data.planId) {
+      if (!data?.amount || !data.restaurentId || !data.planId || !data.planName) {
         return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ message: "Missing required fields" });
       }
-      console.log(data, "data is ehre");
       const result = await this._paymentService.paymentCreate(
         data.amount,
         data.restaurentId,
-        data.planId
+        data.planId,
+        data.planName
       );
 
       return res.status(200).json({
@@ -32,9 +37,7 @@ export class PaymentController implements IPaymentController {
     }
   };
 
-
-
-   webhook  = async(req: Request, res: Response) => {
+  webhook = async (req: Request, res: Response) => {
     const sig = req.headers["stripe-signature"] as string;
     try {
       const event = Stripe.webhooks.constructEvent(
@@ -49,7 +52,5 @@ export class PaymentController implements IPaymentController {
       console.error("Webhook error:", err.message);
       res.status(400).send(`Webhook Error: ${err.message}`);
     }
-  }
-
-
+  };
 }

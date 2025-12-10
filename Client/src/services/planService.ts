@@ -55,14 +55,12 @@ export const editPlan = async (
     `/superadmin/plan/${id}`,
     data
   );
-  console.log(res, "response is here ameer ali vk");
   return res;
 };
 
 export const deletePlan = async (
   id: string
 ): Promise<{ success: boolean; message: string }> => {
-  console.log("hi here");
   let res = await apiRequest<{ success: boolean; message: string }>(
     "DELETE",
     `/superadmin/plan/${id}`
@@ -74,13 +72,13 @@ export const makePayment = async (
   amount: number|null,
   restaurentId:string,
   planId:string|null,
+  planName:string
 ): Promise<{ success: boolean; data: { url: string } }> => {
-  console.log(amount,restaurentId,planId)
+
   const res = await apiRequest<{
     success: boolean;
     data: { url: string };
-  }>("POST", "/admin/create-payment", { amount, restaurentId,planId });
-  console.log(res,'response')
+  }>("POST", "/admin/create-payment", { amount, restaurentId,planId ,planName });
   return res;
 };
 

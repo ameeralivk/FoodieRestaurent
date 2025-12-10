@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import { GoogleLoginButton } from "../../../Components/Elements/googleLoginButton";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { showErrorToast } from "../../../Components/Elements/ErrorToast";
 export default function UserLoginForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
@@ -45,8 +46,8 @@ export default function UserLoginForm() {
     if (res?.success) {
       navigate("/user");
     }
-  } catch (error) {
-    console.log(error, "error");
+  } catch (error:any) {
+    showErrorToast(error)
   }
 };
 

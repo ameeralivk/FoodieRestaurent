@@ -4,7 +4,6 @@ import type{ RootState } from "../../redux/store/store";
 const SuperAdminRoute: React.FC = () => {
   const admin = useSelector((state: RootState) => state.auth.admin);
   const authenticated = useSelector((state:RootState)=>state.auth.isAuthenticated)
-  console.log(authenticated,'auth')
   if (!admin || authenticated === false) {
     return <Navigate to="/admin/login" replace />;
   }

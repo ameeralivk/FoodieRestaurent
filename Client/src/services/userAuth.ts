@@ -12,31 +12,6 @@ import { AfterLoading } from "../Components/Elements/Loading";
 import { loadingToast } from "../Components/Elements/Loading";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-// export const handleUserLogin = async (email: string, password: string) => {
-//   try {
-//     let data = { email, password };
-//     const response = await api.post("/user/auth/login", data, {
-//       withCredentials: true,
-//     });
-//     console.log(response, "response");
-//     if (response.status == 200) {
-//       return { succes: true, data: response.data };
-//     } else {
-//       showErrorToast("Something wentWrong");
-//     }
-//   } catch (error) {
-//     if (axios.isAxiosError(error)) {
-//       const message = error.response?.data.message;
-//       showErrorToast(message);
-//       return;
-//     } else if (error instanceof Error) {
-//       showErrorToast(error.message);
-//     } else {
-//       showErrorToast("An unknown error occurred");
-//     }
-//     throw new Error("Something went wrong. Please try again.");
-//   }
-// };
 
 export const handleUserLogin = async (
   email: string,
@@ -118,7 +93,6 @@ export const userVerifyOtp = async (otp: string, email: string) => {
     const response = await api.post("/user/auth/verify-otp", data, {
       withCredentials: true,
     });
-    console.log(response.data, "fdalfdajk");
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -138,7 +112,6 @@ export const userResendOtp = async (email: string) => {
     const response = await api.post("/user/auth/resent-otp", data, {
       withCredentials: true,
     });
-    console.log(response.data, "fdalfdajk");
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -160,9 +133,7 @@ export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
         const res = await api.post("/user/auth/googleAuth", {
           token: tokenResponse.access_token,
         });
-        console.log(res.data, "data is here");
         if (res.data.success) {
-          console.log(res.data, "data is here");
 
           const saveddata: AdminType = {
             _id: res.data.data._id,
@@ -202,8 +173,6 @@ export const handleUserForgetPasswordSubmit = async (
     const response = await api.post("/user/auth/forget-password", {
       email: formData.email,
     });
-
-    console.log(response, "res ");
     if (response.data.success || response.data.succes) {
       await AfterLoading(
         "Sending reset link...",
@@ -223,8 +192,6 @@ export const handleUserForgetPasswordSubmit = async (
       });
       return false;
     }
-
-    console.log(response.data, "response is here");
   } catch (error: any) {
     toast.update(loadingId, {
       render: axios.isAxiosError(error)

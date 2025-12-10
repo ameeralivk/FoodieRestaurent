@@ -104,7 +104,6 @@ const RestaurantMainRegistration = () => {
 
       try {
         const data = await getStatus(adminId);
-        console.log(data, "status data");
         setAdminStatus(data); // ⬅️ Store received API response in state
       } catch (err) {
         console.error(err);
@@ -164,14 +163,11 @@ const RestaurantMainRegistration = () => {
       const { isValid, errors } = validateRestaurantForm(formData);
 
       if (!isValid) {
-        console.log(errors, "error");
         setErrors(errors);
         return;
       }
 
       setLoading(true);
-
-      console.log(formData);
 
       const res = await registerRestaurant(formData);
 
@@ -190,10 +186,6 @@ const RestaurantMainRegistration = () => {
 
   async function handleReupload(file: File) {
     try {
-      const result = await updateDocument(adminId ? adminId : "", file);
-
-      console.log("Updated:", result);
-
       setAdminStatus({
         status: "resubmitted",
         reason: "",
@@ -202,7 +194,7 @@ const RestaurantMainRegistration = () => {
 
       setIsModalOpen(false);
     } catch (error) {
-      console.log("Reupload failed:", error);
+      alert("Reupload failed:");
     }
   }
 

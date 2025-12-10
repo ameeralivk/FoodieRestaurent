@@ -14,6 +14,6 @@ const SubscriptionSchema: Schema<ISubscription> = new Schema(
   { timestamps: true }
 );
 
-export type SubscriptionDocument = ISubscription & Document;
-const SubscriptionPlan = mongoose.model<SubscriptionDocument>("SubscriptionPlan", SubscriptionSchema);
+export type PlanDocument = ISubscription & Document;
+const SubscriptionPlan = mongoose.model<PlanDocument>("SubscriptionPlan", SubscriptionSchema);
 export default SubscriptionPlan;

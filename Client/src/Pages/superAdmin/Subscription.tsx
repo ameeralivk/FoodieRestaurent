@@ -31,7 +31,6 @@ export default function SubscriptionPage() {
     try {
       setLoading(true);
       const response = await getAllPlan(page, 10);
-      console.log(response, "ameer resonse");
       await new Promise((res) => setTimeout(res, 300));
       setPlans(response.data.data);
       setTotalPages(response.pagination.totalPages);

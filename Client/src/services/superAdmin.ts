@@ -30,7 +30,6 @@ export const getAllRestaurent = async (page: number, limit: number ,searchTerm:s
 
 export const approveRestaurant = async (restaurantId: string) => {
   try {
-    console.log(restaurantId, "od");
     const response = await api.patch(
       `/superadmin/approve/${restaurantId}`,
       null,
@@ -66,7 +65,6 @@ export const rejectRestaurant = async (
   rejectionReason: string
 ) => {
   try {
-    console.log(restaurantId, "od");
     const response = await api.patch(
       `/superadmin/reject/${restaurantId}`,
       { reason: rejectionReason },

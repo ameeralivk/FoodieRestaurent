@@ -1,19 +1,17 @@
 import exprees from "express";
-import { AdminAuthRepository } from "../../Repositories/Admin/implimentation/adminRepositories";
-import { SuperAdminService } from "../../services/superAdmin/implementation/superAdminService";
 import { SuperAdminController } from "../../Controller/superAdmin/implementation/superAdminController";
 import { verifyAccessToken } from "../../middleware/jwt";
-import { AdminPlanRepository } from "../../Repositories/planRepositories/implimentation/adminPlanRepositories";
 import { asyncHandler } from "../../middleware/asyncHandler";
-import { AdminPlanService } from "../../services/planService/Implimentation/adminPlanService";
 import { PlanController } from "../../Controller/planController/Implimentation/planController";
-const adminAuthRepository = new AdminAuthRepository();
-const superAdminService = new SuperAdminService(adminAuthRepository);
-const superAdminController = new SuperAdminController(superAdminService);
+import { container } from "../../DI/container";
+import { TYPES } from "../../DI/types";
 
-const superAdminPlanRepository = new AdminPlanRepository();
-const superAdminPlanService = new AdminPlanService(superAdminPlanRepository);
-const superAdminPlanController = new PlanController(superAdminPlanService);
+const superAdminController = container.get<SuperAdminController>(
+  TYPES.SuperAdminController
+);
+const superAdminPlanController = container.get<PlanController>(
+  TYPES.AdminPlanControler
+);
 
 const router = exprees.Router();
 router
@@ -41,6 +39,6 @@ router
 router
   .route("/plan/:id")
   .put(verifyAccessToken, asyncHandler(superAdminPlanController.editPlan))
-  .delete(verifyAccessToken,asyncHandler(superAdminPlanController.delPlan));
+  .delete(verifyAccessToken, asyncHandler(superAdminPlanController.delPlan));
 
 export default router;

@@ -52,7 +52,6 @@ export class UserAuthRepository extends BaseRepository<UserDocument> implements 
 
 
   async updatePasswordByEmail(email: string, hashedPassword: string): Promise<UserDocument | null> {
-     console.log("Update called with email:", email,hashedPassword);
      return this.updateOne(  { Email: email.trim().toLowerCase() }, { password: hashedPassword });
    }
 

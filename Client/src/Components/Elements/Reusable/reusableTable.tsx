@@ -31,7 +31,6 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
   minWidth = "min-w-[1100px]", // default min width
 }) => {
   const colSpan = columns.length + (actions ? 1 : 0);
-  console.log(loading, "loading");
   return (
     <div>
       <div className={`max-w-7xl mx-auto ${minWidth}`}>

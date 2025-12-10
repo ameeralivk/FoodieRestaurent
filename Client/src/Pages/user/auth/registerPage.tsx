@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { createOtpHandlers } from "../../../Components/Helpers/Admin/handleOtpHandlers";
 import { useDispatch } from "react-redux";
 import OTPVerificationModal from "../../../Components/modals/AdminOtpModal";
+import { showErrorToast } from "../../../Components/Elements/ErrorToast";
 interface registerFormData {
   name: string;
   email: string;
@@ -83,16 +84,15 @@ export default function UserSignUpPage() {
         );
 
         if (res.success) {
-          console.log(res);
           toast.dismiss(toastId);
           await AfterLoading("Sending OTP...", "✅ OTP sent successfully!");
           setModalOpen(true);
         } else {
           throw new Error("lfkdjslfjdasjfdsaf");
         }
-      } catch (error) {
+      } catch (error:any) {
         toast.dismiss(toastId);
-        console.log(error, "error");
+        showErrorToast(error)
       }
     };
     fetch();
