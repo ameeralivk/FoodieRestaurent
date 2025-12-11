@@ -15,5 +15,6 @@ export const TYPES = {
   AdminAuthService:Symbol("AdminAuthService"),
   AdminAuthController:Symbol("AdminAuthController"),
   SubcriptionRepo:Symbol("SubcriptionRepo"),
-  SubcriptionService:Symbol("SubcriptionServer")
+  SubcriptionService:Symbol("SubcriptionServer"),
+  SubscriptionController:Symbol("SubscriptionController")
 };

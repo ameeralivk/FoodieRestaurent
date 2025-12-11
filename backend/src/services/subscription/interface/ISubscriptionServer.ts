@@ -1,5 +1,6 @@
 
 import mongoose from "mongoose";
+import { ISubscriptiontype, PlanDto } from "../../../types/subscription";
 export interface ISubcriptionService {
 addSubcription(data: {
   restaurentId: mongoose.Types.ObjectId | undefined;
@@ -9,5 +10,5 @@ addSubcription(data: {
   stripeSessionId: string;
   stripePaymentIntentId: string;
 }): Promise<{ success: boolean; message: string }>;
-
+getPlan(id: string): Promise<{ success: boolean; plan:PlanDto}>;
 }

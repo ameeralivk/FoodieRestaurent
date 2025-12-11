@@ -1,7 +1,7 @@
 import express from "express";
 import { AdminAuthRepository } from "../Repositories/Admin/implimentation/adminRepositories";
 import { AdminAuthService } from "../services/admin/implementation/adminAuthService";
-import { AdminAuthController } from "../Controller/admin/implementation/adminAuthController";
+import { AdminAuthController } from "../Controller/authController/admin/implementation/adminAuthController";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { upload } from "../config/multerConfig";
 import { verifyAccessToken } from "../middleware/jwt";

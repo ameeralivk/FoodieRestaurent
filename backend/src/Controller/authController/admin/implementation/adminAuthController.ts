@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import IAdminAuthService from "../../../services/admin/interface/IAdminAuthService";
+import IAdminAuthService from "../../../../services/admin/interface/IAdminAuthService";
 import IAdminAuthController from "../interface/IAdminAuthController";
-import { AppError } from "../../../utils/Error";
-import HttpStatus from "../../../constants/htttpStatusCode";
-import { loginSchema, registerSchema } from "../../../helpers/zodvalidation";
-import { MESSAGES } from "../../../constants/messages";
+import { AppError } from "../../../../utils/Error";
+import HttpStatus from "../../../../constants/htttpStatusCode";
+import { loginSchema, registerSchema } from "../../../../helpers/zodvalidation";
+import { MESSAGES } from "../../../../constants/messages";
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../../DI/types";
+import { TYPES } from "../../../../DI/types";
 
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;

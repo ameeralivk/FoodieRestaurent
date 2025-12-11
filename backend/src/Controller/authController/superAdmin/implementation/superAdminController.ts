@@ -1,7 +1,7 @@
-import ISuperAdminService from "../../../services/superAdmin/interface/ISuperAdminService";
+import ISuperAdminService from "../../../../services/superAdmin/interface/ISuperAdminService";
 import ISuperAdminController from "../interface/ISuperAdminController";
 import { Request, Response } from "express";
-import { TYPES } from "../../../DI/types";
+import { TYPES } from "../../../../DI/types";
 import { inject, injectable } from "inversify";
 @injectable()
 export class SuperAdminController implements ISuperAdminController {

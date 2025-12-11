@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ISubscriptiontype extends Document {
+   _id: mongoose.Types.ObjectId; 
   restaurentId:mongoose.Types.ObjectId | undefined;
   planId:mongoose.Types.ObjectId | undefined;
   planName: string;
@@ -30,4 +31,15 @@ export interface AddSubscriptionType {
   renewalDate: Date;
   status: "active" | "inactive" | "expired"|"queued";
 }
+
+
+export interface PlanDto {
+  _id: string;
+  planName: string;
+  planPrice: number;
+  status: "active" | "expired" | "cancelled" | "pending" | "queued";
+  startDate: string;
+  renewalDate: string;
+}
+
 

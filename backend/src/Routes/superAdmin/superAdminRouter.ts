@@ -1,8 +1,8 @@
 import exprees from "express";
-import { SuperAdminController } from "../../Controller/superAdmin/implementation/superAdminController";
+import { SuperAdminController } from "../../Controller/authController/superAdmin/implementation/superAdminController";
 import { verifyAccessToken } from "../../middleware/jwt";
 import { asyncHandler } from "../../middleware/asyncHandler";
-import { PlanController } from "../../Controller/planController/Implimentation/planController";
+import { PlanController } from "../../Controller/SuperAdmin/planController/Implimentation/planController";
 import { container } from "../../DI/container";
 import { TYPES } from "../../DI/types";
 

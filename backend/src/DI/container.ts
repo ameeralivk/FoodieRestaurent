@@ -4,19 +4,20 @@ import { TYPES } from "../DI/types";
 import { PaymentRepository } from "../Repositories/payment/implimentation/implimentation";
 import { PaymentController } from "../Controller/paymentController/Implimentation/paymentController";
 import { PaymentService } from "../services/paymentService/Implimentation/paymentService";
-import { PlanController } from "../Controller/planController/Implimentation/planController";
+import { PlanController } from "../Controller/SuperAdmin/planController/Implimentation/planController";
 import { AdminPlanService } from "../services/planService/Implimentation/adminPlanService";
 import { AdminPlanRepository } from "../Repositories/planRepositories/implimentation/adminPlanRepositories";
 import { AdminAuthRepository } from "../Repositories/Admin/implimentation/adminRepositories";
 import { SuperAdminService } from "../services/superAdmin/implementation/superAdminService";
-import { SuperAdminController } from "../Controller/superAdmin/implementation/superAdminController";
-import { AdminAuthController } from "../Controller/admin/implementation/adminAuthController";
-import { UserAuthController } from "../Controller/user/auth/implimentation/userAuthController";
+import { SuperAdminController } from "../Controller/authController/superAdmin/implementation/superAdminController";
+import { AdminAuthController } from "../Controller/authController/admin/implementation/adminAuthController";
+import { UserAuthController } from "../Controller/authController/user/auth/implimentation/userAuthController";
 import { UserAuthService } from "../services/user/auth/implimentation/userAuthService";
 import { UserAuthRepository } from "../Repositories/user/auth/implimentation/userRepository";
 import { AdminAuthService } from "../services/admin/implementation/adminAuthService";
 import { SubscriptionRepo } from "../Repositories/Subscription/Implimentation/SubscriptionRepo";
 import { SubcriptionServer } from "../services/subscription/implimentation/subscriptionService";
+import { SubcriptionController } from "../Controller/Restaurent/subscriptionController/implimentation/subsciptionController";
 
 const container = new Container();
 //payment
@@ -43,4 +44,5 @@ container.bind(TYPES.AdminAuthService).to(AdminAuthService);
 //subscription
 container.bind(TYPES.SubcriptionRepo).to(SubscriptionRepo);
 container.bind(TYPES.SubcriptionService).to(SubcriptionServer);
+container.bind(TYPES.SubscriptionController).to(SubcriptionController)
 export { container };

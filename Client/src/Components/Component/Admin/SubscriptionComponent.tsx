@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Check, X, ChevronLeft, ChevronRight } from "lucide-react";
-import type { ISubscriptionPlan } from "../../../services/planService";
+import type{ ISubscriptionPlan } from "../../../types/PlanTypes";
 import { getAllPlan, makePayment } from "../../../services/planService";
 import LoadingCard from "../../Elements/Reusable/CardLoading";
 import { useSelector } from "react-redux";
@@ -29,7 +29,11 @@ const AdminSubscriptionPlans: React.FC = () => {
     }
   };
 
-  const handlePayment = async (plan: { Id: string | null; amount: number | null ; planName:string }) => {
+  const handlePayment = async (plan: {
+    Id: string | null;
+    amount: number | null;
+    planName: string;
+  }) => {
     try {
       const res = await makePayment(
         plan.amount,
@@ -192,6 +196,20 @@ const AdminSubscriptionPlans: React.FC = () => {
                     <hr className="my-4 border-gray-800" />
 
                     <ul className="space-y-2 mb-6">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-5 h-5 text-green-400" />
+                        <span className="text-gray-300">
+                          No of Dishes: {plan.noOfDishes}
+                        </span>
+                      </li>
+
+                      {/* ⭐ DEFAULT FEATURE 2 — No of Staff */}
+                      <li className="flex items-center gap-2">
+                        <Check className="w-5 h-5 text-green-400" />
+                        <span className="text-gray-300">
+                          No of Staff: {plan.noOfStaff}
+                        </span>
+                      </li>
                       {plan.features.map((f, i) => (
                         <li key={i} className="flex items-center gap-2">
                           {f.length ? (
@@ -213,7 +231,11 @@ const AdminSubscriptionPlans: React.FC = () => {
                     <button
                       onClick={() => {
                         setSelectedPlan({ Id: plan._id, amount: plan.price });
-                        handlePayment({ Id: plan._id, amount: plan.price ,planName:plan.planName });
+                        handlePayment({
+                          Id: plan._id,
+                          amount: plan.price,
+                          planName: plan.planName,
+                        });
                       }}
                       className={`w-full py-2 rounded-lg border border-gray-700 font-semibold transition ${
                         selectedPlan.Id === plan._id

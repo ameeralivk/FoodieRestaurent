@@ -29,4 +29,12 @@ export class SubscriptionRepo
       renewalDate: { $gt: new Date() }
     });
   }
+
+   async findActivePlan(id: string): Promise<ISubscriptiontype | null> {
+    return this.getByFilter({
+      restaurentId: id,
+      status: "active",
+      renewalDate: { $gt: new Date() },
+    });
+  }
 }

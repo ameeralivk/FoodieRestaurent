@@ -1,21 +1,23 @@
 import { IUserAuthController } from "../interface/IUserAuthController";
-import IUserAuthService from "../../../../services/user/auth/interface/IUserAuthService";
+import IUserAuthService from "../../../../../services/user/auth/interface/IUserAuthService";
 import { Request, Response, NextFunction } from "express";
-import HttpStatus from "../../../../constants/htttpStatusCode";
-import { AppError } from "../../../../utils/Error";
-import { MESSAGES } from "../../../../constants/messages";
+import HttpStatus from "../../../../../constants/htttpStatusCode";
+import { AppError } from "../../../../../utils/Error";
+import { MESSAGES } from "../../../../../constants/messages";
 import {
   userloginSchema,
   userregisterSchema,
-} from "../../../../helpers/zodvalidation";
+} from "../../../../../helpers/zodvalidation";
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../../../DI/types";
+import { TYPES } from "../../../../../DI/types";
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
 
 @injectable()
 export class UserAuthController implements IUserAuthController {
-  constructor(@inject(TYPES.UserAuthService) private _userAuthService: IUserAuthService) {}
+  constructor(
+    @inject(TYPES.UserAuthService) private _userAuthService: IUserAuthService
+  ) {}
 
   register = async (req: Request, res: Response): Promise<Response> => {
     try {
@@ -29,7 +31,7 @@ export class UserAuthController implements IUserAuthController {
       if (!result.success) {
         throw new Error(result.message);
       }
-     return res
+      return res
         .status(HttpStatus.CREATED)
         .json({ success: true, message: MESSAGES.OTP_SENT_SUCCESS });
     } catch (error) {
@@ -48,14 +50,14 @@ export class UserAuthController implements IUserAuthController {
       const { success, message, data, accesstoken } =
         await this._userAuthService.verifyOtp(email, otp);
       if (success) {
-       return res.status(HttpStatus.OK).json({ message, data, accesstoken });
+        return res.status(HttpStatus.OK).json({ message, data, accesstoken });
       } else {
-       return res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: MESSAGES.OTP_INCORRECT });
       }
-    } catch (error:any) {
-      throw new AppError(error.message)
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
   };
 
@@ -79,16 +81,16 @@ export class UserAuthController implements IUserAuthController {
         sameSite: "strict",
         maxAge: refreshTokenMaxAge,
       });
-       res.cookie("access_token", token, {
+      res.cookie("access_token", token, {
         httpOnly: true,
-        secure: false, 
+        secure: false,
         sameSite: "strict",
-        maxAge: 15 * 60 * 1000, 
+        maxAge: 15 * 60 * 1000,
       });
-     return  res.json({ user, token });
+      return res.json({ user, token });
     } catch (error) {
       const err = error as Error;
-     return res
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: err?.message || MESSAGES.SERVER_ERROR });
     }
@@ -114,20 +116,22 @@ export class UserAuthController implements IUserAuthController {
         sameSite: "strict",
         maxAge: refreshTokenMaxAge,
       });
-       res.cookie("access_token", accesstoken, {
+      res.cookie("access_token", accesstoken, {
         httpOnly: true,
-        secure: false, 
+        secure: false,
         sameSite: "strict",
-        maxAge: 15 * 60 * 1000, 
+        maxAge: 15 * 60 * 1000,
       });
-     return res.status(200).json({
+      return res.status(200).json({
         success: true,
         data,
         accesstoken,
       });
     } catch (error) {
       console.error(error);
-     return res.status(500).json({ success: false, message: "Google auth failed" });
+      return res
+        .status(500)
+        .json({ success: false, message: "Google auth failed" });
     }
   };
 
@@ -135,22 +139,22 @@ export class UserAuthController implements IUserAuthController {
     try {
       const { email } = req.body;
       if (!email) {
-       return res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ message: "Email is required" });
       }
       let response = await this._userAuthService.createLink(email);
       if (response.success) {
-       return res
+        return res
           .status(HttpStatus.CREATED)
           .json({ succes: true, message: MESSAGES.LINK_SENT_SUCCESS });
       } else {
-       return res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ succes: false, message: MESSAGES.LINK_SENT_FAILED });
       }
     } catch (error: any) {
-     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message || "Something went Wrong",
       });
@@ -163,7 +167,7 @@ export class UserAuthController implements IUserAuthController {
       const { newPassword, email } = req.body;
       if (!token) throw new AppError("Token is Missing");
       if (!newPassword)
-       return res.status(400).json({ message: "New password is required" });
+        return res.status(400).json({ message: "New password is required" });
       let response = await this._userAuthService.updatePassword(
         token,
         newPassword,
@@ -174,7 +178,7 @@ export class UserAuthController implements IUserAuthController {
           .status(HttpStatus.OK)
           .json({ success: true, message: MESSAGES.PASS_CHANGE_SUCCESS });
       } else {
-       return res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: response.message });
       }
@@ -200,18 +204,18 @@ export class UserAuthController implements IUserAuthController {
       }
       const { message, success } = await this._userAuthService.resendOtp(email);
       if (success) {
-      return  res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: message,
         });
       } else {
-       return res.status(HttpStatus.BAD_REQUEST).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: message,
         });
       }
-    } catch (error:any) {
-      throw new AppError(error.message)
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
   };
 }

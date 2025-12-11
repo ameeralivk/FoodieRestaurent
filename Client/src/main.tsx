@@ -7,19 +7,23 @@ import ErrorBoundary from "./Components/Component/ErrorBoundary.tsx";
 import { GoogleAuthWrapper } from "./Components/Component/googleAuthProvider.tsx";
 import { store } from "./redux/store/store.ts";
 import { Provider } from "react-redux";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SidebarProvider } from "./Context/SidabarContext.tsx";
+const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <GoogleAuthWrapper>
-      <SidebarProvider>
-      <Provider store={store}>
-        <ErrorBoundary>
-          <BrowserRouter>
-          <App />
-          </BrowserRouter>
-        </ErrorBoundary>
-      </Provider>
-      </SidebarProvider>
-    </GoogleAuthWrapper>
+    <QueryClientProvider client={queryClient}>
+      <GoogleAuthWrapper>
+        <SidebarProvider>
+          <Provider store={store}>
+            <ErrorBoundary>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </ErrorBoundary>
+          </Provider>
+        </SidebarProvider>
+      </GoogleAuthWrapper>
+    </QueryClientProvider>
   </StrictMode>
 );

@@ -7,19 +7,16 @@ import type { SubscriptionPlan } from "../../types/SuperAdmin";
 import Pagination from "../../Components/Elements/Reusable/Pagination";
 import { createPlan, deletePlan } from "../../services/planService";
 import { showErrorToast } from "../../Components/Elements/ErrorToast";
-import { getPaymentBySession } from "../../services/planService";
 import { showSuccessToast } from "../../Components/Elements/SuccessToast";
 import { ToastContainer } from "react-toastify";
 import { PlanAddingValidation } from "../../Validation/planAddingvalidation";
-import type { ISubscriptionPlan } from "../../services/planService";
+import type{ ISubscriptionPlan } from "../../types/PlanTypes";
 import { showConfirm } from "../../Components/Elements/ConfirmationSwall";
-import PaymentSuccessModal from "../../Components/Component/Admin/PaymentSuccessmodal";
 import { getAllPlan, editPlan } from "../../services/planService";
 export default function SubscriptionPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<any>(null);
-  const [openModal, setOpenModal] =  useState(false)
   const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
   const [currentPage, setCurrentPage] = useState(1);
   const [modalErrors, setModalErrors] = useState<{ [key: string]: string }>({});
@@ -40,7 +37,6 @@ export default function SubscriptionPage() {
       setLoading(false);
     }
   };
-
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -277,11 +273,17 @@ export default function SubscriptionPage() {
               },
               {
                 name: "features",
-                label: "Features *",
-                type: "features",
-                value: currentRow?.features
-                  ? currentRow.features.map((f: string) => f.trim()) // array of strings
-                  : [],
+                label: "Features",
+                type: "multi-select",
+                options: [
+                  "Access to full menu",
+                  "Priority support",
+                  "Weekly Report",
+                  "Monthly Analytics",
+                  "All Basic Plan Support",
+                  "Analytic Dashboard(limited)",
+                ],
+                value: currentRow?.features || [],
               },
             ]}
             externalErrors={modalErrors}

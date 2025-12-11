@@ -8,6 +8,9 @@ import calculateRenewalDate from "../../../helpers/subscriptionHelpers/createRen
 import { IAdminPlanRepository } from "../../../Repositories/planRepositories/interface/IAdminPlanRepositories";
 import { AppError } from "../../../utils/Error";
 import { MESSAGES } from "../../../constants/messages";
+import { ISubscriptionDTO } from "../../../types/plan";
+import { mapToPlanDto, subscriptionPlanDTO } from "../../../utils/dto/subscriptionPlanDto";
+import { ISubscriptiontype, PlanDto } from "../../../types/subscription";
 @injectable()
 export class SubcriptionServer implements ISubcriptionService {
   constructor(
@@ -26,7 +29,7 @@ export class SubcriptionServer implements ISubcriptionService {
     const Id = data.planId?.toString();
     const planDetail = await this._adminPlanRepo.find(Id);
     if (!planDetail) {
-      return { success: false, message: MESSAGES.SUBCRIPTION_ADDED_FAILED};
+      return { success: false, message: MESSAGES.SUBCRIPTION_ADDED_FAILED };
     }
     const activeSub = await this._subcriptionRepo.findOne(
       data.restaurentId.toString()
@@ -56,5 +59,20 @@ export class SubcriptionServer implements ISubcriptionService {
     });
 
     return { success: true, message: MESSAGES.SUBCRIPTION_ADDED_SUCCESS };
+  }
+  async getPlan(id: string): Promise<{ success: boolean; plan:PlanDto}> {
+    const plan = await this._subcriptionRepo.findActivePlan(id);
+
+    if (!plan) {
+      return {
+        success: false,
+        plan: {} as PlanDto,
+      };
+    }
+    const mapedPlan = mapToPlanDto(plan)
+     return {
+      success: true,
+      plan: mapedPlan,
+    };
   }
 }

@@ -1,34 +1,8 @@
 import { apiRequest } from "../api/apiRequest";
 import type { SubscriptionPlan } from "../types/SuperAdmin";
-
-export interface CreatePlanResponse {
-  success: boolean;
-  message: string;
-}
-
-export interface ISubscriptionPlan {
-  _id: string;
-  planName: string;
-  price: number;
-  duration: string;
-  noOfDishes: number;
-  noOfStaff: number;
-  features: string[];
-}
-
-export interface GetAllPlanResponse {
-  success: boolean;
-  data: {
-    data: ISubscriptionPlan[];
-  };
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    limit: number;
-  };
-}
-
+import type { CheckPlanResponse } from "../types/PlanTypes";
+import type { CreatePlanResponse } from "../types/PlanTypes";
+import type { GetAllPlanResponse } from "../types/PlanTypes";
 export const createPlan = (
   Data: SubscriptionPlan
 ): Promise<CreatePlanResponse> => {
@@ -69,23 +43,31 @@ export const deletePlan = async (
 };
 
 export const makePayment = async (
-  amount: number|null,
-  restaurentId:string,
-  planId:string|null,
-  planName:string
+  amount: number | null,
+  restaurentId: string,
+  planId: string | null,
+  planName: string
 ): Promise<{ success: boolean; data: { url: string } }> => {
-
   const res = await apiRequest<{
     success: boolean;
     data: { url: string };
-  }>("POST", "/admin/create-payment", { amount, restaurentId,planId ,planName });
+  }>("POST", "/admin/create-payment", {
+    amount,
+    restaurentId,
+    planId,
+    planName,
+  });
   return res;
 };
-
-
 
 export const getPaymentBySession = async (
   sessionId: string
 ): Promise<{ success: boolean; data: any }> => {
   return apiRequest("GET", `/admin/payment/session/${sessionId}`);
+};
+
+export const getActivePlanByRestaurant = async (
+  restaurantId: string
+): Promise<CheckPlanResponse> => {
+  return apiRequest("GET", `/admin/getplan/${restaurantId}`);
 };

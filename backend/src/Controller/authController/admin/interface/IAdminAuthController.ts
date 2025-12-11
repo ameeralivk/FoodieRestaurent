@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from "express";
-import { IAdmin } from "../../../types/admin";
+import { IAdmin } from "../../../../types/admin";
 
 export default interface IAdminAuthController {
   register(

@@ -188,32 +188,47 @@ import {
 import Admin_Navbar from "../../Components/Layouts/Admin_Navbar";
 import DashboardPage from "../../Components/Component/Admin/AdminDashboardComponent";
 import ReusableWarningModal from "../../Components/Elements/Reusable/ResusableWarningModal";
-import { useState } from "react";
+import type { CheckPlanResponse, PlanDto } from "../../types/PlanTypes";
+import { useEffect, useState } from "react";
+import { getActivePlanByRestaurant } from "../../services/planService";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../redux/store/store";
+import { useQuery } from "@tanstack/react-query";
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [modalOpen, setModalOpen] = useState(true);
+  const RestaurantId = useSelector(
+    (state: RootState) => state.auth.admin?._id as string
+  );
+
+  const [dismissed, setDismissed] = useState(true);
   const menuItems = [
     { name: "Dashboard", icon: Home, path: "/admin/dashboard" },
-    { name: "Subscription", icon: Crown,path:"/admin/subscriptionplan" },
+    { name: "Subscription", icon: Crown, path: "/admin/subscriptionplan" },
     { name: "Users", icon: Users },
     { name: "Analytics", icon: BarChart3 },
     { name: "Documents", icon: FileText },
     { name: "Settings", icon: Settings },
   ];
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["activePlan", RestaurantId],
+    queryFn: () => getActivePlanByRestaurant(RestaurantId),
+  });
+  const modalOpen = !isLoading && !data?.data?.success;
   const handleConfirm = () => {
     navigate("/admin/subscriptionplan");
-    setModalOpen(false);
+    setDismissed(false);
   };
 
   const handleCancel = () => {
     console.log("User cancelled!");
-    setModalOpen(false);
+    setDismissed(false);
   };
 
   return (
     <div>
-      {modalOpen && (
+      {modalOpen && dismissed && (
         <ReusableWarningModal
           isOpen={modalOpen}
           title="Upgrade Your Plan"

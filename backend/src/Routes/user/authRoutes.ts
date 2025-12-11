@@ -1,12 +1,14 @@
 import express from "express";
 import { UserAuthRepository } from "../../Repositories/user/auth/implimentation/userRepository";
 import { UserAuthService } from "../../services/user/auth/implimentation/userAuthService";
-import { UserAuthController } from "../../Controller/user/auth/implimentation/userAuthController";
+import { UserAuthController } from "../../Controller/authController/user/auth/implimentation/userAuthController";
 import { asyncHandler } from "../../middleware/asyncHandler";
 import { container } from "../../DI/container";
 import { TYPES } from "../../DI/types";
 
-const userController = container.get<UserAuthController>(TYPES.UserAuthController)
+const userController = container.get<UserAuthController>(
+  TYPES.UserAuthController
+);
 const router = express.Router();
 router.route("/register").post(asyncHandler(userController.register));
 router.route("/login").post(asyncHandler(userController.login));
