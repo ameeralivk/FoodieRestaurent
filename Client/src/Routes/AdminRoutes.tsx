@@ -11,6 +11,7 @@ import AdminDashboard from "../Pages/admin/AdminDashboard";
 import AdminSubscriptionPage from "../Pages/admin/AdminSubscriptionPage";
 import PaymentSuccessModal from "../Components/Component/Admin/PaymentSuccessmodal";
 import PaymentFailedPage from "../Components/Component/Admin/PaymentFailedModal";
+import StaffManagement from "../Pages/admin/StaffManagement";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -67,6 +68,7 @@ const AdminRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route path="/staff" element={<StaffManagement/>}/>
     </Routes>
   );
 };

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import SuperAdminNavbar from "../../Components/Component/SuperAdmin/SuperAdminNavbar";
 import SuperAdminSidebar from "../../Components/Component/SuperAdmin/SuperAdminSideBar";
-import SubscriptionModal from "../../Components/modals/SuperAdmin/GeneralModal";
 import ReusableTable from "../../Components/Elements/Reusable/reusableTable";
 import type { SubscriptionPlan } from "../../types/SuperAdmin";
 import Pagination from "../../Components/Elements/Reusable/Pagination";
@@ -13,6 +12,7 @@ import { PlanAddingValidation } from "../../Validation/planAddingvalidation";
 import type{ ISubscriptionPlan } from "../../types/PlanTypes";
 import { showConfirm } from "../../Components/Elements/ConfirmationSwall";
 import { getAllPlan, editPlan } from "../../services/planService";
+import ReusableModal from "../../Components/modals/SuperAdmin/GeneralModal";
 export default function SubscriptionPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -214,7 +214,7 @@ export default function SubscriptionPage() {
           className="fixed inset-0 z-[999] flex items-center justify-center 
           bg-black/40 backdrop-blur-sm"
         >
-          <SubscriptionModal
+          <ReusableModal
             isOpen={modalOpen}
             onClose={() => {
               setModalOpen(false);
