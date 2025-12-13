@@ -196,3 +196,76 @@ export const sendResetPasswordEmail = async (email: string, token: string,role:"
     return { success: false, message: "Failed to send password reset email" };
   }
 };
+
+
+
+
+export const sendStaffAccountEmail = async (
+  email: string,
+  staffName: string,
+  password: string,
+  restaurantName: string 
+) => {
+  try {
+    const mailOptions = {
+      from: `"${restaurantName}" <${process.env.EMAIL_USER}>`, // use dynamic name
+      to: email,
+      subject: `Welcome to ${restaurantName} - Your Staff Account`,
+      html: `
+      <div style="
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f9f9f9;
+        padding: 30px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        max-width: 480px;
+        margin: auto;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      ">
+        <div style="text-align: center;">
+          <h1 style="
+            color: #e63946;
+            font-size: 28px;
+            margin-bottom: 10px;
+          ">🍴 ${restaurantName}</h1>
+          <p style="color: #555; font-size: 16px; margin-bottom: 25px;">
+            Hello <strong>${staffName}</strong>! You have been added as a staff member to <strong>${restaurantName}</strong>. 
+            Please use the following credentials to login:
+          </p>
+          <div style="
+            background-color: #fff;
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 8px;
+            border: 2px dashed #e63946;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #e63946;
+            margin-bottom: 20px;
+            text-align: left;
+          ">
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Password:</strong> ${password}</p>
+          </div>
+          <p style="color: #777; font-size: 14px;">
+            Please login and change your password immediately for security.
+          </p>
+          <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
+          <p style="color: #999; font-size: 12px;">
+            You're receiving this email because you have been added as a staff member at ${restaurantName}.<br>
+            If you did not expect this, please contact the admin immediately.
+          </p>
+        </div>
+      </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    return { success: true, message: "Staff account email sent successfully" };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Failed to send staff account email" };
+  }
+};
+

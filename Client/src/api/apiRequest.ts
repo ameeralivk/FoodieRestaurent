@@ -61,7 +61,7 @@ export const apiRequest = async <T>(
       showErrorToast("An unknown error occurred");
     }
 
-    throw error; // keep original error
+    throw error; 
   }
 };
 

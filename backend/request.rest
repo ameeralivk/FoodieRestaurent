@@ -1,1 +1,9 @@
-GET  http://localhost:3000/api/admin/getPlan/692ea36738a54f8d01ed6747
+POST  http://localhost:3000/api/admin/staff
+Content-Type: application/json
+
+{
+  "restaurantId":"@amereadfjsakl",
+  "staffName": "Ameer Ali",
+  "email": "ameervk1875@gmail.com",
+  "role": "staff"
+}

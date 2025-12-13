@@ -78,4 +78,6 @@ export class AdminPlanRepository
       throw new AppError(error.message);
     }
   }
+
+
 }

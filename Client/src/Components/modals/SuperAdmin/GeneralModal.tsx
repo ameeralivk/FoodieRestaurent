@@ -316,7 +316,7 @@
 //             ))}
 //           </ul>
 //         ) : (
-          
+
 //           <div className="bg-gray-800 border border-gray-700 rounded p-2">
 //             {/* 🔎 Search Box */}
 //             <input
@@ -381,7 +381,6 @@
 //     </div>
 //   );
 // }
-
 
 // import { useState, useEffect } from "react";
 // import type { ChangeEvent } from "react";
@@ -708,8 +707,6 @@
 //   );
 // }
 
-
-
 import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import ErrorPTag from "../../Elements/ErrorParagraph";
@@ -740,8 +737,9 @@ interface ModalProps {
   cancelText?: string;
   mode?: "add" | "edit" | "view";
   externalErrors?: { [key: string]: string };
+  loading?: boolean;
   onFieldChange?: (name: string, value: any) => void;
-  tagName?:string;
+  tagName?: string;
 }
 
 export default function ReusableModal({
@@ -755,6 +753,7 @@ export default function ReusableModal({
   mode = "edit",
   tagName = "tags",
   externalErrors = {},
+  loading = false,
   onFieldChange,
 }: ModalProps) {
   const [formData, setFormData] = useState<any>({});
@@ -782,7 +781,7 @@ export default function ReusableModal({
 
       setFormData(empty);
       setFeatures(fields.find((f) => f.type === "multi-select")?.value || []);
-      setTags(fields.find((f) => f.type === "tags")?.value || []); 
+      setTags(fields.find((f) => f.type === "tags")?.value || []);
       setImagePreviews(fields.find((f) => f.type === "image")?.value || []);
       setImages([]);
     }
@@ -1058,9 +1057,7 @@ export default function ReusableModal({
         {/* MULTI-SELECT FEATURES */}
         {fields.some((f) => f.type === "multi-select") && (
           <div className="mt-5">
-            <span className="text-gray-400 text-sm mb-2 block">
-              Features
-            </span>
+            <span className="text-gray-400 text-sm mb-2 block">Features</span>
 
             {isViewMode ? (
               <ul className="list-disc list-inside space-y-2 bg-gray-800 p-3 rounded border border-gray-700">
@@ -1074,9 +1071,7 @@ export default function ReusableModal({
                   type="text"
                   placeholder="Search features..."
                   className="w-full mb-2 px-3 py-2 bg-gray-700 border border-gray-600 rounded"
-                  onChange={(e) =>
-                    setSearchTerm(e.target.value.toLowerCase())
-                  }
+                  onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
                 />
 
                 <div className="max-h-40 overflow-y-auto">
@@ -1101,9 +1096,7 @@ export default function ReusableModal({
                         >
                           <span>{opt}</span>
                           {isSelected && (
-                            <span className="text-green-400 font-bold">
-                              ✔
-                            </span>
+                            <span className="text-green-400 font-bold">✔</span>
                           )}
                         </div>
                       );
@@ -1124,11 +1117,27 @@ export default function ReusableModal({
           </button>
 
           {!isViewMode && (
+            // <button
+            //   onClick={handleSubmit}
+            //   className="px-4 py-2 rounded bg-amber-600 hover:bg-amber-700"
+            // >
+            //   {loading && (
+            //     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            //   )}
+            //   {loading ? "Please wait..." : submitText}
+            //   {/* {submitText} */}
+            // </button>
             <button
               onClick={handleSubmit}
-              className="px-4 py-2 rounded bg-amber-600 hover:bg-amber-700"
+              disabled={loading}
+              className={`px-4 py-2 rounded bg-amber-600 hover:bg-amber-700 
+              flex items-center gap-2
+              ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {submitText}
+              {loading && (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              )}
+              {loading ? "Please wait..." : submitText}
             </button>
           )}
         </div>
@@ -1136,5 +1145,3 @@ export default function ReusableModal({
     </div>
   );
 }
-
-

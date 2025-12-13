@@ -33,5 +33,14 @@ export const MESSAGES = {
   PLAN_DEL_SUCCESS:"Plan Deleted Successfully",
   PLAN_DEL_FAILED:"Plan Deleted Failed",
   SUBCRIPTION_ADDED_FAILED:"Subscription Added Failed",
-  SUBCRIPTION_ADDED_SUCCESS:"Subcription Added Success"
+  SUBCRIPTION_ADDED_SUCCESS:"Subcription Added Success",
+  STAFF_ADDED_SUCCESS:"Staff created successfully",
+  STAFF_ADDED_FAILED:"Staff creation Failed ",
+  STAFF_ALREADY_EXIST: "Staff already exists with this email",
+  STAFF_UPDATED_SUCCESS:"Staff Updated Successfully",
+  STAFF_UPDATED_FAILED:"Staff updated Failed",
+  STAFF_NOT_FOUND:"Staff not Found",
+  STAFF_DELETED_SUCCESS:"Staff deleted Successfully",
+  STAFF_DELETED_FAILED:"Staff deleted Failed",
+  STATUS_CHANGED_SUCCESS:"status changed Successfully"
 };

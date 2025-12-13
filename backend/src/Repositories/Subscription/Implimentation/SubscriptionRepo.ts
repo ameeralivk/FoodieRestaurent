@@ -2,6 +2,7 @@ import { ISubscriptiontype } from "../../../types/subscription";
 import { BaseRepository } from "../../IBaseRepository";
 import { ISubscriptionRepo } from "../Interface/ISubscriptionRepo";
 import subscription from "../../../models/subscription";
+import { AppError } from "../../../utils/Error";
 import mongoose from "mongoose";
 export class SubscriptionRepo
   extends BaseRepository<ISubscriptiontype>
@@ -22,19 +23,33 @@ export class SubscriptionRepo
     return this.create(data);
   }
 
-  async findOne(restaurentId: string): Promise<ISubscriptiontype|null> {
+  async findOne(restaurentId: string): Promise<ISubscriptiontype | null> {
     return this.getByFilter({
       restaurentId,
       status: "active",
-      renewalDate: { $gt: new Date() }
+      renewalDate: { $gt: new Date() },
     });
   }
 
-   async findActivePlan(id: string): Promise<ISubscriptiontype | null> {
+  async findActivePlan(id: string): Promise<ISubscriptiontype | null> {
     return this.getByFilter({
       restaurentId: id,
       status: "active",
       renewalDate: { $gt: new Date() },
     });
+  }
+
+  async findActivePlanByAdminId(
+    adminId: string
+  ): Promise<ISubscriptiontype | null> {
+    try {
+      return await this.getByFilter({
+        restaurentId:adminId,
+        status: "active",
+        renewalDate: { $gte: new Date() },
+      });
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
   }
 }

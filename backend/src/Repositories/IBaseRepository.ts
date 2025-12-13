@@ -46,15 +46,15 @@ export class BaseRepository<T> {
     const page = options.page || 1;
     const limit = options.limit || 10;
     const skip = (page - 1) * limit;
-     const dataPromise = this.model
-    .find(filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 })
-    .exec();
+    const dataPromise = this.model
+      .find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .exec();
 
-      const totalPromise = this.model.countDocuments(filter).exec();
-       const [data, total] = await Promise.all([dataPromise, totalPromise]);
+    const totalPromise = this.model.countDocuments(filter).exec();
+    const [data, total] = await Promise.all([dataPromise, totalPromise]);
     return { data, total };
   }
   async findByIdAndDel(id: string): Promise<T | null> {
@@ -62,6 +62,13 @@ export class BaseRepository<T> {
       return await this.model.findByIdAndDelete(id);
     } catch (error: any) {
       throw new Error(error.message);
+    }
+  }
+  async findByEmail(email: string): Promise<T | null> {
+    try {
+      return await this.model.findOne({email,status:true})
+    } catch (error:any) {
+       throw new Error(error.message)
     }
   }
 }
