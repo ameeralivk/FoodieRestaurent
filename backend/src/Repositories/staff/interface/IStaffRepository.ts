@@ -13,7 +13,8 @@ export interface IStaffRepository {
   changeStatus(staffId: string, status: boolean): Promise<IStaff | null>;
   getAllByRestaurantId(
     restaurantId: string,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number,
+    search?:string
   ): Promise<{ data: IStaff[],total:number}>;
 }

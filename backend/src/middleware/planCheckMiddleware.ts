@@ -32,7 +32,7 @@ export const checkActivePlan = async (
         new AppError("No active subscription plan", HttpStatus.FORBIDDEN)
       );
     }
-
+    req.activePlan = activePlan;
     next();
   } catch (error) {
     next(new AppError("Invalid or expired token", HttpStatus.UNAUTHORIZED));

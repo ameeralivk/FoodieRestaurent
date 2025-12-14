@@ -2,7 +2,7 @@ import { BaseRepository } from "../../IBaseRepository";
 import Staff from "../../../models/staff";
 import { IStaff, RequestEditIStaff, RequestIStaff } from "../../../types/staff";
 import { IStaffRepository } from "../interface/IStaffRepository";
-
+import { FilterQuery } from "mongoose";
 export class StaffRepository
   extends BaseRepository<IStaff>
   implements IStaffRepository
@@ -36,19 +36,26 @@ export class StaffRepository
   }
 
   async changeStatus(staffId: string, status: boolean): Promise<IStaff | null> {
-    return this.findByIdAndUpdate(staffId, { isBlocked:status });
+    return this.findByIdAndUpdate(staffId, { isBlocked: status });
   }
 
   getAllByRestaurantId(
     restaurantId: string,
     page: number,
-    limit: number
+    limit: number,
+    search: string
   ): Promise<{ data: IStaff[]; total: number }> {
-    const filter = {
+    const filter:any = {
       restaurantId,
       status: true,
     };
-
+    if (search) {
+      filter.$or = [
+        { staffName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { role: { $regex: search, $options: "i" } },
+      ];
+    }
     return this.getAll(filter, { page, limit });
   }
 }

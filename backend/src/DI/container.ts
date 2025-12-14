@@ -21,6 +21,8 @@ import { SubcriptionController } from "../Controller/Restaurent/subscriptionCont
 import { StaffController } from "../Controller/staffController/implementation/staffController";
 import { StaffRepository } from "../Repositories/staff/implemention/staffRepository";
 import { StaffService } from "../services/staff/implementation/staffService";
+import { StaffAuthService } from "../services/staffAuthService/implementation/staffAuthservice";
+import { StaffAuthController } from "../Controller/authController/staff/implementation/staffAuthController";
 
 const container = new Container();
 //payment
@@ -47,10 +49,14 @@ container.bind(TYPES.AdminAuthService).to(AdminAuthService);
 //subscription
 container.bind(TYPES.SubcriptionRepo).to(SubscriptionRepo);
 container.bind(TYPES.SubcriptionService).to(SubcriptionServer);
-container.bind(TYPES.SubscriptionController).to(SubcriptionController)
+container.bind(TYPES.SubscriptionController).to(SubcriptionController);
 
 //staff
-container.bind(TYPES.staffController).to(StaffController)
-container.bind(TYPES.staffRepository).to(StaffRepository)
-container.bind(TYPES.staffService).to(StaffService)
+container.bind(TYPES.staffController).to(StaffController);
+container.bind(TYPES.staffRepository).to(StaffRepository);
+container.bind(TYPES.staffService).to(StaffService);
+
+//staffAuth
+container.bind(TYPES.staffAuthService).to(StaffAuthService)
+container.bind(TYPES.staffAuthController).to(StaffAuthController)
 export { container };

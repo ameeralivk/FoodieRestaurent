@@ -68,7 +68,7 @@ const AdminRoutes = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/staff" element={<StaffManagement/>}/>
+      <Route path="/staff" element={<ProtectedRoute><StaffManagement/></ProtectedRoute>}/>
     </Routes>
   );
 };

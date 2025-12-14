@@ -1,6 +1,8 @@
 import React from "react";
 import { Search } from "lucide-react";
 import Navbar from "../../../Components/Layouts/userLayouts/Navbar";
+import { Box } from "@mui/material";
+import { RestaurantCard } from "../../../Components/user/reservationCard";
 const UserLandingPage: React.FC = () => {
   const restaurants = [
     {
@@ -63,24 +65,18 @@ const UserLandingPage: React.FC = () => {
           </h3>
 
           {/* Restaurant Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Box className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {restaurants.map((restaurant) => (
               <div
                 key={restaurant.id}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
               >
-                {/* Restaurant Image */}
-                <div className="relative h-64 overflow-hidden">
-                  <img
-                    src={restaurant.image}
-                    alt={restaurant.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Reserve Seat Button */}
-                  <button className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
-                    Reserve Seat
-                  </button>
-                </div>
+                {/* Restaurant Card with overlay */}
+                <RestaurantCard
+                  image={restaurant.image}
+                  title={restaurant.name}
+                  width="100%" // full width of parent card
+                />
 
                 {/* Restaurant Info */}
                 <div className="p-4">
@@ -91,7 +87,7 @@ const UserLandingPage: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </Box>
         </div>
       </main>
     </div>
@@ -99,3 +95,41 @@ const UserLandingPage: React.FC = () => {
 };
 
 export default UserLandingPage;
+// import { Box } from "@mui/material";
+// import { RestaurantCard } from "../../../Components/user/reservationCard";
+
+// const restaurants = [
+//   {
+//     id: 1,
+//     name: "The Olive Branch",
+//     image:
+//       "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=400&fit=crop",
+//   },
+//   {
+//     id: 2,
+//     name: "Spice Route",
+//     image:
+//       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=400&fit=crop",
+//   },
+//   {
+//     id: 3,
+//     name: "The Cozy Corner",
+//     image:
+//       "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&h=400&fit=crop",
+//   },
+// ];
+
+// export default function UserLandingPage() {
+//   return (
+//     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+//       {restaurants.map((restaurant) => (
+//         <RestaurantCard
+//           key={restaurant.id}
+//           image={restaurant.image}
+//           title={restaurant.name}
+//           width="33%" // You can adjust width per card
+//         />
+//       ))}
+//     </Box>
+//   );
+// }

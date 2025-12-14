@@ -128,8 +128,6 @@
 
 // export default ReusableTable;
 
-
-
 // import React from "react";
 // import { Eye, Pencil, Trash2 } from "lucide-react";
 // import LoadingRow from "../SuperAdmin/LoadingRow";
@@ -273,10 +271,6 @@
 
 // export default ReusableTable;
 
-
-
-
-
 import React from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import LoadingRow from "../SuperAdmin/LoadingRow";
@@ -295,7 +289,8 @@ interface Action {
 }
 
 interface ToggleField {
-  accessor: string; 
+  accessor: string;
+  invert?: boolean;
   onToggle: (row: any, newValue: boolean) => void;
 }
 
@@ -317,10 +312,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
   loading,
   minWidth = "min-w-[1100px]",
 }) => {
-  const colSpan =
-    columns.length +
-    (actions ? 1 : 0) +
-    (toggleField ? 1 : 0); // ⬅ update column count
+  const colSpan = columns.length + (actions ? 1 : 0) + (toggleField ? 1 : 0); // ⬅ update column count
 
   const renderValue = (value: any, col: Column, row: any) => {
     if (col.render) return col.render(value, row);
@@ -350,7 +342,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                     Actions
                   </th>
                 )}
-                 {toggleField && (
+                {toggleField && (
                   <th className="py-4 px-6 text-left text-gray-300 font-semibold">
                     Toggle
                   </th>
@@ -416,21 +408,34 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                         })}
                       </td>
                     )}
-                                        {/* ---- TOGGLE COLUMN ---- */}
+                    {/* ---- TOGGLE COLUMN ---- */}
                     {toggleField && (
                       <td className="py-4 px-6">
-                        <label className="inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={row[toggleField.accessor]}
-                            onChange={(e) =>
-                              toggleField.onToggle(row, e.target.checked)
-                            }
-                          />
-                          <div className="w-11 h-6 bg-gray-600 peer-focus:ring-4 rounded-full peer peer-checked:bg-green-500 transition-all"></div>
-                          <div className="w-5 h-5 bg-white rounded-full absolute ml-1 mt-0.5 shadow peer-checked:translate-x-5 transition"></div>
-                        </label>
+                        {(() => {
+                          const rawValue = Boolean(row[toggleField.accessor]); // actual DB value
+                          const checked = toggleField.invert
+                            ? !rawValue
+                            : rawValue;
+
+                          return (
+                            <label className="inline-flex items-center cursor-pointer relative">
+                              <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={checked}
+                                onChange={() => {
+                                  const nextValue = toggleField.invert
+                                    ? rawValue // if inverted → send original
+                                    : !rawValue; // normal toggle
+
+                                  toggleField.onToggle(row, nextValue);
+                                }}
+                              />
+                              <div className="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-green-500 transition"></div>
+                              <div className="w-5 h-5 bg-white rounded-full absolute left-1 top-0.5 peer-checked:translate-x-5 transition"></div>
+                            </label>
+                          );
+                        })()}
                       </td>
                     )}
                   </tr>
@@ -445,5 +450,3 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
 };
 
 export default ReusableTable;
-
-

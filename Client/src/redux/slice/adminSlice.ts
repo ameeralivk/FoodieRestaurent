@@ -11,9 +11,6 @@ interface LoginPayload {
   admin: AdminType;
 }
 
-// interface SetAccessTokenPayload {
-//   newAccessToken: string;
-// }
 
 const initialState: AuthState = {
   admin: null,

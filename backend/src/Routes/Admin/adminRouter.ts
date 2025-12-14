@@ -27,24 +27,20 @@ Router.route("/getplan/:restaurantId").get(
   asyncHandler(subcriptionController.getPlan)
 );
 
-
 //staff
-Router
-  .route("/staff")
-  .post(
-    verifyAccessToken,
-    checkActivePlan,
-    asyncHandler(staffController.addStaff)
-  );
+Router.route("/staff").post(
+  verifyAccessToken,
+  checkActivePlan,
+  asyncHandler(staffController.addStaff)
+);
 
-Router
-  .route("/staff/:staffId")
+Router.route("/staff/:staffId")
   .put(asyncHandler(staffController.editStaff))
   .delete(asyncHandler(staffController.deleteStaff))
   .patch(asyncHandler(staffController.changeStatus));
 
-Router
-  .route("/staff/:restaurantId")
-  .get(asyncHandler(staffController.getAllStaff));
+Router.route("/staff/:restaurantId").get(
+  asyncHandler(staffController.getAllStaff)
+);
 
 export default Router;

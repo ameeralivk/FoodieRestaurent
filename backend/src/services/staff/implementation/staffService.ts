@@ -3,6 +3,8 @@ import { IStaffRepository } from "../../../Repositories/staff/interface/IStaffRe
 import { IStaffService } from "../interface/IStaffService";
 import { TYPES } from "../../../DI/types";
 import { IStaff, StaffResponseDTO } from "../../../types/staff";
+import { Request } from "express";
+import bcrypt from "bcrypt"
 import {
   EditIStaff,
   RequestEditIStaff,
@@ -13,15 +15,29 @@ import { generateRandomPassword } from "../../../helpers/staff/generateRandonPas
 import { sendStaffAccountEmail } from "../../../helpers/sentOtp";
 import { AppError } from "../../../utils/Error";
 import { mapStaffToDTO } from "../../../utils/dto/staffDto";
+import { StaffRequestSchema } from "../../../helpers/zodvalidation";
+import HttpStatus from "../../../constants/htttpStatusCode";
+import { IAdminPlanRepository } from "../../../Repositories/planRepositories/interface/IAdminPlanRepositories";
+
+const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
+
+
 @injectable()
 export class StaffService implements IStaffService {
   constructor(
-    @inject(TYPES.staffRepository) private _staffRepo: IStaffRepository
+    @inject(TYPES.staffRepository) private _staffRepo: IStaffRepository,
+    @inject(TYPES.AdminPlanRepository) private _planRepo: IAdminPlanRepository
   ) {}
-
+  
   async addStaff(
+    req: Request,
     data: RequestIStaff
   ): Promise<{ success: boolean; message: string }> {
+    const validate = StaffRequestSchema.safeParse(data);
+    if (!validate.success) {
+      const errorMessages = validate.error.issues.map((e) => e.message);
+      throw new AppError(errorMessages.join(","), HttpStatus.NOT_FOUND);
+    }
     const role = data.role.toLowerCase() as "chef" | "staff";
     const existing = await this._staffRepo.isExist(data.email);
     if (existing) {
@@ -34,12 +50,26 @@ export class StaffService implements IStaffService {
       password,
       "foodieRestaurent"
     );
+     const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const planId = req.activePlan.planId;
+    const restaurantId = req.activePlan.restaurentId;
+    const addlimit = await this._planRepo.find(planId);
+    const limit = addlimit?.noOfStaff;
+    const totalstaff = await this._staffRepo.getAllByRestaurantId(restaurantId);
+    const totalStaffCount = totalstaff.data.length;
+    if (totalStaffCount === limit) {
+      delete req.activePlan
+      throw new AppError(
+        "You have reached the maximum staff limit for your current plan."
+      );
+    }
+    delete req.activePlan
     const res = await this._staffRepo.addStaff({
       restaurantId: data.restaurantId,
       staffName: data.staffName,
       email: data.email,
       role,
-      password,
+      password:hashedPassword,
     });
     if (res.success) {
       return { success: true, message: MESSAGES.STAFF_ADDED_SUCCESS };
@@ -84,7 +114,8 @@ export class StaffService implements IStaffService {
   async getAllStaff(
     restaurantId: string,
     page: number,
-    limit: number
+    limit: number,
+    search:string,
   ): Promise<{ data: StaffResponseDTO[]; total: number }> {
     if (!restaurantId) {
       throw new AppError("Restaurant ID is required", 400);
@@ -92,7 +123,8 @@ export class StaffService implements IStaffService {
     let res = await this._staffRepo.getAllByRestaurantId(
       restaurantId,
       page,
-      limit
+      limit,
+      search
     );
     return {
       total: res.total,

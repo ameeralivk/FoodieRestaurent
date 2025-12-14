@@ -19,5 +19,7 @@ export const TYPES = {
   SubscriptionController:Symbol("SubscriptionController"),
   staffController:Symbol("staffController"),
   staffRepository:Symbol("staffRepository"),
-  staffService:Symbol("staffService")
+  staffService:Symbol("staffService"),
+  staffAuthService:Symbol("staffAuthService"),
+  staffAuthController:Symbol("staffAuthController")
 };

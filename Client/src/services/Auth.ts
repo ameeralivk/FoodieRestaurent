@@ -86,7 +86,6 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
           token: tokenResponse.access_token,
         });
         if (res.data.success) {
-
           const saveddata: AdminType = {
             _id: res.data.data._id,
             restaurantName: res.data.data.restaurantName,
@@ -102,7 +101,7 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
               admin: saveddata,
             })
           );
-          dispatch(setAuth({isAuthenticated:true}))
+          dispatch(setAuth({ isAuthenticated: true }));
           showSuccessToast("Google login successful!");
 
           navigate("/admin/onboarding");
@@ -168,7 +167,6 @@ export const handleForgetPasswordSubmit = async (
       });
       return false;
     }
-
   } catch (error: any) {
     toast.update(loadingId, {
       render: axios.isAxiosError(error)
@@ -197,7 +195,6 @@ export const handleresetPasswordForm = async (
       email: resetPassword.email,
       newPassword: resetPassword.newPassword,
     });
-
 
     if (response.data.success || response.data.succes) {
       return { success: true, message: response.data.message };

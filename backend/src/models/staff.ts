@@ -9,7 +9,7 @@ const staffSchema = new Schema<IStaff>(
     password: { type: String, required: true },
     role: { type: String, enum: ["staff", "chef"], required: true },
     status: { type: Boolean, required: true,default:true },
-    isBlocked: { type: Boolean, required: true , default:true},
+    isBlocked: { type: Boolean, required: true , default:false},
   },
   { timestamps: true }
 );

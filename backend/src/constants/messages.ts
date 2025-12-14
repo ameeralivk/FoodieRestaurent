@@ -42,5 +42,7 @@ export const MESSAGES = {
   STAFF_NOT_FOUND:"Staff not Found",
   STAFF_DELETED_SUCCESS:"Staff deleted Successfully",
   STAFF_DELETED_FAILED:"Staff deleted Failed",
-  STATUS_CHANGED_SUCCESS:"status changed Successfully"
+  STATUS_CHANGED_SUCCESS:"status changed Successfully",
+  LOGIN_SUCCESS:"login Successfull",
+  PASS_NOT_MATCH:"password is not match"
 };

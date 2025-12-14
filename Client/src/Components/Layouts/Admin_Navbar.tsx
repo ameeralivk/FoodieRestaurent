@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ChefHat, Menu, X, LogOut } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logoutAction, setAuth } from "../../redux/slice/adminSlice";
 import { showConfirm } from "../Elements/ConfirmationSwall";
 import Swal from "sweetalert2";
@@ -8,8 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { logoutRequest } from "../../services/Auth";
 interface role {
   role: String;
+  restaurantName?:String,
 }
-const Admin_Navbar: React.FC<role> = ({ role }) => {
+const Admin_Navbar: React.FC<role> = ({ role , restaurantName}) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const Admin_Navbar: React.FC<role> = ({ role }) => {
       <div className="flex items-center gap-3">
         <ChefHat size={22} className="text-[#EDAB12]" />
         <span className="cursor-pointer font-semibold tracking-wide text-sm ml-6 sm:text-base">
-          FOODIE PALACE
+          {restaurantName}
         </span>
       </div>
 

@@ -1,5 +1,3 @@
-
-
 import SidebarLayout from "../../Components/Layouts/Admin/SidebarLayout";
 
 import Admin_Navbar from "../../Components/Layouts/Admin_Navbar";
@@ -17,7 +15,9 @@ export default function Dashboard() {
   const RestaurantId = useSelector(
     (state: RootState) => state.auth.admin?._id as string
   );
-
+  const restaurentName = useSelector(
+    (state: RootState) => state?.auth?.admin?.restaurantName
+  );
   const [dismissed, setDismissed] = useState(true);
 
   const { data, isLoading } = useQuery({
@@ -48,7 +48,7 @@ export default function Dashboard() {
           onCancel={handleCancel}
         />
       )}
-      <Admin_Navbar role={"admin"} />
+      <Admin_Navbar role={"admin"} restaurantName={restaurentName} />
       <SidebarLayout menuItems={menuItems} active="Dashboard">
         <DashboardPage />
       </SidebarLayout>

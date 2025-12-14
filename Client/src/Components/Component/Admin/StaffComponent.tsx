@@ -5,7 +5,9 @@ import ReusableModal from "../../modals/SuperAdmin/GeneralModal";
 import { showErrorToast } from "../../Elements/ErrorToast";
 import { ToastContainer } from "react-toastify";
 import { showConfirm } from "../../Elements/ConfirmationSwall";
+import Pagination from "../../Elements/Reusable/Pagination";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 import type { RootState } from "../../../redux/store/store";
 import {
   addStaff,
@@ -18,11 +20,19 @@ import type { IStaffAdd } from "../../../types/staffTypes";
 import ReusableWarningModal from "../../Elements/Reusable/ResusableWarningModal";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import SearchBar from "../../Elements/Reusable/reusableSearchBar";
 import { toast } from "react-toastify";
 import { showSuccessToast } from "../../Elements/SuccessToast";
 import { useQueryClient } from "@tanstack/react-query";
 import { loadingToast } from "../../Elements/Loading";
 import type { Staff } from "../../../types/staffTypes";
+import { StaffValidation } from "../../../Validation/staffAddValidation";
+export interface StaffListResponse {
+  success: boolean;
+  message?: string;
+  total?: number;
+  data: Staff[];
+}
 
 const StaffManagementPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -30,10 +40,15 @@ const StaffManagementPage = () => {
   const [dismissed, setDismissed] = useState(true);
   const [loading, setLoading] = useState(false);
   // const [staff, setStaff] = useState<Staff[]>([]);
+  const [form, setFormData] = useState({ staffName: "", email: "", role: "" });
   const [modalErrors, setModalErrors] = useState<{ [key: string]: string }>({});
   const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
   const [currentRow, setCurrentRow] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const limit = 10;
   const queryClient = useQueryClient();
   const restaurentId = useSelector(
     (state: RootState) => state?.auth?.admin?._id
@@ -43,20 +58,22 @@ const StaffManagementPage = () => {
     { header: "Staff Name", accessor: "staffName" },
     { header: "Email", accessor: "email" },
     {
-      header: "status",
+      header: "Status",
       accessor: "isBlocked",
-      render: (value: boolean) => (
-        <span
-          className={`px-2 py-1 rounded text-xs font-medium ${
-            value
-              ? " bg-green-500/20 text-green-400"
-              : "bg-red-500/20 text-red-400"
-          }`}
-        >
-          {value ? "Active" : "Blocked"}
-        </span>
-      ),
+      render: (isBlocked: boolean) => {
+        const label = isBlocked ? "Blocked" : "Active";
+        const classes = isBlocked
+          ? "bg-red-500/20 text-red-400"
+          : "bg-green-500/20 text-green-400";
+
+        return (
+          <span className={`px-2 py-1 rounded text-xs font-medium ${classes}`}>
+            {label}
+          </span>
+        );
+      },
     },
+
     { header: "role", accessor: "role" },
   ];
   function handleView(row: string) {
@@ -70,12 +87,20 @@ const StaffManagementPage = () => {
     setModalOpen(true);
   }
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["activePlan", restaurentId],
-    queryFn: () => getAllStaff(restaurentId as string),
+  const { data, isLoading, isFetching } = useQuery<StaffListResponse, Error>({
+    queryKey: ["activePlan", restaurentId, currentPage, limit,searchTerm],
+    queryFn: () =>
+      getAllStaff(restaurentId as string, currentPage, limit, searchTerm),
+    staleTime: 5000,
   });
+
+  useEffect(() => {
+    if (data?.total) {
+      setTotalPages(Math.ceil(data.total / limit));
+    }
+  }, [data]);
+
   const staff = data?.data ?? [];
-  console.log(staff, "staff is here");
   async function updateStaffStatus(row: Staff, value: boolean) {
     const confirmed = await showConfirm(
       "Change this status?",
@@ -126,6 +151,17 @@ const StaffManagementPage = () => {
   }
 
   async function handleSubmit(row: any) {
+    const payloadForm = {
+      staffName: row.staffName,
+      email: row.email,
+      role: row.role,
+    };
+    const validate = StaffValidation(payloadForm);
+    if (Object.keys(validate).length > 0) {
+      setModalErrors(validate);
+      return;
+    }
+    setFormData(payloadForm);
     if (!restaurentId) return;
     setLoading(true);
     const payload: IStaffAdd = {
@@ -150,8 +186,8 @@ const StaffManagementPage = () => {
 
       if (res.success) {
         showSuccessToast(res.message);
+        setModalErrors({});
         setLoading(false);
-        // Refresh staff list
         queryClient.invalidateQueries({
           queryKey: ["activePlan", restaurentId],
         });
@@ -167,11 +203,11 @@ const StaffManagementPage = () => {
       toast.dismiss(toastId);
 
       if (error?.response?.data?.message === "No active subscription plan") {
-        setLoading(false)
-        setModalOpen(false)
+        setLoading(false);
+        setModalOpen(false);
         setWarningModal(true);
       } else {
-        showErrorToast(error.message || "Something went wrong");
+        return;
       }
     }
   }
@@ -181,12 +217,27 @@ const StaffManagementPage = () => {
     setDismissed(false);
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const handleCancel = () => {
-    console.log("User cancelled!");
     setDismissed(false);
   };
 
-  function handleFieldChange() {}
+  function handleFieldChange(name: string, value: string) {
+    const updatedForm = {
+      ...form,
+      [name]: value,
+    };
+
+    setFormData(updatedForm);
+
+    const validate = StaffValidation(updatedForm);
+    setModalErrors(validate);
+  }
+
+
   return (
     <div className="min-h-screen bg-[#0e0f11]  text-gray-200">
       {warningModal && dismissed && (
@@ -239,6 +290,16 @@ const StaffManagementPage = () => {
       {/* Main Content */}
       <main className="max-w-9xl mx-auto px-6">
         <ToastContainer />
+        <div className="flex justify-between items-center mb-4 mt-6 ml-8">
+          <SearchBar
+            placeholder="Search staff by name or email..."
+            onSearch={(query) => {
+              setSearchQuery(query);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+
         {staff.length >= 1 ? (
           <div className="bg-[#141518] border border-gray-800/60 rounded-2xl p-6 shadow-xl backdrop-blur-md">
             <ReusableTable
@@ -254,11 +315,16 @@ const StaffManagementPage = () => {
               ]}
               toggleField={{
                 accessor: "isBlocked",
+                invert: true,
                 onToggle: (row, value) => {
-                  console.log("Toggle clicked", row, value);
-                  updateStaffStatus(row, value);
+                  updateStaffStatus(row, !value);
                 },
               }}
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           </div>
         ) : (

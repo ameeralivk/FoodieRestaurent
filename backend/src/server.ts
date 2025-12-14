@@ -11,6 +11,7 @@ import { connectRedis } from "./config/redisClient";
 import userAuthRouter from "./Routes/user/authRoutes";
 import superAdminRouter from "./Routes/superAdmin/superAdminRouter";
 import AdminRouter from "./Routes/Admin/adminRouter";
+import staffAuthRouter from "./Routes/staff/authRoutes"
 import { container } from "./DI/container";
 import { PaymentController } from "./Controller/paymentController/Implimentation/paymentController";
 import { TYPES } from "./DI/types";
@@ -36,6 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/admin/auth", authRouter);
 app.use("/api/user/auth", userAuthRouter);
+app.use("/api/staff/auth",staffAuthRouter)
 app.use("/api/superadmin", superAdminRouter);
 app.use("/api/admin", AdminRouter);
 app.use(errorHandler);

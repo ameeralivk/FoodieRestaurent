@@ -1,3 +1,76 @@
+// import React from "react";
+// import { Menu, X } from "lucide-react";
+// import { useNavigate } from "react-router-dom";
+
+// export interface MenuItem {
+//   name: string;
+//   icon: React.ElementType;
+//   path?: string;
+// }
+
+// interface SidebarProps {
+//   isOpen: boolean;
+//   onToggle: () => void;
+//   activeItem: string;
+//   setActiveItem: (item: string) => void;
+//   menuItems: MenuItem[];
+// }
+
+// const Sidebar: React.FC<SidebarProps> = ({
+//   isOpen,
+//   onToggle,
+//   activeItem,
+//   setActiveItem,
+//   menuItems,
+// }) => {
+//   const navigate = useNavigate();
+
+//   return (
+//     <div
+//       className={`${
+//         isOpen ? "w-64" : "w-16"
+//       } bg-black h-screen transition-all duration-300  ease-in-out fixed left-0 top-0 z-50 shadow-xl`}
+//     >
+//       {/* Toggle Button */}
+//       <div className="flex items-center justify-between p-[13px] border-b border-slate-700">
+//         {isOpen && <h2 className="text-white font-bold text-xl">Menu</h2>}
+//         <button
+//           onClick={onToggle}
+//           className="text-white hover:bg-slate-800 p-2 rounded-lg transition-colors"
+//         >
+//           {isOpen ? <X size={20} /> : <Menu size={20} />}
+//         </button>
+//       </div>
+
+//       {/* Menu Items */}
+//       <nav className="mt-6">
+//         {menuItems.map((item) => {
+//           const Icon = item.icon;
+//           return (
+//             <button
+//               key={item.name}
+//               onClick={() => {
+//                 setActiveItem(item.name);
+//                 navigate(item.path ? item.path : "");
+//               }}
+//               className={`w-full flex items-center gap-4 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white transition-all ${
+//                 activeItem === item.name
+//                   ? "bg-slate-800 text-white border-l-4 border-blue-500"
+//                   : ""
+//               }`}
+//             >
+//               <Icon size={20} />
+//               {isOpen && <span>{item.name}</span>}
+//             </button>
+//           );
+//         })}
+//       </nav>
+//     </div>
+//   );
+// };
+
+// export default Sidebar;
+
 import React from "react";
 import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,12 +81,15 @@ export interface MenuItem {
   path?: string;
 }
 
+export type Theme = "dark" | "light";
+
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   activeItem: string;
   setActiveItem: (item: string) => void;
   menuItems: MenuItem[];
+  theme: Theme;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -22,50 +98,83 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeItem,
   setActiveItem,
   menuItems,
+  theme,
 }) => {
   const navigate = useNavigate();
 
+  /* ---------- REAL-WORLD STAFF THEMES ---------- */
+
+  const sidebarBg =
+    theme === "dark"
+      ? "bg-neutral-950 text-white"
+      : "bg-[#F8FAFC] text-slate-800 border-r border-slate-200";
+
+  const itemBase =
+    theme === "dark"
+      ? "text-gray-300 hover:bg-slate-800 hover:text-white"
+      : "text-slate-600 hover:bg-slate-200 hover:text-slate-900";
+
+  const activeItemStyle =
+    theme === "dark"
+      ? "bg-slate-800 text-white border-l-4 border-blue-500"
+      : "bg-white text-slate-900 border-l-4 border-indigo-500 shadow-sm";
+
+  const toggleHover =
+    theme === "dark" ? "hover:bg-slate-800" : "hover:bg-slate-200";
+
+  const headerBorder =
+    theme === "dark" ? "border-slate-800" : "border-slate-200";
+
+  /* -------------------------------------------- */
+
   return (
-    <div
-      className={`${
-        isOpen ? "w-64" : "w-16"
-      } bg-black h-screen transition-all duration-300  ease-in-out fixed left-0 top-0 z-50 shadow-xl`}
+    <aside
+      className={`
+        fixed left-0 top-0 z-50 h-screen
+        ${isOpen ? "w-64" : "w-16"}
+        ${sidebarBg}
+        transition-all duration-300 ease-in-out
+        shadow-lg
+      `}
     >
-      {/* Toggle Button */}
-      <div className="flex items-center justify-between p-[13px] border-b border-slate-700">
-        {isOpen && <h2 className="text-white font-bold text-xl">Menu</h2>}
+      {/* Header */}
+      <div className={`flex items-center px-4 py-3 border-b ${headerBorder}`}>
         <button
           onClick={onToggle}
-          className="text-white hover:bg-slate-800 p-2 rounded-lg transition-colors"
+          className={`ml-auto p-2 rounded-md transition-colors ${toggleHover}`}
         >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
+          {isOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
-      {/* Menu Items */}
-      <nav className="mt-6">
+      {/* Navigation */}
+      <nav className="mt-4 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
+          const isActive = activeItem === item.name;
+
           return (
             <button
               key={item.name}
               onClick={() => {
                 setActiveItem(item.name);
-                navigate(item.path ? item.path : "");
+                navigate(item.path ?? "");
               }}
-              className={`w-full flex items-center gap-4 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white transition-all ${
-                activeItem === item.name
-                  ? "bg-slate-800 text-white border-l-4 border-blue-500"
-                  : ""
-              }`}
+              className={`
+                w-full flex items-center gap-3 px-4 py-2.5
+                text-sm font-medium
+                transition-all duration-200
+                ${itemBase}
+                ${isActive ? activeItemStyle : ""}
+              `}
             >
-              <Icon size={20} />
+              <Icon size={18} />
               {isOpen && <span>{item.name}</span>}
             </button>
           );
         })}
       </nav>
-    </div>
+    </aside>
   );
 };
 

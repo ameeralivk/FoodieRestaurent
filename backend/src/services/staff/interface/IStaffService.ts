@@ -5,9 +5,9 @@ import {
   RequestIStaff,
   StaffResponseDTO,
 } from "../../../types/staff";
-
+import { Request } from "express";
 export interface IStaffService {
-  addStaff(data: RequestIStaff): Promise<{ success: boolean; message: string }>;
+  addStaff(req:Request,data: RequestIStaff): Promise<{ success: boolean; message: string }>;
   editStaff(data: EditIStaff): Promise<{ success: boolean; message: string }>;
   deleteStaff(staffId: string): Promise<{ success: boolean; message: string }>;
   changeStaffStatus(
@@ -17,6 +17,7 @@ export interface IStaffService {
   getAllStaff(
     restaurantId: string,
     page: number,
-    limit: number
+    limit: number,
+    search:string,
   ): Promise<{ data: StaffResponseDTO[],total:number }>;
 }

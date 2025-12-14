@@ -1,9 +1,7 @@
-POST  http://localhost:3000/api/admin/staff
+POST  http://localhost:3000/api/staff/auth/login
 Content-Type: application/json
 
 {
-  "restaurantId":"@amereadfjsakl",
-  "staffName": "Ameer Ali",
-  "email": "ameervk1875@gmail.com",
-  "role": "staff"
+ "email":"ameervk1875@gmail.com",
+ "password":"XIAAL9WH05"
 }

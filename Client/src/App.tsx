@@ -6,6 +6,7 @@ import UserRoutes from "./Routes/userRoutes";
 import SuperAdminRoutes from "./Routes/SuperAdminRoutes";
 import { useEffect, useState } from "react";
 import AppLoader from "./Components/Elements/AppLoader";
+import StaffRoutes from "./Routes/StaffRoutes";
 const App = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -30,6 +31,7 @@ const App = () => {
       <Route path="/admin/*" element={<AdminRoutes />} />
       <Route path="/user/*" element={<UserRoutes />} />
       <Route path="/superadmin/*" element={<SuperAdminRoutes />} />
+      <Route path="/staff/*" element={<StaffRoutes />} />
     </Routes>
   );
 };

@@ -5,6 +5,7 @@ import { Response, Request } from "express";
 import { TYPES } from "../../../DI/types";
 import { AppError } from "../../../utils/Error";
 import { MESSAGES } from "../../../constants/messages";
+import HttpStatus from "../../../constants/htttpStatusCode";
 @injectable()
 export class StaffController implements IStaffController {
   constructor(
@@ -13,9 +14,8 @@ export class StaffController implements IStaffController {
 
   addStaff = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const staff = await this._staffService.addStaff(req.body);
-
-      return res.status(201).json({
+      const staff = await this._staffService.addStaff(req, req.body);
+      return res.status(HttpStatus.CREATED).json({
         success: true,
         message: MESSAGES.STAFF_ADDED_SUCCESS,
         data: staff,
@@ -55,35 +55,35 @@ export class StaffController implements IStaffController {
       throw new AppError(error.message);
     }
   };
-  changeStatus = async(req: Request, res: Response): Promise<Response> => {
+  changeStatus = async (req: Request, res: Response): Promise<Response> => {
     try {
       const staffId = req.params.staffId as string;
       const { status } = req.body;
 
-     const staff = await this._staffService.changeStaffStatus(staffId, status);
+      const staff = await this._staffService.changeStaffStatus(staffId, status);
 
       return res.status(200).json({
         success: true,
         message: "Staff status updated successfully",
         data: staff,
       });
-    } catch (error:any) {
-        throw new AppError(error.message)
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
-  }
+  };
 
-
-  getAllStaff = async(req: Request, res: Response): Promise<Response>=>{
-
+  getAllStaff = async (req: Request, res: Response): Promise<Response> => {
     try {
-        const restaurantId= req.params.restaurantId as string;
+      const restaurantId = req.params.restaurantId as string;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
-      console.log(restaurantId,'here it is')
+      const search = req.query.search as string;
+      console.log(page, limit, "hi");
       const staff = await this._staffService.getAllStaff(
         restaurantId,
         page,
-        limit
+        limit,
+        search
       );
 
       return res.status(200).json({
@@ -91,8 +91,8 @@ export class StaffController implements IStaffController {
         message: "Staff fetched successfully",
         ...staff,
       });
-    } catch (error:any) {
-        throw new AppError(error.message)
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
-  }
+  };
 }

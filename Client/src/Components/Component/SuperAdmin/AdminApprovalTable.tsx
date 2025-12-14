@@ -47,7 +47,6 @@ export default function TableExample() {
     try {
       const response = await getAllRestaurent(page, limit, searchTerm);
       if (response && response.success) {
-        // Minimum delay to show loading spinner
         await new Promise((res) => setTimeout(res, 500)); // 0.5s delay
         setRestaurants(response.data);
         setTotal(response.pagination.total);

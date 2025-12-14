@@ -112,3 +112,19 @@ export const subscriptionPlanSchema = z.object({
 
   features: z.array(z.string()).optional().default([]),
 });
+
+
+
+export const StaffRequestSchema = z.object({
+  restaurantId: z.string().min(1, "Restaurant ID is required"),
+
+  staffName: z.string().min(2, "Staff name must be at least 2 characters"),
+
+  email: z.string().email("Invalid email address"),
+
+  role: z.enum(["Staff", "Chef"], {
+    message: "Role must be either staff or chef",
+  }),
+
+  password: z.string().min(6, "Password must be at least 6 characters").optional(),
+});
