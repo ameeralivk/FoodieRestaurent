@@ -23,6 +23,9 @@ import { StaffRepository } from "../Repositories/staff/implemention/staffReposit
 import { StaffService } from "../services/staff/implementation/staffService";
 import { StaffAuthService } from "../services/staffAuthService/implementation/staffAuthservice";
 import { StaffAuthController } from "../Controller/authController/staff/implementation/staffAuthController";
+import { TableRepository } from "../Repositories/Table/implementation/tableRepository";
+import { TableController } from "../Controller/tableController/implement/tableController";
+import { TableService } from "../services/tableService/implementation/tableService";
 
 const container = new Container();
 //payment
@@ -59,4 +62,10 @@ container.bind(TYPES.staffService).to(StaffService);
 //staffAuth
 container.bind(TYPES.staffAuthService).to(StaffAuthService)
 container.bind(TYPES.staffAuthController).to(StaffAuthController)
+
+
+//table
+container.bind(TYPES.tableRepository).to(TableRepository)
+container.bind(TYPES.tableController).to(TableController)
+container.bind(TYPES.tableService).to(TableService)
 export { container };

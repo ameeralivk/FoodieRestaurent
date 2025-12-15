@@ -7,7 +7,8 @@
   _id: string;
   role: string;
   email: string;
-  googleId: string;
-  imageUrl: string;
+  restaurantId?:string,
+  googleId?: string;
+  imageUrl?: string;
   status:string;
 }

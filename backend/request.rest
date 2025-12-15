@@ -1,7 +1,10 @@
-POST  http://localhost:3000/api/staff/auth/login
+POST  http://localhost:3000/api/admin/table
 Content-Type: application/json
 
 {
- "email":"ameervk1875@gmail.com",
- "password":"XIAAL9WH05"
+  "restaurantId": "66c9e1f2a3b4c5d6e7f8a901",
+  "tableNo": 5,
+  "seatingCapacity": 4,
+  "description": ["Near window", "Family seating"]
 }
+

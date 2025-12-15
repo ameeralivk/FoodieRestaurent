@@ -841,7 +841,7 @@ export default function ReusableModal({
       onSubmit(finalData);
     }
   };
-
+  const tagField = fields.find((f) => f.type === "tags");
   if (!isOpen) return null;
 
   return (
@@ -954,7 +954,7 @@ export default function ReusableModal({
         {fields.some((f) => f.type === "tags") && (
           <div className="mt-5">
             <span className="text-gray-400 text-sm mb-2 block">
-              Skills / Tags
+              {tagField?.label || "Tags"}
             </span>
 
             {isViewMode ? (

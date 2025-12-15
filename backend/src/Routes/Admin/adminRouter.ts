@@ -7,12 +7,16 @@ import { TYPES } from "../../DI/types";
 import { SubcriptionController } from "../../Controller/Restaurent/subscriptionController/implimentation/subsciptionController";
 import { StaffController } from "../../Controller/staffController/implementation/staffController";
 import { checkActivePlan } from "../../middleware/planCheckMiddleware";
+import { TableController } from "../../Controller/tableController/implement/tableController";
 const paymentController = container.get<PaymentController>(
   TYPES.PaymentController
 );
 const subcriptionController = container.get<SubcriptionController>(
   TYPES.SubscriptionController
 );
+const tableController = container.get<TableController>(TYPES.tableController)
+
+
 const staffController = container.get<StaffController>(TYPES.staffController);
 const Router = express.Router();
 
@@ -35,12 +39,16 @@ Router.route("/staff").post(
 );
 
 Router.route("/staff/:staffId")
-  .put(asyncHandler(staffController.editStaff))
-  .delete(asyncHandler(staffController.deleteStaff))
-  .patch(asyncHandler(staffController.changeStatus));
+  .put(verifyAccessToken,asyncHandler(staffController.editStaff))
+  .delete(verifyAccessToken,asyncHandler(staffController.deleteStaff))
+  .patch(verifyAccessToken,asyncHandler(staffController.changeStatus));
 
 Router.route("/staff/:restaurantId").get(
-  asyncHandler(staffController.getAllStaff)
+  verifyAccessToken,asyncHandler(staffController.getAllStaff)
 );
+
+//table
+Router.route("/table")
+.post(asyncHandler(tableController.addTable))
 
 export default Router;

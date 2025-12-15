@@ -44,5 +44,8 @@ export const MESSAGES = {
   STAFF_DELETED_FAILED:"Staff deleted Failed",
   STATUS_CHANGED_SUCCESS:"status changed Successfully",
   LOGIN_SUCCESS:"login Successfull",
-  PASS_NOT_MATCH:"password is not match"
+  PASS_NOT_MATCH:"password is not match",
+  TABLE_CREATED_SUCCESS:"Table created Successfully",
+  TABLE_CREATED_FAILED:"Table creating Failed",
+  TABLE_ALREADY_EXIST:"Table number and seating capacity are required"
 };

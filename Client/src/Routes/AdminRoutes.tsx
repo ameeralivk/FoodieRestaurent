@@ -12,6 +12,7 @@ import AdminSubscriptionPage from "../Pages/admin/AdminSubscriptionPage";
 import PaymentSuccessModal from "../Components/Component/Admin/PaymentSuccessmodal";
 import PaymentFailedPage from "../Components/Component/Admin/PaymentFailedModal";
 import StaffManagement from "../Pages/admin/StaffManagement";
+import TableManagement from "../Pages/admin/Table";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -69,6 +70,7 @@ const AdminRoutes = () => {
         }
       />
       <Route path="/staff" element={<ProtectedRoute><StaffManagement/></ProtectedRoute>}/>
+      <Route path="/table" element={<ProtectedRoute><TableManagement/></ProtectedRoute>} />
     </Routes>
   );
 };

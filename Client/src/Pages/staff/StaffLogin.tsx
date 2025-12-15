@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { staffLogin } from "../../services/staffAuthService";
 import { showSuccessToast } from "../../Components/Elements/SuccessToast";
 import { ToastContainer } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { userLoginAction } from "../../redux/slice/userSlice";
+import { useNavigate } from "react-router-dom";
 const StaffLogin: React.FC = () => {
+  const navigate = useNavigate()
+  const dispatch = useDispatch();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -19,7 +24,16 @@ const StaffLogin: React.FC = () => {
       try {
         const result = await staffLogin(email, password);
         if (result.success) {
-            console.log(result.data)
+          console.log(result.data);
+          const data = {
+            _id: result.data._id,
+            email: result.data.email,
+            status: result.data.status.toString(),
+            role: result.data.role,
+            restaurantId:result.data.restaurantId,
+          };
+          dispatch(userLoginAction({user:data}));
+          navigate("/staff/dashboard")
           showSuccessToast(result.message);
         }
       } catch (error) {
@@ -92,6 +106,5 @@ const StaffLogin: React.FC = () => {
     </div>
   );
 };
-
 
 export default StaffLogin;
