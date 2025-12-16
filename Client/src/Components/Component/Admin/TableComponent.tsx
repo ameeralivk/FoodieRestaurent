@@ -4,6 +4,23 @@ import { useState } from "react";
 import Pagination from "../../Elements/Reusable/Pagination";
 import ReusableModal from "../../modals/SuperAdmin/GeneralModal";
 import ReusableTable from "../../Elements/Reusable/reusableTable";
+import type { GetTablesResponse, ITableForm } from "../../../types/tableTypes";
+import { useEffect } from "react";
+import { showConfirm } from "../../Elements/ConfirmationSwall";
+import {
+  addTable,
+  changeTableAvailability,
+  deleteTable,
+  editTable,
+} from "../../../services/table";
+import { showSuccessToast } from "../../Elements/SuccessToast";
+import { ToastContainer } from "react-toastify";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../redux/store/store";
+import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { getTables } from "../../../services/table";
+import { TableValidation } from "../../../Validation/tableValidation";
 const TableComponent = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -12,22 +29,24 @@ const TableComponent = () => {
   const [modalErrors, setModalErrors] = useState<{ [key: string]: string }>({});
   const [currentRow, setCurrentRow] = useState<any>(null);
   const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
-  const [table, setTable] = useState([
-    {
-      tableNo: 2,
-      seatingCapacity: 6,
-      isAvailable: false,
-      description: ["fdslafjd", "fdlsajdjkl"],
-      qrcodeUrl: "https://foodie.com/r/692ea36738a54f8d01ed6747?table=6930f1a82c9b1e12a8c55e21",
-    },
-    {
-      tableNo: 4,
-      seatingCapacity: 4,
-      isAvailable: true,
-      description: ["ameer", "ali"],
-      qrcodeUrl: "https://foodie.com/r/692ea36738a54f8d01ed6747?table=6930f1a82c9b1e12a8c55e21",
-    },
-  ]);
+  const [formData, setFormData] = useState<ITableForm | null>(null);
+  const [searchTerm, setSearchQuery] = useState("");
+  const restaurentId = useSelector((state: RootState) => state.auth.admin?._id);
+  const limit = 10;
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isFetching } = useQuery<GetTablesResponse, Error>({
+    queryKey: ["activeTable", restaurentId, currentPage, limit, searchTerm],
+    queryFn: () =>
+      getTables(restaurentId as string, currentPage, limit, searchTerm),
+    staleTime: 5000,
+  });
+  useEffect(() => {
+    if (data?.total) {
+      setTotalPages(Math.ceil(data.total / limit));
+    }
+  }, [data]);
+  const tables = data?.data ?? [];
   const columns = [
     { header: "TableNo", accessor: "tableNo" },
     { header: "Seating Capacity", accessor: "seatingCapacity" },
@@ -35,10 +54,10 @@ const TableComponent = () => {
       header: "Status",
       accessor: "isAvailable",
       render: (isAvailable: boolean) => {
-        const label = isAvailable ? "NotAvailable" : "Available";
+        const label = isAvailable ? "Available" : "NotAvailable";
         const classes = isAvailable
-          ? "bg-red-500/20 text-red-400"
-          : "bg-green-500/20 text-green-400";
+          ? "bg-green-500/20 text-green-400"
+          : "bg-red-500/20 text-red-400";
 
         return (
           <span className={`px-2 py-1 rounded text-xs font-medium ${classes}`}>
@@ -49,40 +68,146 @@ const TableComponent = () => {
     },
   ];
 
-  const updateTableStatus = (row: any, value: any) => {
-    console.log(row, value);
-    setTable((prev: any[]) =>
-      prev.map((table) =>
-        table.tableNo === row.tableNo
-          ? { ...table, isAvailable: !table.isAvailable }
-          : table
-      )
+  const updateTableStatus = async (row: any, value: any) => {
+    const confirmed = await showConfirm(
+      "Change this status?",
+      `Are you Wand to Change the Status?`,
+      "Change",
+      "Cancel"
     );
+    if (!confirmed) return;
+    const changeStatus = async () => {
+      try {
+        const res = await changeTableAvailability(!value, row._id);
+        if (res.success) {
+          showSuccessToast(res.message);
+          queryClient.invalidateQueries({
+            queryKey: ["activeTable", restaurentId],
+          });
+          setModalOpen(false);
+        }
+      } catch (error) {
+        return;
+      }
+    };
+    changeStatus();
   };
 
   const handleView = (row: any) => {
     setCurrentRow(row);
     setModalOpen(true);
-    setModalMode("view")
+    setModalMode("view");
   };
 
-  const handleDelete = (row:any) => {
-   
+  const handleDelete = async (row: any) => {
+    const confirmed = await showConfirm(
+      "Delete this Table?",
+      `Are you sure you want to delete "fdsafjdlsa"?`,
+      "Delete",
+      "Cancel"
+    );
+
+    if (!confirmed) return;
+    const del = async () => {
+      try {
+        const res = await deleteTable(row._id);
+        if (res.success) {
+          showSuccessToast(res.message);
+          queryClient.invalidateQueries({
+            queryKey: ["activeTable", restaurentId],
+          });
+          setModalOpen(false);
+        }
+      } catch (error) {
+        return;
+      }
+    };
+    del();
   };
 
-  const handlePageChange = () => {};
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-  const handleEdit = (row:any) => {
-     setCurrentRow(row);
+  const handleSearch = (query: string) => {
+    setSearchQuery((prev) => {
+      if (prev !== query) {
+        setCurrentPage(1);
+      }
+      return query;
+    });
+  };
+  console.log(modalErrors, "reee eerrororororo");
+
+  const handleEdit = (row: any) => {
+    setCurrentRow(row);
     setModalOpen(true);
-    setModalMode("edit")
+    setModalMode("edit");
+  };
+  const handleSubmit = (row: any) => {
+    console.log(row);
+    let data = {
+      tableNo: row.tableNo,
+      seatingCapacity: row.seatingCapacity,
+      description: row.skills,
+      isAvailable: true,
+      restaurantId: restaurentId,
+    };
+    const validate = TableValidation(data);
+    if (Object.keys(validate).length > 0) {
+      setModalErrors(validate);
+      return;
+    }
+    setFormData(data);
+    if (modalMode == "add") {
+      const addtable = async () => {
+        try {
+          const res = await addTable(data);
+          if (res.success) {
+            showSuccessToast(res.message);
+            queryClient.invalidateQueries({
+              queryKey: ["activeTable", restaurentId],
+            });
+            setModalOpen(false);
+            setCurrentRow({});
+            setModalErrors({});
+          }
+        } catch (error) {
+          return;
+        }
+      };
+      addtable();
+    } else {
+      const edittable = async () => {
+        try {
+          const res = await editTable(data, currentRow._id);
+          if (res.success) {
+            showSuccessToast(res.message);
+            queryClient.invalidateQueries({
+              queryKey: ["activeTable", restaurentId],
+            });
+            setModalOpen(false);
+            setModalErrors({});
+            setCurrentRow({});
+          }
+        } catch (error) {
+          return;
+        }
+      };
+      edittable();
+    }
   };
 
-  const handleSubmit = () => {};
-
-  const handleFieldChange = () => {};
+  const handleFieldChange = (name: string, value: any) => {
+    const updatedRow = { ...currentRow, [name]: value };
+    setCurrentRow(updatedRow);
+    const validationErrors = TableValidation(updatedRow);
+    console.log(validationErrors, "error");
+    setModalErrors(validationErrors);
+  };
   return (
     <div className="">
+      <ToastContainer />
       <header className="bg-[#111214] border-b border-gray-800/70 backdrop-blur-md shadow-md sticky top-0 z-20">
         <div className="max-w-9xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
@@ -121,21 +246,18 @@ const TableComponent = () => {
         <div className="flex justify-between items-center mb-4 mt-6 ml-8">
           <SearchBar
             placeholder="Search staff by name or email..."
-            onSearch={(query) => {
-              // setSearchQuery(query);
-              // setCurrentPage(1);
-            }}
+            onSearch={handleSearch}
           />
         </div>
-        {table.length >= 1 ? (
+        {tables.length >= 1 ? (
           <div className="bg-[#141518] border border-gray-800/60 rounded-2xl p-6 shadow-xl backdrop-blur-md">
             <ReusableTable
               title="Staff Members"
               columns={columns}
-              data={table}
+              data={tables}
               loading={loading}
               minWidth="min-w-[100px]"
-              qrField={{ enabled: true, urlAccessor: "qrcodeUrl" }}
+              qrField={{ enabled: true, urlAccessor: "qrCodeUrl" }}
               actions={[
                 { type: "view", onClick: handleView },
                 { type: "edit", onClick: handleEdit },
@@ -143,7 +265,7 @@ const TableComponent = () => {
               ]}
               toggleField={{
                 accessor: "isAvailable",
-                invert: true,
+                invert: false,
                 onToggle: (row, value) => {
                   updateTableStatus(row, !value);
                 },

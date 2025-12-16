@@ -88,12 +88,12 @@ const StaffManagementPage = () => {
   }
 
   const { data, isLoading, isFetching } = useQuery<StaffListResponse, Error>({
-    queryKey: ["activePlan", restaurentId, currentPage, limit,searchTerm],
+    queryKey: ["activePlan", restaurentId, currentPage, limit, searchTerm],
     queryFn: () =>
       getAllStaff(restaurentId as string, currentPage, limit, searchTerm),
     staleTime: 5000,
   });
-
+  console.log(data, "data is here");
   useEffect(() => {
     if (data?.total) {
       setTotalPages(Math.ceil(data.total / limit));
@@ -111,7 +111,7 @@ const StaffManagementPage = () => {
     if (!confirmed) return;
     const changeStatus = async () => {
       try {
-        const result = await changeStaffStatus(row._id, value);
+        const result = await changeStaffStatus(row._id, !value);
         if (result.success) {
           showSuccessToast(result.message);
           queryClient.invalidateQueries({
@@ -216,7 +216,6 @@ const StaffManagementPage = () => {
     navigate("/admin/subscriptionplan");
     setDismissed(false);
   };
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -236,7 +235,6 @@ const StaffManagementPage = () => {
     const validate = StaffValidation(updatedForm);
     setModalErrors(validate);
   }
-
 
   return (
     <div className="min-h-screen bg-[#0e0f11]  text-gray-200">
@@ -310,7 +308,7 @@ const StaffManagementPage = () => {
               minWidth="min-w-[100px]"
               actions={[
                 { type: "view", onClick: handleView },
-                { type: "edit", onClick: handleEdit },
+                // { type: "edit", onClick: handleEdit },
                 { type: "delete", onClick: handleDelete },
               ]}
               toggleField={{

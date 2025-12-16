@@ -4,6 +4,7 @@ import { useState } from "react";
 import { showErrorToast } from "../../Components/Elements/ErrorToast";
 import { handleLogin } from "../../services/Auth";
 import { ToastContainer } from "react-toastify";
+import { Eye, EyeOff } from "lucide-react";
 import WarningSwal from "../../Components/Helpers/WarningSwal";
 import ErrorPTag from "../../Components/Elements/ErrorParagraph";
 import type { AdminType } from "../../types/AdminTypes";
@@ -27,6 +28,7 @@ const RestaurentLoginPage = () => {
   const [error, setError] = useState<Partial<Record<keyof FormData, string>>>(
     {}
   );
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const nav = () => {
     navigate("/Admin/Register");
@@ -67,9 +69,9 @@ const RestaurentLoginPage = () => {
       dispatch(
         loginAction({
           admin: saveddata,
-        }),
+        })
       );
-      dispatch(setAuth({isAuthenticated:true}))
+      dispatch(setAuth({ isAuthenticated: true }));
       if (saveddata.role === "superadmin") {
         navigate("/superadmin/dashboard");
       } else {
@@ -77,7 +79,7 @@ const RestaurentLoginPage = () => {
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        showErrorToast(String(error))
+        showErrorToast(String(error));
       } else {
         showErrorToast(String(error));
       }
@@ -112,16 +114,23 @@ const RestaurentLoginPage = () => {
               <ErrorPTag Text={error.email} />
             </div>
 
-            <div className="flex flex-col text-left">
+            {/* <div className="flex flex-col text-left">
               <label className="mb-1 text-sm font-medium">Password</label>
               <input
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 className="border border-amber-400/50 bg-transparent rounded-md px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-all"
               />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-amber-400"
+                >
+                  {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                </button>
               <ErrorPTag Text={error.password} />
               <a
                 onClick={() => navigate("/Admin/forgetPassword")}
@@ -129,20 +138,41 @@ const RestaurentLoginPage = () => {
               >
                 Forget Your Password?
               </a>
-            </div>
-            {/* <button className="flex items-center h-[35px] justify-center gap-3 border border-gray-300 rounded-lg px-6 py-3 w-full hover:bg-gray-100 transition">
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                alt="Google"
-                className="w-5 h-5"
-              />
-              <span className="font-medium text-gray-700">
-                Sign in with Google
-              </span>
-            </button> */}
-            {/* <div>
-              <GoogleLoginButton login={googleLogin} />
             </div> */}
+            <div className="flex flex-col text-left">
+              <label className="mb-1 text-sm font-medium">Password</label>
+
+              {/* Relative wrapper */}
+              <div className="relative">
+                <input
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  className="w-full border border-amber-400/50 bg-transparent rounded-md px-3 py-2 pr-10 text-sm placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-all"
+                />
+
+                {/* Eye icon */}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-amber-400"
+                >
+                  {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                </button>
+              </div>
+
+              <ErrorPTag Text={error.password} />
+
+              <a
+                onClick={() => navigate("/Admin/forgetPassword")}
+                className="text-[13px] text-blue-600 text-start cursor-pointer underline hover:text-blue-300"
+              >
+                Forget Your Password?
+              </a>
+            </div>
+
             <button
               onClick={handleLoginButton}
               type="submit"

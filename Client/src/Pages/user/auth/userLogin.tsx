@@ -5,6 +5,7 @@ import AdminRegisterValidation from "../../../Validation/AdminRegistractiorValid
 import ErrorPTag from "../../../Components/Elements/ErrorParagraph";
 import type { FormData } from "../../../types/userTypes";
 import WarningSwal from "../../../Components/Helpers/WarningSwal";
+import { Eye, EyeOff } from "lucide-react";
 import {
   handleUserLogin,
   userGoogleLoginHandler,
@@ -23,6 +24,7 @@ export default function UserLoginForm() {
   const [error, setError] = useState<Partial<Record<keyof FormData, string>>>(
     {}
   );
+  const [showPassword, setShowPassword] = useState(false);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const valid = validateLoginForm(formData);
@@ -35,23 +37,23 @@ export default function UserLoginForm() {
       WarningSwal({ message: "Please File all the Field to Proceed" });
       return;
     }
-   const fetch = async () => {
-  try {
-    let res = await handleUserLogin(
-      formData.email,
-      formData.password,
-      dispatch
-    );
+    const fetch = async () => {
+      try {
+        let res = await handleUserLogin(
+          formData.email,
+          formData.password,
+          dispatch
+        );
 
-    if (res?.success) {
-      navigate("/user");
-    }
-  } catch (error:any) {
-    showErrorToast(error)
-  }
-};
+        if (res?.success) {
+          navigate("/user");
+        }
+      } catch (error: any) {
+        showErrorToast(error);
+      }
+    };
 
-fetch();
+    fetch();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +94,7 @@ fetch();
             <ErrorPTag Text={error.email} />
           </div>
 
-          <div>
+          {/* <div>
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-2"
@@ -107,6 +109,37 @@ fetch();
               placeholder="Enter your password"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
+            <ErrorPTag Text={error.password} />
+          </div> */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Password
+            </label>
+
+            {/* Relative wrapper */}
+            <div className="relative">
+              <input
+                onChange={handleInputChange}
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+
+              {/* Eye icon */}
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
             <ErrorPTag Text={error.password} />
           </div>
 

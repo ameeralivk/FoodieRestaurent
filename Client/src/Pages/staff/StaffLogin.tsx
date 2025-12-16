@@ -5,12 +5,14 @@ import { ToastContainer } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { userLoginAction } from "../../redux/slice/userSlice";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 const StaffLogin: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = () => {
     setError("");
@@ -30,10 +32,10 @@ const StaffLogin: React.FC = () => {
             email: result.data.email,
             status: result.data.status.toString(),
             role: result.data.role,
-            restaurantId:result.data.restaurantId,
+            restaurantId: result.data.restaurantId,
           };
-          dispatch(userLoginAction({user:data}));
-          navigate("/staff/dashboard")
+          dispatch(userLoginAction({ user: data }));
+          navigate("/staff/dashboard");
           showSuccessToast(result.message);
         }
       } catch (error) {
@@ -71,7 +73,7 @@ const StaffLogin: React.FC = () => {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-2"
@@ -87,6 +89,37 @@ const StaffLogin: React.FC = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               placeholder="••••••••"
             />
+          </div> */}
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Password
+            </label>
+
+            {/* Relative wrapper */}
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSubmit()}
+                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                placeholder="••••••••"
+              />
+
+              {/* Eye icon */}
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-500 transition"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           {error && (

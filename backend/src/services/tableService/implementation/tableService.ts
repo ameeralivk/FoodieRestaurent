@@ -3,9 +3,10 @@ import { ITableRepository } from "../../../Repositories/Table/interface/ITableRe
 import { ITableService } from "../interface/ITableService";
 import { TYPES } from "../../../DI/types";
 import mongoose from "mongoose";
-import { CreateTableInput } from "../../../types/table";
+import { CreateTableInput, PaginatedTableResult } from "../../../types/table";
 import { MESSAGES } from "../../../constants/messages";
-
+import { ITable ,RequestEditTable } from "../../../types/table";
+import { AppError } from "../../../utils/Error";
 @injectable()
 export class TableService implements ITableService {
   constructor(
@@ -15,7 +16,6 @@ export class TableService implements ITableService {
   async createTable(
     data: CreateTableInput
   ): Promise<{ success: boolean; message: string }> {
-    console.log('hi')
     const { restaurantId, tableNo, seatingCapacity, description } = data;
 
     if (!tableNo || !seatingCapacity) {
@@ -45,4 +45,44 @@ export class TableService implements ITableService {
        return {success:true,message:MESSAGES.TABLE_CREATED_FAILED}
     }
   }
+
+
+   async editTable(
+    tableId: string,
+    data: RequestEditTable
+  ): Promise<ITable | null> {
+    if(!data || !tableId){
+      throw new AppError(MESSAGES.TABLE_NOT_FOUND)
+    }
+    return this._tableRepo.editTable(tableId, data);
+  }
+
+
+    async getAllTables(
+    restaurantId: string,
+    search: string | undefined,
+    page: number,
+    limit: number
+  ):Promise<PaginatedTableResult<ITable>> {
+    return await this._tableRepo.getAllTables(
+      restaurantId,
+      search,
+      page,
+      limit
+    );
+  }
+
+
+  async updateTableAvailability(
+    tableId: string,
+    isAvailable: boolean
+  ): Promise<ITable | null> {
+    return this._tableRepo.updateAvailability(tableId, isAvailable);
+  }
+
+
+   async deleteTable(tableId: string):Promise<ITable | null> {
+    return this._tableRepo.deleteTable(tableId);
+  }
+
 }

@@ -17,7 +17,9 @@ async login(
 ): Promise<{ success: boolean; message: string ; data:StaffResponseDTO}> {
 
   const staff = await this._staffRepo.isExist(email); 
-   
+  if(staff?.isBlocked){
+    throw new AppError(MESSAGES.STAFF_BLOCKED)
+  }
   if (!staff) {
     throw new AppError(MESSAGES.STAFF_NOT_FOUND);
   }

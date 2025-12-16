@@ -1,5 +1,5 @@
 // src/pages/PaymentSuccessPage.tsx
-import{ useState } from "react";
+import { useState } from "react";
 import { X, Check, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -36,7 +36,7 @@ export default function PaymentSuccessPage() {
         {/* Action Button */}
         <div className="mt-6 flex justify-center">
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/admin/subscriptionplan")}
             className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 rounded hover:bg-blue-700"
           >
             Go to Dashboard

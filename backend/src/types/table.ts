@@ -17,3 +17,16 @@ export interface CreateTableInput {
   seatingCapacity: number;
   description: string[];
 }
+
+
+export interface RequestEditTable {
+  tableNo?: number;
+  seatingCapacity?: number;
+  description?: string[];
+  isAvailable?: boolean;
+}
+
+export interface PaginatedTableResult<T> {
+  data: T[];
+  total: number;
+}

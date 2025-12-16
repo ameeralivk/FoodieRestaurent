@@ -39,6 +39,7 @@ export const MESSAGES = {
   STAFF_ALREADY_EXIST: "Staff already exists with this email",
   STAFF_UPDATED_SUCCESS:"Staff Updated Successfully",
   STAFF_UPDATED_FAILED:"Staff updated Failed",
+  STAFF_BLOCKED:"staff is blocked by the admin",
   STAFF_NOT_FOUND:"Staff not Found",
   STAFF_DELETED_SUCCESS:"Staff deleted Successfully",
   STAFF_DELETED_FAILED:"Staff deleted Failed",
@@ -47,5 +48,9 @@ export const MESSAGES = {
   PASS_NOT_MATCH:"password is not match",
   TABLE_CREATED_SUCCESS:"Table created Successfully",
   TABLE_CREATED_FAILED:"Table creating Failed",
-  TABLE_ALREADY_EXIST:"Table number and seating capacity are required"
+  TABLE_ALREADY_EXIST:"Table number and seating capacity are required",
+  TABLE_NOT_FOUND:"Table not found",
+  TABLE_UPDATED_SUCCESS:"Table updated successfully",
+  TABLE_STATUS_UPDATED:"Table status updated Successfully",
+  TABLE_FETCH_SUCCESS:"Tables fetched successfully"
 };

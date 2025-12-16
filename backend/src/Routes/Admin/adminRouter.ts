@@ -51,4 +51,13 @@ Router.route("/staff/:restaurantId").get(
 Router.route("/table")
 .post(asyncHandler(tableController.addTable))
 
+Router.route("/table/:tableId")
+.put(asyncHandler(tableController.editTable))
+.delete(asyncHandler(tableController.deleteTable))
+.patch(asyncHandler(tableController.updateAvailability))
+
+
+Router.route("/table/:restaurantId")
+.get(asyncHandler(tableController.getAllTables))
+
 export default Router;
