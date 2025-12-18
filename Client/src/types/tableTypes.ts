@@ -9,6 +9,7 @@ export interface ITableForm {
 
 
 export interface ITable extends Document {
+  _id: string; 
   restaurantId:string;
   tableNo: number;
   seatingCapacity: number;

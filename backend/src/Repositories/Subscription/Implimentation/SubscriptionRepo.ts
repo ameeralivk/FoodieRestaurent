@@ -1,4 +1,4 @@
-import { ISubscriptiontype } from "../../../types/subscription";
+import { IPlanSnapshot, ISubscriptiontype } from "../../../types/subscription";
 import { BaseRepository } from "../../IBaseRepository";
 import { ISubscriptionRepo } from "../Interface/ISubscriptionRepo";
 import subscription from "../../../models/subscription";
@@ -15,6 +15,7 @@ export class SubscriptionRepo
   async addSubcription(data: {
     restaurentId: mongoose.Types.ObjectId | undefined;
     planId: mongoose.Types.ObjectId | undefined;
+    planSnapshot:IPlanSnapshot;
     planName: string;
     planPrice: number;
     stripeSessionId: string;

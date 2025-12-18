@@ -1,8 +1,6 @@
 import { otpResponse } from "../../../helpers/sentOtp";
 import { AdminDocument } from "../../../models/admin";
-import { IAdmin } from "../../../types/admin";
 import type { IAdminStatusBase, IRestaurantRegisterData } from "../../../types/admin";
-import type { GeoLocation } from "../../../types/admin";
 import { AdminDTO } from "../../../utils/dto/adminDto";
 export default interface IAdminAuthService {
   login(

@@ -2,7 +2,6 @@ import { BaseRepository } from "../../IBaseRepository";
 import Staff from "../../../models/staff";
 import { IStaff, RequestEditIStaff, RequestIStaff } from "../../../types/staff";
 import { IStaffRepository } from "../interface/IStaffRepository";
-import { FilterQuery } from "mongoose";
 export class StaffRepository
   extends BaseRepository<IStaff>
   implements IStaffRepository

@@ -157,7 +157,6 @@ const RestaurantMainRegistration = () => {
     });
   };
 
-
   const handleSubmit = async () => {
     try {
       const { isValid, errors } = validateRestaurantForm(formData);
@@ -186,12 +185,12 @@ const RestaurantMainRegistration = () => {
 
   async function handleReupload(file: File) {
     try {
+      await updateDocument(adminId as string, file);
       setAdminStatus({
         status: "resubmitted",
         reason: "",
         rejectedAt: "",
       });
-
       setIsModalOpen(false);
     } catch (error) {
       alert("Reupload failed:");

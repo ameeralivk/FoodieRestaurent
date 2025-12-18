@@ -11,9 +11,6 @@ export const addStaff = async (
   return apiRequest("POST", `/admin/staff`, staffData);
 };
 
-// export const getAllStaff = async(restaurantId:string,page?:number,limit?:number):Promise<StaffListResponse>=>{
-// return apiRequest("GET",`/admin/staff/${restaurantId}?page=${page}&limit=${limit}`)
-// }
 export const getAllStaff = async (
   restaurantId: string,
   page?: number,

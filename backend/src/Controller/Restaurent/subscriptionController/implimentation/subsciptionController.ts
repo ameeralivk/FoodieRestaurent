@@ -1,5 +1,4 @@
 import { inject, injectable } from "inversify";
-import { SubcriptionServer } from "../../../../services/subscription/implimentation/subscriptionService";
 import { ISubcriptionService } from "../../../../services/subscription/interface/ISubscriptionServer";
 import { ISubcriptionController } from "../interface/ISubcriptionController";
 import { TYPES } from "../../../../DI/types";

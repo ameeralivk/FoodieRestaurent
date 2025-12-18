@@ -12,6 +12,7 @@ import { AfterLoading, loadingToast } from "../Components/Elements/Loading";
 import { useNavigate } from "react-router-dom";
 import type { RegisterFormData } from "../types/AdminTypes";
 import type { ForgetPasswordFormData } from "../types/AdminTypes";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 interface registerFormData {
   restaurantName: string;
   email: string;
@@ -20,7 +21,7 @@ interface registerFormData {
 export const register = async (formData: registerFormData) => {
   try {
     const response = await axios.post(
-      "http://localhost:3000/api/admin/auth/signup",
+      `${BASE_URL}/admin/auth/signup`,
       formData,
       {
         withCredentials: true,

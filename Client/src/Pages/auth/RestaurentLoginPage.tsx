@@ -78,11 +78,12 @@ const RestaurentLoginPage = () => {
         navigate("/admin/onboarding");
       }
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        showErrorToast(String(error));
-      } else {
-        showErrorToast(String(error));
-      }
+      return
+      // if (error instanceof Error) {
+      //   showErrorToast(String(error));
+      // } else {
+      //   showErrorToast(String(error));
+      // }
     }
   };
   const googleLogin = useGoogleLoginHandler(dispatch);
@@ -114,31 +115,6 @@ const RestaurentLoginPage = () => {
               <ErrorPTag Text={error.email} />
             </div>
 
-            {/* <div className="flex flex-col text-left">
-              <label className="mb-1 text-sm font-medium">Password</label>
-              <input
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                className="border border-amber-400/50 bg-transparent rounded-md px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:border-amber-400 transition-all"
-              />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-amber-400"
-                >
-                  {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
-                </button>
-              <ErrorPTag Text={error.password} />
-              <a
-                onClick={() => navigate("/Admin/forgetPassword")}
-                className="text-[13px]  text-blue-600 text-start cursor-pointer underline hover:text-blue-300"
-              >
-                Forget Your Password?
-              </a>
-            </div> */}
             <div className="flex flex-col text-left">
               <label className="mb-1 text-sm font-medium">Password</label>
 

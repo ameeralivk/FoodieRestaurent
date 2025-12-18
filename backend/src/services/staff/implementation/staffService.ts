@@ -2,12 +2,11 @@ import { injectable, inject } from "inversify";
 import { IStaffRepository } from "../../../Repositories/staff/interface/IStaffRepository";
 import { IStaffService } from "../interface/IStaffService";
 import { TYPES } from "../../../DI/types";
-import { IStaff, StaffResponseDTO } from "../../../types/staff";
+import { StaffResponseDTO } from "../../../types/staff";
 import { Request } from "express";
 import bcrypt from "bcrypt"
 import {
   EditIStaff,
-  RequestEditIStaff,
   RequestIStaff,
 } from "../../../types/staff";
 import { MESSAGES } from "../../../constants/messages";

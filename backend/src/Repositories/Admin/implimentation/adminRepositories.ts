@@ -1,8 +1,7 @@
 import Admin, { AdminDocument } from "../../../models/admin";
 import { BaseRepository } from "../../IBaseRepository";
 import { IAdminAuthRepository } from "../interface/IAdminRepositories";
-import redisClient from "../../../config/redisClient";
-import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
+import {IRestaurantRegisterData } from "../../../types/admin";
 import getPlaceName from "../../../config/getPlaceName";
 export class AdminAuthRepository
   extends BaseRepository<AdminDocument>
@@ -88,14 +87,10 @@ export class AdminAuthRepository
     filter: any = {}
   ): Promise<{ data: AdminDocument[]; total: number }> {
     try {
-      // return await this.getAll(
-      //   { role: "admin", status: { $exists: true } },
-      //   { page, limit }
-      // );
       const finalFilter = {
-        role: "admin",
-        status: { $exists: true },
         ...filter,
+        role: "admin",
+        status: { $exists: true , $ne:"approved"},
       };
       return await this.getAll(finalFilter,{page,limit});
     } catch (error: any) {

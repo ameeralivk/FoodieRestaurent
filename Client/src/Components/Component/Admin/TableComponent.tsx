@@ -4,7 +4,11 @@ import { useState } from "react";
 import Pagination from "../../Elements/Reusable/Pagination";
 import ReusableModal from "../../modals/SuperAdmin/GeneralModal";
 import ReusableTable from "../../Elements/Reusable/reusableTable";
-import type { GetTablesResponse, ITableForm } from "../../../types/tableTypes";
+import type {
+  GetTablesResponse,
+  ITable,
+  ITableForm,
+} from "../../../types/tableTypes";
 import { useEffect } from "react";
 import { showConfirm } from "../../Elements/ConfirmationSwall";
 import {
@@ -25,6 +29,7 @@ const TableComponent = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [totalPages, setTotalPages] = useState(3);
   const [modalErrors, setModalErrors] = useState<{ [key: string]: string }>({});
   const [currentRow, setCurrentRow] = useState<any>(null);
@@ -36,16 +41,35 @@ const TableComponent = () => {
   const queryClient = useQueryClient();
 
   const { data, isLoading, isFetching } = useQuery<GetTablesResponse, Error>({
-    queryKey: ["activeTable", restaurentId, currentPage, limit, searchTerm],
+    queryKey: [
+      "activeTable",
+      restaurentId,
+      currentPage,
+      limit,
+      debouncedSearch,
+    ],
     queryFn: () =>
-      getTables(restaurentId as string, currentPage, limit, searchTerm),
+      getTables(restaurentId as string, currentPage, limit, debouncedSearch),
     staleTime: 5000,
   });
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   useEffect(() => {
     if (data?.total) {
       setTotalPages(Math.ceil(data.total / limit));
     }
   }, [data]);
+
   const tables = data?.data ?? [];
   const columns = [
     { header: "TableNo", accessor: "tableNo" },
@@ -76,14 +100,29 @@ const TableComponent = () => {
       "Cancel"
     );
     if (!confirmed) return;
+    const newValue = !value;
     const changeStatus = async () => {
       try {
-        const res = await changeTableAvailability(!value, row._id);
+        const res = await changeTableAvailability(newValue, row._id);
         if (res.success) {
           showSuccessToast(res.message);
-          queryClient.invalidateQueries({
-            queryKey: ["activeTable", restaurentId],
-          });
+          // queryClient.invalidateQueries({
+          //   queryKey: ["activeTable", restaurentId],
+          // });
+          queryClient.setQueryData<GetTablesResponse>(
+            ["activeTable", restaurentId, currentPage, limit, searchTerm],
+            (oldData) => {
+              if (!oldData) return oldData;
+              return {
+                ...oldData,
+                data: oldData.data.map((table) =>
+                  table._id === row._id
+                    ? { ...table, isAvailable: !newValue }
+                    : table
+                ),
+              };
+            }
+          );
           setModalOpen(false);
         }
       } catch (error) {
@@ -130,14 +169,14 @@ const TableComponent = () => {
   };
 
   const handleSearch = (query: string) => {
-    setSearchQuery((prev) => {
-      if (prev !== query) {
-        setCurrentPage(1);
-      }
-      return query;
-    });
+    // setSearchQuery((prev) => {
+    //   if (prev !== query) {
+    //     setCurrentPage(1);
+    //   }
+    //   return query;
+    // });
+    setSearchQuery(query);
   };
-  console.log(modalErrors, "reee eerrororororo");
 
   const handleEdit = (row: any) => {
     setCurrentRow(row);
@@ -267,7 +306,7 @@ const TableComponent = () => {
                 accessor: "isAvailable",
                 invert: false,
                 onToggle: (row, value) => {
-                  updateTableStatus(row, !value);
+                  updateTableStatus(row, value);
                 },
               }}
             />

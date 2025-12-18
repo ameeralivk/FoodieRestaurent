@@ -1,6 +1,6 @@
 
 import mongoose from "mongoose";
-import { ISubscriptiontype, PlanDto } from "../../../types/subscription";
+import { PlanDto } from "../../../types/subscription";
 export interface ISubcriptionService {
 addSubcription(data: {
   restaurentId: mongoose.Types.ObjectId | undefined;

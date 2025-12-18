@@ -12,6 +12,14 @@ const subscriptionSchema = new Schema<ISubscriptiontype>(
       ref: "Plan",
       required: true,
     },
+     planSnapshot: {
+      planName: { type: String, required: true },
+      planPrice: { type: Number, required: true },
+      duration: { type: String, required: true },
+      noOfDishes: { type: Number },
+      noOfStaff: { type: Number },
+      features: [{ type: String }],
+    },
     planName: { type: String, required: true },
     planPrice: { type: Number, required: true },
     status: {

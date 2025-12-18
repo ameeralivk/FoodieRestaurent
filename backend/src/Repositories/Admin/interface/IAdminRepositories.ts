@@ -1,6 +1,6 @@
-import { boolean } from "zod";
+
 import { AdminDocument } from "../../../models/admin";
-import { IAdmin, IRestaurantRegisterData } from "../../../types/admin";
+import { IRestaurantRegisterData } from "../../../types/admin";
 
 export interface IAdminAuthRepository {
   register(adminData: {

@@ -1,5 +1,4 @@
 import { Model, FilterQuery, UpdateQuery } from "mongoose";
-import { IAdmin } from "../types/admin";
 export class BaseRepository<T> {
   protected model: Model<T>;
   constructor(model: Model<T>) {
