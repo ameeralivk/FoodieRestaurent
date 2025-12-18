@@ -52,5 +52,9 @@ export const MESSAGES = {
   TABLE_NOT_FOUND:"Table not found",
   TABLE_UPDATED_SUCCESS:"Table updated successfully",
   TABLE_STATUS_UPDATED:"Table status updated Successfully",
-  TABLE_FETCH_SUCCESS:"Tables fetched successfully"
+  TABLE_FETCH_SUCCESS:"Tables fetched successfully",
+  USER_FETCHED_SUCCESS:"User fetched Successfully",
+  USER_BLOCKED_SUCCESS:"User blocked Successfully",
+  USER_UNBLOCKED_SUCESS:"User unblocked Successfully",
+  USER_FAILED_UPDATE_STATUS:"User status updation Failed"
 };

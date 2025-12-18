@@ -5,6 +5,7 @@ import { asyncHandler } from "../../middleware/asyncHandler";
 import { PlanController } from "../../Controller/SuperAdmin/planController/Implimentation/planController";
 import { container } from "../../DI/container";
 import { TYPES } from "../../DI/types";
+import { UserController } from "../../Controller/userController/implementation/userController";
 
 const superAdminController = container.get<SuperAdminController>(
   TYPES.SuperAdminController
@@ -12,6 +13,8 @@ const superAdminController = container.get<SuperAdminController>(
 const superAdminPlanController = container.get<PlanController>(
   TYPES.AdminPlanControler
 );
+
+const userController = container.get<UserController>(TYPES.userController);
 
 const router = exprees.Router();
 router
@@ -40,5 +43,9 @@ router
   .route("/plan/:id")
   .put(verifyAccessToken, asyncHandler(superAdminPlanController.editPlan))
   .delete(verifyAccessToken, asyncHandler(superAdminPlanController.delPlan));
+
+//users
+router.route("/user").get(verifyAccessToken,asyncHandler(userController.getAllUsers));
+router.route("/user/:userId/status").patch(verifyAccessToken,asyncHandler(userController.updateUserStatus));
 
 export default router;

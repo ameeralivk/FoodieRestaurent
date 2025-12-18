@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, Clock, CreditCard, Building2, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Clock,
+  CreditCard,
+  Building2,
+  X,
+  User,
+} from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 interface SidebarProps {
@@ -23,6 +30,7 @@ const SuperAdminSidebar: React.FC<SidebarProps> = ({
       icon: CreditCard,
       path: "/superadmin/subscription",
     },
+    { name: "Users", icon: User, path: "/superadmin/users" },
     {
       name: "Restaurant Management",
       icon: Building2,

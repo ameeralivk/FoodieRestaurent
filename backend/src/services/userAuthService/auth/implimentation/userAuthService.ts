@@ -1,7 +1,7 @@
 import { MESSAGES } from "../../../../constants/messages";
 import axios from "axios";
 import IUserAuthService from "../interface/IUserAuthService";
-import IUserAuthRepository from "../../../../Repositories/user/auth/interface/IUserAuthRepository";
+import IUserAuthRepository from "../../../../Repositories/userAuth/auth/interface/IUserAuthRepository";
 import bcrypt from "bcrypt";
 import { generateOtp } from "../../../../helpers/generateOtp";
 import { generateToken } from "../../../../middleware/jwt";
@@ -22,10 +22,12 @@ import { TYPES } from "../../../../DI/types";
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 
-
 @injectable()
 export class UserAuthService implements IUserAuthService {
-  constructor(@inject(TYPES.UserAuthRepository) private _userAuthRepository: IUserAuthRepository) {}
+  constructor(
+    @inject(TYPES.UserAuthRepository)
+    private _userAuthRepository: IUserAuthRepository
+  ) {}
 
   async register(
     name: string,
@@ -130,7 +132,7 @@ export class UserAuthService implements IUserAuthService {
       userData.Email,
       userData.password
     );
-    const mapedUser = mapUserToDto(createdUser.user)
+    const mapedUser = mapUserToDto(createdUser.user);
     await redisClient.del(redisOtpKey);
     await redisClient.del(redisDataKey);
     const accesstoken = generateToken(createdUser.user._id as string, "user");

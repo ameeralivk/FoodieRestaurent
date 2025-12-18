@@ -12,8 +12,8 @@ import { SuperAdminService } from "../services/superAdmin/implementation/superAd
 import { SuperAdminController } from "../Controller/authController/superAdmin/implementation/superAdminController";
 import { AdminAuthController } from "../Controller/authController/admin/implementation/adminAuthController";
 import { UserAuthController } from "../Controller/authController/user/auth/implimentation/userAuthController";
-import { UserAuthService } from "../services/user/auth/implimentation/userAuthService";
-import { UserAuthRepository } from "../Repositories/user/auth/implimentation/userRepository";
+import { UserAuthService } from "../services/userAuthService/auth/implimentation/userAuthService";
+import { UserAuthRepository } from "../Repositories/userAuth/auth/implimentation/userRepository";
 import { AdminAuthService } from "../services/admin/implementation/adminAuthService";
 import { SubscriptionRepo } from "../Repositories/Subscription/Implimentation/SubscriptionRepo";
 import { SubcriptionServer } from "../services/subscription/implimentation/subscriptionService";
@@ -26,6 +26,9 @@ import { StaffAuthController } from "../Controller/authController/staff/implemen
 import { TableRepository } from "../Repositories/Table/implementation/tableRepository";
 import { TableController } from "../Controller/tableController/implement/tableController";
 import { TableService } from "../services/tableService/implementation/tableService";
+import { UserController } from "../Controller/userController/implementation/userController";
+import { UserService } from "../services/user/implementation/userService";
+import { UserRepository } from "../Repositories/user/implimentation/userRepository";
 
 const container = new Container();
 //payment
@@ -60,12 +63,16 @@ container.bind(TYPES.staffRepository).to(StaffRepository);
 container.bind(TYPES.staffService).to(StaffService);
 
 //staffAuth
-container.bind(TYPES.staffAuthService).to(StaffAuthService)
-container.bind(TYPES.staffAuthController).to(StaffAuthController)
-
+container.bind(TYPES.staffAuthService).to(StaffAuthService);
+container.bind(TYPES.staffAuthController).to(StaffAuthController);
 
 //table
-container.bind(TYPES.tableRepository).to(TableRepository)
-container.bind(TYPES.tableController).to(TableController)
-container.bind(TYPES.tableService).to(TableService)
+container.bind(TYPES.tableRepository).to(TableRepository);
+container.bind(TYPES.tableController).to(TableController);
+container.bind(TYPES.tableService).to(TableService);
+
+//user
+container.bind(TYPES.userController).to(UserController);
+container.bind(TYPES.userService).to(UserService);
+container.bind(TYPES.userRepository).to(UserRepository)
 export { container };

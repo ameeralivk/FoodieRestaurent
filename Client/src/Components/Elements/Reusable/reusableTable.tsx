@@ -1,6 +1,5 @@
-
 import React from "react";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, User } from "lucide-react";
 import LoadingRow from "../SuperAdmin/LoadingRow";
 import jsPDF from "jspdf";
 import QRCodeLib from "qrcode";
@@ -13,6 +12,13 @@ interface Column {
   render?: (value: any, row: any) => React.ReactNode;
 }
 
+interface ImageField {
+  accessor: string;
+  alt?: string;
+  size?: string;
+  rounded?: boolean;
+}
+
 type ActionType = "view" | "edit" | "delete";
 
 interface Action {
@@ -23,6 +29,7 @@ interface Action {
 interface ToggleField {
   accessor: string;
   invert?: boolean;
+  toggleSize?: string;
   onToggle: (row: any, newValue: boolean) => void;
 }
 
@@ -38,6 +45,7 @@ interface ReusableTableProps {
   actions?: Action[];
   toggleField?: ToggleField;
   qrField?: QRField;
+  imageField?: ImageField;
   loading: boolean;
   minWidth?: string;
 }
@@ -50,11 +58,13 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
   actions,
   toggleField,
   qrField,
+  imageField,
   loading,
   minWidth = "min-w-[1100px]",
 }) => {
   const colSpan =
     columns.length +
+    (imageField ? 1 : 0) +
     (actions ? 1 : 0) +
     (toggleField ? 1 : 0) +
     (qrField?.enabled ? 1 : 0);
@@ -104,6 +114,10 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-700">
+                {imageField && (
+                  <th className="py-4 px-6 text-gray-300 font-semibold"></th>
+                )}
+
                 {columns.map((col, index) => (
                   <th
                     key={index}
@@ -149,6 +163,24 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                     key={row._id || row.id || row.tableNo}
                     className="border-b border-gray-700 hover:bg-gray-800 transition"
                   >
+                    {imageField && (
+                      <td className="py-4 px-6">
+                        {row[imageField.accessor] ? (
+                          <img
+                            src={row[imageField.accessor]}
+                            alt="User Avatar"
+                            className="w-10 h-10 rounded-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <User className="w-5 h-5 text-gray-500" />
+                          </div>
+                        )}
+                      </td>
+                    )}
                     {/* DATA COLUMNS */}
                     {columns.map((col, idx) => (
                       <td key={idx} className="py-4 px-6 text-gray-300">
@@ -199,16 +231,26 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                           const checked = toggleField.invert ? !raw : raw;
 
                           return (
-                            <label className="inline-flex items-center cursor-pointer relative ml-8">
-                              <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={checked}
-                                onChange={() => toggleField.onToggle(row, !raw)}
-                              />
-                              <div className="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-green-500 transition"></div>
-                              <div className="w-5 h-5 bg-white rounded-full absolute left-1 top-0.5 peer-checked:translate-x-5 transition"></div>
-                            </label>
+                            <div
+                              className={`pl-${
+                                toggleField.toggleSize
+                                  ? toggleField.toggleSize
+                                  : ""
+                              }`}
+                            >
+                              <label className="inline-flex items-center cursor-pointer relative ml-8">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={checked}
+                                  onChange={() =>
+                                    toggleField.onToggle(row, !raw)
+                                  }
+                                />
+                                <div className="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-green-500 transition"></div>
+                                <div className="w-5 h-5 bg-white rounded-full absolute left-1 top-0.5 peer-checked:translate-x-5 transition"></div>
+                              </label>
+                            </div>
                           );
                         })()}
                       </td>

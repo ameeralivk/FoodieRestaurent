@@ -1,9 +1,7 @@
-PATCH  http://localhost:3000/api/admin/table/694019afd0077e8be1e32cab
+### Block user
+GET http://localhost:3000/api/superadmin/user
 Content-Type: application/json
 
 {
-  "isAvailable": true
+  "isBlocked": false
 }
-
-
-

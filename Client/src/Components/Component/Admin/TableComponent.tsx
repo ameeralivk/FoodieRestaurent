@@ -100,7 +100,7 @@ const TableComponent = () => {
       "Cancel"
     );
     if (!confirmed) return;
-    const newValue = !value;
+    const newValue = value;
     const changeStatus = async () => {
       try {
         const res = await changeTableAvailability(newValue, row._id);
@@ -117,7 +117,7 @@ const TableComponent = () => {
                 ...oldData,
                 data: oldData.data.map((table) =>
                   table._id === row._id
-                    ? { ...table, isAvailable: !newValue }
+                    ? { ...table, isAvailable: newValue }
                     : table
                 ),
               };

@@ -10,6 +10,7 @@ export interface IMappedUserData {
   dietaryRestriction?: string;
   imageUrl: string;
   isBlocked: boolean;
+  createdAt?:Date;
 }
 
 export interface IUserResponseDto {
@@ -31,4 +32,18 @@ export const mapUserToDto = (user: IUser): IUserResponseDto => {
       isBlocked: user.isBlocked
     }
   };
+};
+
+export const mapUserDto = (user: IUser): IMappedUserData => {
+  return {
+      id: user._id.toString(),
+      name: user.Name,
+      email: user.Email,
+      phone: user.phone,
+      allergies: user.Allergies,
+      dietaryRestriction: user.DietaryRestriction,
+      imageUrl: user.imageUrl,
+      isBlocked: user.isBlocked,
+      createdAt:user.createdAt
+    }
 };

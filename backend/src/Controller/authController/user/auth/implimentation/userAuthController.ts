@@ -1,5 +1,5 @@
 import { IUserAuthController } from "../interface/IUserAuthController";
-import IUserAuthService from "../../../../../services/user/auth/interface/IUserAuthService";
+import IUserAuthService from "../../../../../services/userAuthService/auth/interface/IUserAuthService";
 import { Request, Response, NextFunction } from "express";
 import HttpStatus from "../../../../../constants/htttpStatusCode";
 import { AppError } from "../../../../../utils/Error";

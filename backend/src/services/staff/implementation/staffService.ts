@@ -16,7 +16,6 @@ import { AppError } from "../../../utils/Error";
 import { mapStaffToDTO } from "../../../utils/dto/staffDto";
 import { StaffRequestSchema } from "../../../helpers/zodvalidation";
 import HttpStatus from "../../../constants/htttpStatusCode";
-import { IAdminPlanRepository } from "../../../Repositories/planRepositories/interface/IAdminPlanRepositories";
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 
@@ -25,7 +24,6 @@ const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 export class StaffService implements IStaffService {
   constructor(
     @inject(TYPES.staffRepository) private _staffRepo: IStaffRepository,
-    @inject(TYPES.AdminPlanRepository) private _planRepo: IAdminPlanRepository
   ) {}
   
   async addStaff(
@@ -50,10 +48,8 @@ export class StaffService implements IStaffService {
       "foodieRestaurent"
     );
      const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const planId = req.activePlan.planId;
     const restaurantId = req.activePlan.restaurentId;
-    const addlimit = await this._planRepo.find(planId);
-    const limit = addlimit?.noOfStaff;
+    const limit = req.activePlan.planSnapshot.noOfStaff
     const totalstaff = await this._staffRepo.getAllByRestaurantId(restaurantId);
     const totalStaffCount = totalstaff.data.length;
     if (totalStaffCount === limit) {

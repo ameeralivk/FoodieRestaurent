@@ -13,4 +13,5 @@ export interface IUser extends Document {
   imageUrl: string;
   isDeleted:boolean;
   isBlocked:boolean;
+  createdAt?:Date;
 }

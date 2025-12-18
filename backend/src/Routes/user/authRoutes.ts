@@ -1,6 +1,6 @@
 import express from "express";
-import { UserAuthRepository } from "../../Repositories/user/auth/implimentation/userRepository";
-import { UserAuthService } from "../../services/user/auth/implimentation/userAuthService";
+import { UserAuthRepository } from "../../Repositories/userAuth/auth/implimentation/userRepository";
+import { UserAuthService } from "../../services/userAuthService/auth/implimentation/userAuthService";
 import { UserAuthController } from "../../Controller/authController/user/auth/implimentation/userAuthController";
 import { asyncHandler } from "../../middleware/asyncHandler";
 import { container } from "../../DI/container";
