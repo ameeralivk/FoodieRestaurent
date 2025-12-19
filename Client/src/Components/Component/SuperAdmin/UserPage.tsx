@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ReusableTable from "../../Elements/Reusable/reusableTable";
 import Pagination from "../../Elements/Reusable/Pagination";
-import {  useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { changeUserStatus, getUsers } from "../../../services/user";
 import type { IUser } from "../../../types/userTypes";
 import { useEffect } from "react";
@@ -58,13 +58,13 @@ const UserPage = () => {
   });
 
   const updateUserStatus = async (row: any, value: boolean) => {
-     const confirmed = await showConfirm(
-          "Change this status?",
-          `Are you Wand to Change the Status?`,
-          "Change",
-          "Cancel"
-        );
-        if (!confirmed) return;
+    const confirmed = await showConfirm(
+      "Change this status?",
+      `Are you Wand to Change the Status?`,
+      "Change",
+      "Cancel"
+    );
+    if (!confirmed) return;
     const changeStatus = async () => {
       try {
         const res = await changeUserStatus(row.id, value);
@@ -106,7 +106,6 @@ const UserPage = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearch]);
-
   return (
     <div>
       <ToastContainer />
@@ -125,7 +124,7 @@ const UserPage = () => {
             title="Users"
             columns={columns}
             data={Users}
-            loading={loading||isLoading||isFetching}
+            loading={loading || isLoading || isFetching}
             minWidth="min-w-[100px]"
             imageField={{
               accessor: "imageUrl",

@@ -34,7 +34,7 @@ const SuperAdminSidebar: React.FC<SidebarProps> = ({
     {
       name: "Restaurant Management",
       icon: Building2,
-      path: "/superadmin/restaurent",
+      path: "/superadmin/restaurants",
     },
   ];
 

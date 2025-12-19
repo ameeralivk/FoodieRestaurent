@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import RestaurantRow from "../../Elements/SuperAdmin/AdminTableRow";
 import TableHeader from "../../Elements/SuperAdmin/TableHeader";
@@ -17,12 +16,14 @@ const Table: React.FC<{ children: React.ReactNode; className?: string }> = ({
     </div>
   );
 };
-
+interface TableExampleProps {
+  approval?: boolean;
+}
 const TableBody: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <tbody>{children}</tbody>;
 };
 
-export default function TableExample() {
+export default function TableExample({ approval }: TableExampleProps) {
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -45,7 +46,12 @@ export default function TableExample() {
   const fetchRestaurants = async () => {
     setLoading(true);
     try {
-      const response = await getAllRestaurent(page, limit, searchTerm);
+      const response = await getAllRestaurent(
+        approval ? approval : false,
+        page,
+        limit,
+        searchTerm
+      );
       if (response && response.success) {
         await new Promise((res) => setTimeout(res, 500)); // 0.5s delay
         setRestaurants(response.data);
@@ -57,12 +63,16 @@ export default function TableExample() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await getAllRestaurent(page, limit, searchTerm);
+        const response = await getAllRestaurent(
+          approval ? approval : false,
+          page,
+          limit,
+          searchTerm
+        );
         if (response && response.success) {
           await new Promise((res) => setTimeout(res, 300));
           setRestaurants(response.data);
@@ -154,8 +164,11 @@ export default function TableExample() {
                           contact: rest.contactNumber,
                           planName: rest.planName || "Free",
                           status: rest.status,
+                          startingTime: rest.openingTime,
+                          endingTime: rest.closingTime,
                           nextDueDate: rest.nextDueDate || "N/A",
                           amount: rest.amount || "N/A",
+                          subcription:rest.subscription,
                           restaurantImage: rest.restaurantPhoto
                             ? rest.restaurantPhoto
                             : undefined,

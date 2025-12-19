@@ -1,7 +1,7 @@
 import Admin, { AdminDocument } from "../../../models/admin";
 import { BaseRepository } from "../../IBaseRepository";
 import { IAdminAuthRepository } from "../interface/IAdminRepositories";
-import {IRestaurantRegisterData } from "../../../types/admin";
+import { IRestaurantRegisterData } from "../../../types/admin";
 import getPlaceName from "../../../config/getPlaceName";
 export class AdminAuthRepository
   extends BaseRepository<AdminDocument>
@@ -82,17 +82,23 @@ export class AdminAuthRepository
   }
 
   async getAllRestaurant(
+    approval: boolean,
     page: number,
     limit: number,
     filter: any = {}
   ): Promise<{ data: AdminDocument[]; total: number }> {
     try {
-      const finalFilter = {
+      let finalFilter: any = {
         ...filter,
         role: "admin",
-        status: { $exists: true , $ne:"approved"},
+        status: { $exists: true },
       };
-      return await this.getAll(finalFilter,{page,limit});
+      if (approval) {
+        finalFilter.status = { $nin: ["pending", "rejected" , "resubmited"] };
+      } else {
+        finalFilter.status = { $ne: "approved" };
+      }
+      return await this.getAll(finalFilter, { page, limit });
     } catch (error: any) {
       console.error("Error fetching restaurants:", error);
       throw error;

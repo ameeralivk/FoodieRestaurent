@@ -1,8 +1,31 @@
-
-
 export interface TableColumn {
   header: string;
   className?: string;
+}
+
+export interface IPlanSnapshot {
+  duration: string;          
+  features: string[];         
+  noOfDishes: number;
+  noOfStaff: number;
+  planName: string;
+  planPrice: number;
+}
+
+export interface ISubscription {
+  _id: string;
+  restaurentId: string;
+  planId: string;
+  planName: string;
+  planPrice: number;
+  planSnapshot: IPlanSnapshot;
+  startDate: string;         
+  renewalDate: string;        
+  status:string;
+  stripeSessionId: string;
+  stripePaymentIntentId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 
@@ -10,8 +33,8 @@ export interface RestaurantApprovalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApprove: () => void;
-  loading:boolean;
-    data: {
+  loading: boolean;
+  data: {
     _id: string;
     restaurantName: string;
     location: string;
@@ -20,23 +43,25 @@ export interface RestaurantApprovalModalProps {
     planName: string;
     status: string;
     nextDueDate: string;
+    startingTime: string;
+    endingTime: string;
+    subcription:ISubscription;
     amount: string;
     restaurantImage: string;
     verificationDocument: string;
-    rejectedAt:Date,
-    reason:string
+    rejectedAt: Date;
+    reason: string;
   };
 }
 
-
 export interface SubscriptionPlan {
-  _id?:string;
+  _id?: string;
   planName: string;
   price: number;
-  duration:string;     
-  noOfDishes:number; 
+  duration: string;
+  noOfDishes: number;
   noOfStaff: number;
-  features: string[];    
+  features: string[];
 }
 
 export interface Subscription {
@@ -46,4 +71,3 @@ export interface Subscription {
   duration: string;
   features: string[];
 }
-

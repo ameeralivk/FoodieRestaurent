@@ -5,15 +5,21 @@ import { AppError } from "../../../utils/Error";
 import { SuperadminDataMapping } from "../../../utils/dto/SuperAdminDto";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../DI/types";
+import { ISubscriptionRepo } from "../../../Repositories/Subscription/Interface/ISubscriptionRepo";
 
 @injectable()
 export class SuperAdminService implements ISuperAdminService {
-  constructor(@inject(TYPES.AdminAuthRepository) private _adminAuthRepository: IAdminAuthRepository) {}
+  constructor(
+    @inject(TYPES.AdminAuthRepository)
+    private _adminAuthRepository: IAdminAuthRepository,
+    @inject(TYPES.SubcriptionRepo) private _subcriptionRepo: ISubscriptionRepo
+  ) {}
 
   async getAllRestaurants(
+    approval: boolean,
     page: number,
     limit: number,
-    filter:string
+    filter: string
   ): Promise<{
     success: boolean;
     data: IMappedAdminData[];
@@ -26,16 +32,27 @@ export class SuperAdminService implements ISuperAdminService {
   }> {
     try {
       const { data, total } = await this._adminAuthRepository.getAllRestaurant(
+        approval,
         page,
         limit,
         filter
       );
+
       const mappedRestaurants = data.map((restaurant) =>
         SuperadminDataMapping(restaurant)
       );
+      const subcription = await Promise.all(
+        mappedRestaurants.map((x) =>
+          this._subcriptionRepo.findActivePlan(x._id.toString())
+        )
+      );
+      const finalData = mappedRestaurants.map((restaurant, index) => ({
+        ...restaurant,
+        subscription: subcription[index] || null,
+      }));
       return {
         success: true,
-        data: mappedRestaurants,
+        data: finalData,
         pagination: {
           total,
           totalPages: Math.ceil(total / limit),
@@ -74,5 +91,4 @@ export class SuperAdminService implements ISuperAdminService {
     });
     return updated;
   }
-
 }

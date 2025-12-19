@@ -4,6 +4,7 @@ import SuperAdminRoute from "./SuperAdmin/SuperAdminPrivateRoute";
 import ApprovalPage from "../Pages/superAdmin/ApprovalPage";
 import SubscriptionPage from "../Pages/superAdmin/Subscription";
 import SuperAdminUserPage from "../Pages/superAdmin/userPage";
+import RestuarantPage from "../Pages/superAdmin/RestuarantPage";
 const SuperAdminRoutes = () => {
   return (
     <div>
@@ -14,6 +15,7 @@ const SuperAdminRoutes = () => {
           <Route path="/approval" element={<ApprovalPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/users" element={<SuperAdminUserPage/>}/>
+          <Route path="/restaurants" element={<RestuarantPage/>}/>
         </Route>
       </Routes>
     </div>

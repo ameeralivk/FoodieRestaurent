@@ -1,4 +1,3 @@
-
 import React from "react";
 import { X } from "lucide-react";
 import type { RestaurantApprovalModalProps } from "../../../types/SuperAdmin";
@@ -48,6 +47,7 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
       }
     }
   };
+  console.log(data, "data is here");
   const handleReject = async () => {
     if (!data?._id) return;
     if (rejectReason === "") {
@@ -160,7 +160,7 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
                           <div>
                             <p className="text-xs text-gray-500">Plan Name</p>
                             <p className="text-sm text-white">
-                              {data.planName}
+                              {data?.subcription?.planName || "N/A"}
                             </p>
                           </div>
                           <div>
@@ -172,14 +172,36 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
                               Next Due Date
                             </p>
                             <p className="text-sm text-white">
-                              {data.nextDueDate}
+                              {new Date(
+                                data?.subcription?.renewalDate
+                              ).toLocaleDateString("en-IN")=="Invalid Date"?"N/A":new Date(
+                                data?.subcription?.renewalDate
+                              ).toLocaleDateString("en-IN")}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-gray-500">
                               Monthly Cost
                             </p>
-                            <p className="text-sm text-white">{data.amount}</p>
+                            <p className="text-sm text-white">
+                              {data?.subcription?.planPrice || "N/A"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">
+                              Opening Time
+                            </p>
+                            <p className="text-sm text-white">
+                              {data.startingTime}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">
+                              Closing Time
+                            </p>
+                            <p className="text-sm text-white">
+                              {data.endingTime}
+                            </p>
                           </div>
                         </div>
                       </div>
