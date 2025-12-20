@@ -120,11 +120,12 @@ export class AdminAuthController implements IAdminAuthController {
         data: mapedAdmin,
         accesstoken,
       });
-    } catch (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .json({ success: false, message: "Google auth failed" });
+    } catch (error:any) {
+      // console.error(error);
+      // return res
+      //   .status(500)
+      //   .json({ success: false, message: "Google auth failed" });
+      throw new AppError(error.message)
     }
   };
 

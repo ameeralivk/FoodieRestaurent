@@ -1,7 +1,8 @@
 ### Block user
-GET http://localhost:3000/api/superadmin/user
+PATCH    http://localhost:3000/api/superadmin/items/6946643784d3f0912f71142e/status
 Content-Type: application/json
 
 {
-  "isBlocked": false
+ "isActive":true
 }
+

@@ -18,7 +18,7 @@ const RestaurantPage = () => {
 
         <div className="flex-1 bg-neutral-900 p-6 overflow-y-auto">
           <div className="bg-amber-500 w-full h-full rounded-xl">
-            <AdminApprovalTable approval={true}  />
+            <AdminApprovalTable  />
           </div>
         </div>
       </div>

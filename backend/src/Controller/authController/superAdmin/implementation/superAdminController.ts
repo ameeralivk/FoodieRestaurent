@@ -3,6 +3,7 @@ import ISuperAdminController from "../interface/ISuperAdminController";
 import { Request, Response } from "express";
 import { TYPES } from "../../../../DI/types";
 import { inject, injectable } from "inversify";
+import { AppError } from "../../../../utils/Error";
 @injectable()
 export class SuperAdminController implements ISuperAdminController {
   constructor(
@@ -15,7 +16,8 @@ export class SuperAdminController implements ISuperAdminController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const search = (req.query.searchTerm as string) || "";
-      const approval = req.query.approval === "true" || req.query.approval === "1";
+      const approval =
+        req.query.approval === "true" || req.query.approval === "1";
       const filter: any = { role: "admin", status: { $exists: true } };
       if (search) {
         filter.$or = [
@@ -86,4 +88,27 @@ export class SuperAdminController implements ISuperAdminController {
       });
     }
   };
+
+  changeStatus = async(req: Request, res: Response): Promise<Response> => {
+    try {
+      const { restaurantId, status } = req.params;
+
+      const updatedRestaurant =
+        await this._superAdminService.changeRestaurantStatus(
+          restaurantId as string,
+          status as string
+        );
+
+     return res.status(200).json({
+        success: true,
+        message:
+          status === "block"
+            ? "Restaurant blocked successfully"
+            : "Restaurant unblocked successfully",
+        data: updatedRestaurant,
+      });
+    } catch (error:any) {
+      throw new AppError(error.message)
+    }
+  }
 }

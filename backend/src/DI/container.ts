@@ -29,6 +29,9 @@ import { TableService } from "../services/tableService/implementation/tableServi
 import { UserController } from "../Controller/userController/implementation/userController";
 import { UserService } from "../services/user/implementation/userService";
 import { UserRepository } from "../Repositories/user/implimentation/userRepository";
+import { ItemController } from "../Controller/itemController/implementation/itemController";
+import { ItemsService } from "../services/itemService/implementation/itemsService";
+import { ItemsRepository } from "../Repositories/items/implementation/implementation";
 
 const container = new Container();
 //payment
@@ -75,4 +78,10 @@ container.bind(TYPES.tableService).to(TableService);
 container.bind(TYPES.userController).to(UserController);
 container.bind(TYPES.userService).to(UserService);
 container.bind(TYPES.userRepository).to(UserRepository)
+
+
+//items
+container.bind(TYPES.itemsController).to(ItemController);
+container.bind(TYPES.itemsService).to(ItemsService);
+container.bind(TYPES.itemsRepository).to(ItemsRepository)
 export { container };

@@ -6,6 +6,7 @@ import { PlanController } from "../../Controller/SuperAdmin/planController/Impli
 import { container } from "../../DI/container";
 import { TYPES } from "../../DI/types";
 import { UserController } from "../../Controller/userController/implementation/userController";
+import { ItemController } from "../../Controller/itemController/implementation/itemController";
 
 const superAdminController = container.get<SuperAdminController>(
   TYPES.SuperAdminController
@@ -15,6 +16,7 @@ const superAdminPlanController = container.get<PlanController>(
 );
 
 const userController = container.get<UserController>(TYPES.userController);
+const itemsController = container.get<ItemController>(TYPES.itemsController);
 
 const router = exprees.Router();
 router
@@ -22,13 +24,13 @@ router
   .get(verifyAccessToken, asyncHandler(superAdminController.getAllRestaurent));
 
 router
-  .route("/approve/:id")
+  .route("/restaurent/approve/:id")
   .patch(
     verifyAccessToken,
     asyncHandler(superAdminController.approveRestaurant)
   );
 router
-  .route("/reject/:id")
+  .route("/restaurent/reject/:id")
   .patch(
     verifyAccessToken,
     asyncHandler(superAdminController.rejectRestaurant)
@@ -45,7 +47,32 @@ router
   .delete(verifyAccessToken, asyncHandler(superAdminPlanController.delPlan));
 
 //users
-router.route("/user").get(verifyAccessToken,asyncHandler(userController.getAllUsers));
-router.route("/user/:userId/status").patch(verifyAccessToken,asyncHandler(userController.updateUserStatus));
+router
+  .route("/user")
+  .get(verifyAccessToken, asyncHandler(userController.getAllUsers));
+router
+  .route("/user/:userId/status")
+  .patch(verifyAccessToken, asyncHandler(userController.updateUserStatus));
+
+//items
+router
+  .route("/items")
+  .post(asyncHandler(itemsController.addItems));
+
+router
+  .route("/items/:itemId")
+  .patch(asyncHandler(itemsController.editItem))
+  .delete(asyncHandler(itemsController.deleteItem))
+
+router
+  .route("/items/:itemId/status")
+  .patch(asyncHandler(itemsController.changeStatus))
+
+
+//Block and unblock restaurant
+
+router
+  .route("/restaurant/:restaurantId/:status")
+  .patch(asyncHandler(superAdminController.changeStatus));
 
 export default router;

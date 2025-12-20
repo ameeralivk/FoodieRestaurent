@@ -56,5 +56,15 @@ export const MESSAGES = {
   USER_FETCHED_SUCCESS:"User fetched Successfully",
   USER_BLOCKED_SUCCESS:"User blocked Successfully",
   USER_UNBLOCKED_SUCESS:"User unblocked Successfully",
-  USER_FAILED_UPDATE_STATUS:"User status updation Failed"
+  USER_FAILED_UPDATE_STATUS:"User status updation Failed",
+  ITEM_ADDED_SUCCESS:"Item added successfully",
+  ITEM_ADDED_FAILED:"Items added failed",
+  ITEM_EDITED_SUCCESS:"Item updated successfully",
+  ITEM_EDITED_FAILED:"Item updated Failed",
+  ITEM_NOT_FOUND:"Item not found",
+  ITEM_DEL_SUCCESS:"Item deleted successfully",
+  ITEM_DEL_FAILED:"Item deleted Failed",
+  ADMIN_BLOCKED:"The Restaurant has been blocked by the super admin",
+  ITEM_STATUS_CHANGE_FAILED:"Item status change Failed",
+  ITEM_STATUS_CHANGE_SUCCESS:"Item status change Success"
 };

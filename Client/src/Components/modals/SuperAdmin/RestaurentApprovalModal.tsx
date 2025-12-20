@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import handleDownload from "../../../utils/superAdmin/download";
 import ErrorPTag from "../../Elements/ErrorParagraph";
+import { changeRestaurantStatus } from "../../../services/SuperAdmin.restaurent";
 const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
   isOpen,
   onClose,
@@ -47,7 +48,39 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
       }
     }
   };
-  console.log(data, "data is here");
+
+  const handleStatusChange = async () => {
+    if (!data?._id) return;
+
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to ${
+        data.isBlocked ? "UnBlock" : "Block"
+      } this restaurant?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: `Yes, ${data.isBlocked ? "UnBlock" : "Block"} it!`,
+      cancelButtonText: "Cancel",
+    });
+    if (result.isConfirmed) {
+      try {
+        let res = await changeRestaurantStatus(data._id, !data.isBlocked);
+        console.log(res, "result is her here al");
+        Swal.fire(
+          "Approved!",
+          `Restaurant has been ${data.isBlocked ? "UnBlock" : "Block"} .`,
+          "success"
+        );
+        onApprove();
+        onClose();
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error!", "Failed to approve the restaurant.", "error");
+      }
+    }
+  };
   const handleReject = async () => {
     if (!data?._id) return;
     if (rejectReason === "") {
@@ -66,7 +99,7 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
     });
     if (result.isConfirmed) {
       try {
-        await rejectRestaurant(data._id, rejectReason);
+        // await rejectRestaurant(data._id, rejectReason);
         Swal.fire("rejected!", "Restaurant has been rejected.", "success");
         onApprove();
         onClose();
@@ -76,6 +109,7 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
       }
     }
   };
+  console.log(data, "ano");
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div className="bg-neutral-900 rounded-lg w-full max-w-5xl max-h-[90vh] overflow-y-auto">
@@ -174,9 +208,11 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
                             <p className="text-sm text-white">
                               {new Date(
                                 data?.subcription?.renewalDate
-                              ).toLocaleDateString("en-IN")=="Invalid Date"?"N/A":new Date(
-                                data?.subcription?.renewalDate
-                              ).toLocaleDateString("en-IN")}
+                              ).toLocaleDateString("en-IN") == "Invalid Date"
+                                ? "N/A"
+                                : new Date(
+                                    data?.subcription?.renewalDate
+                                  ).toLocaleDateString("en-IN")}
                             </p>
                           </div>
                           <div>
@@ -335,6 +371,27 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
               </p>
             </div>
           )}
+          {data?.status !== "pending" &&
+            data?.status !== "rejected" &&
+            data?.status !== "resubmited" && (
+              <div>
+                {data?.isBlocked ? (
+                  <button
+                    onClick={handleStatusChange}
+                    className="bg-green-600 ml-18 cursor-pointer w-[800px] h-10 mt-4 rounded-md"
+                  >
+                    UnBlock
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleStatusChange}
+                    className="bg-red-600 ml-18 cursor-pointer w-[800px] h-10 mt-4 rounded-md"
+                  >
+                    Block
+                  </button>
+                )}
+              </div>
+            )}
         </div>
       </div>
     </div>

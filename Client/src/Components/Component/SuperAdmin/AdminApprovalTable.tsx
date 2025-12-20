@@ -39,6 +39,7 @@ export default function TableExample({ approval }: TableExampleProps) {
     { header: "Owner" },
     { header: "Location" },
     { header: "Subscription Plan" },
+    { header: "Blocked" },
     { header: "Status" },
     { header: "Action" },
   ];
@@ -47,13 +48,13 @@ export default function TableExample({ approval }: TableExampleProps) {
     setLoading(true);
     try {
       const response = await getAllRestaurent(
-        approval ? approval : false,
+        approval == false ? approval : false,
         page,
         limit,
         searchTerm
       );
       if (response && response.success) {
-        await new Promise((res) => setTimeout(res, 500)); // 0.5s delay
+        await new Promise((res) => setTimeout(res, 500));
         setRestaurants(response.data);
         setTotal(response.pagination.total);
       }
@@ -165,10 +166,11 @@ export default function TableExample({ approval }: TableExampleProps) {
                           planName: rest.planName || "Free",
                           status: rest.status,
                           startingTime: rest.openingTime,
+                          isBlocked: rest.isBlocked,
                           endingTime: rest.closingTime,
                           nextDueDate: rest.nextDueDate || "N/A",
                           amount: rest.amount || "N/A",
-                          subcription:rest.subscription,
+                          subcription: rest.subscription,
                           restaurantImage: rest.restaurantPhoto
                             ? rest.restaurantPhoto
                             : undefined,

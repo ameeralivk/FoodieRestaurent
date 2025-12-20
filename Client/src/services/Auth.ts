@@ -109,8 +109,8 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
         } else {
           showErrorToast("Google authentication failed!");
         }
-      } catch (err) {
-        showErrorToast("Google login failed!");
+      } catch (err:any) {
+        showErrorToast(err?.response?.data?.message||"Google Authentication Failed");
       }
     },
     onError: () => showErrorToast("Google authentication failed"),

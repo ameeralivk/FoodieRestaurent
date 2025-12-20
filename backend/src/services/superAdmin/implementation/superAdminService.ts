@@ -91,4 +91,27 @@ export class SuperAdminService implements ISuperAdminService {
     });
     return updated;
   }
+
+  async changeRestaurantStatus(restaurantId: string, status: string) {
+    let isBlocked: boolean;
+
+    if (status === "block") {
+      isBlocked = true;
+    } else if (status === "unblock") {
+      isBlocked = false;
+    } else {
+      throw new Error("Invalid status value");
+    }
+
+    const updatedRestaurant = await this._adminAuthRepository.changeStatus(
+      restaurantId,
+      isBlocked
+    );
+
+    if (!updatedRestaurant) {
+      throw new Error("Restaurant not found");
+    }
+
+    return updatedRestaurant;
+  }
 }

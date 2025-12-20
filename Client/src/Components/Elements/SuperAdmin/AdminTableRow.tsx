@@ -80,6 +80,7 @@ const RestaurantRow: React.FC<RestaurantRowProps> = ({
   owner,
   location,
   plan,
+  isBlocked,
   status,
   onView,
 }) => {
@@ -89,7 +90,7 @@ const RestaurantRow: React.FC<RestaurantRowProps> = ({
       <TableCell>{owner}</TableCell>
       <TableCell>{location}</TableCell>
       <TableCell>{plan}</TableCell>
-
+      <TableCell>{isBlocked ? "true" : "false"}</TableCell>
       <TableCell>
         <StatusBadge status={status} />
       </TableCell>

@@ -26,7 +26,10 @@ const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 
 @injectable()
 export class AdminAuthService implements IAdminAuthService {
-  constructor(@inject(TYPES.AdminAuthRepository) private _adminAuthRepository: IAdminAuthRepository) {}
+  constructor(
+    @inject(TYPES.AdminAuthRepository)
+    private _adminAuthRepository: IAdminAuthRepository
+  ) {}
 
   async register(
     restaurantName: string,
@@ -65,6 +68,9 @@ export class AdminAuthService implements IAdminAuthService {
     });
     const { sub, name, email, picture } = response.data;
     let admin = await this._adminAuthRepository.findByEmail(email);
+    if(admin?.isBlocked){
+      throw new AppError(MESSAGES.ADMIN_BLOCKED)
+    }
     if (!admin) {
       const result = await this._adminAuthRepository.register({
         restaurantName: "",
@@ -186,6 +192,9 @@ export class AdminAuthService implements IAdminAuthService {
     password: string
   ): Promise<{ mapedAdmin: AdminDTO; token: string; refreshToken: string }> {
     const admin = await this._adminAuthRepository.findByEmail(email);
+    if(admin?.isBlocked){
+      throw new AppError(MESSAGES.ADMIN_BLOCKED)
+    }
     if (!admin) {
       throw new AppError(MESSAGES.ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
@@ -298,10 +307,9 @@ export class AdminAuthService implements IAdminAuthService {
     }
     const updatedAdmin = await this._adminAuthRepository.updateById(adminId, {
       proofDocument: file,
-      status:"resubmitted"
+      status: "resubmitted",
     });
 
     return { success: true, message: MESSAGES.DOC_IMAGE_UPDATED };
   }
-
 }

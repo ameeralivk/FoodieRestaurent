@@ -25,5 +25,5 @@ export interface IAdminAuthRepository {
   ): Promise<AdminDocument | null>;
   getAllRestaurant(approval:boolean,page:number,limit:number,filter:string): Promise<{data: AdminDocument[]; total: number }>;
   updateById(id: string, updateData: Partial<AdminDocument>): Promise<AdminDocument | null>
-
+  changeStatus(id:string,isBlocked:boolean):Promise<AdminDocument|null>
 }

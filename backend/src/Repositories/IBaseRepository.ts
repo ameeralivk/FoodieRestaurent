@@ -56,13 +56,32 @@ export class BaseRepository<T> {
     const [data, total] = await Promise.all([dataPromise, totalPromise]);
     return { data, total };
   }
-  async findByIdAndDel(id: string): Promise<T | null> {
-    try {
-      return await this.model.findByIdAndDelete(id);
-    } catch (error: any) {
-      throw new Error(error.message);
+  // async findByIdAndDel(id: string): Promise<T | null> {
+  //   try {
+  //     return await this.model.findByIdAndDelete(id);
+  //   } catch (error: any) {
+  //     throw new Error(error.message);
+  //   }
+  // }
+  async findByIdAndDel(
+  id: string,
+  statusField?: keyof T,
+  statusValue: boolean = false
+): Promise<T | null> {
+  try {
+    if (statusField) {
+      return await this.model.findByIdAndUpdate(
+        id,
+        { [statusField]: statusValue } as UpdateQuery<T>,
+        { new: true }
+      );
     }
+    return await this.model.findByIdAndDelete(id);
+  } catch (error: any) {
+    throw new Error(error.message);
   }
+}
+
   async findByEmail(email: string): Promise<T | null> {
     try {
       return await this.model.findOne({email,status:true})

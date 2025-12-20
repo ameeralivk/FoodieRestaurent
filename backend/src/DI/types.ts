@@ -28,5 +28,7 @@ export const TYPES = {
   userController:Symbol("userController"),
   userService:Symbol("userService"),
   userRepository:Symbol("userRepository"),
-
+  itemsController:Symbol("itemsController"),
+  itemsService:Symbol("itemsService"),
+  itemsRepository:Symbol("itemsRepository")
 };

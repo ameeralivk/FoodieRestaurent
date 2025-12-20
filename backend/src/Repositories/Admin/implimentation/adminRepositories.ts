@@ -40,7 +40,7 @@ export class AdminAuthRepository
     }
   }
   async findByEmail(email: string) {
-    return await this.getByFilter({ email: email, isDeleted: false });
+    return await this.getByFilter({ email: email, isDeleted: false});
   }
   async findById(id: string) {
     return await this.getById(id);
@@ -94,9 +94,9 @@ export class AdminAuthRepository
         status: { $exists: true },
       };
       if (approval) {
-        finalFilter.status = { $nin: ["pending", "rejected" , "resubmited"] };
-      } else {
         finalFilter.status = { $ne: "approved" };
+      } else {
+        finalFilter.status = { $nin: ["pending", "rejected" , "resubmited"] };
       }
       return await this.getAll(finalFilter, { page, limit });
     } catch (error: any) {
@@ -110,5 +110,16 @@ export class AdminAuthRepository
     updateData: Partial<AdminDocument>
   ): Promise<AdminDocument | null> {
     return this.findByIdAndUpdate(id, updateData);
+  }
+
+
+  async changeStatus(
+    restaurantId: string,
+    isBlocked: boolean
+  ): Promise<AdminDocument | null> {
+    return await this.findByIdAndUpdate(
+      restaurantId,
+      { $set: { isBlocked } } 
+    );
   }
 }

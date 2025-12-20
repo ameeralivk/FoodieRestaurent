@@ -18,7 +18,7 @@ const ApprovalPage = () => {
 
         <div className="flex-1 bg-neutral-900 p-6 overflow-y-auto">
           <div className="bg-amber-500 w-full h-full rounded-xl">
-            <AdminApprovalTable />
+            <AdminApprovalTable approval={true} />
           </div>
         </div>
       </div>

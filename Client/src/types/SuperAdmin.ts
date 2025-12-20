@@ -40,6 +40,7 @@ export interface RestaurantApprovalModalProps {
     location: string;
     owner: string;
     contact: string;
+    isBlocked:boolean;
     planName: string;
     status: string;
     nextDueDate: string;
