@@ -30,5 +30,11 @@ export const TYPES = {
   userRepository:Symbol("userRepository"),
   itemsController:Symbol("itemsController"),
   itemsService:Symbol("itemsService"),
-  itemsRepository:Symbol("itemsRepository")
+  itemsRepository:Symbol("itemsRepository"),
+  categoryController:Symbol("categoryController"),
+  categoryService:Symbol("categoryService"),
+  categoryRepository:Symbol("categoryRepository"),
+  subCategoryRepository:Symbol("subCategoryRepository"),
+  subCategoryService:Symbol("subCategoryService"),
+  SubCategoryController:Symbol("subCategoryController")
 };

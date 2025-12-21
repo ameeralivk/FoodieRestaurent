@@ -1,3 +1,4 @@
+import SubCategory from "../models/subcategory";
 
 
 export const MESSAGES = {
@@ -66,5 +67,24 @@ export const MESSAGES = {
   ITEM_DEL_FAILED:"Item deleted Failed",
   ADMIN_BLOCKED:"The Restaurant has been blocked by the super admin",
   ITEM_STATUS_CHANGE_FAILED:"Item status change Failed",
-  ITEM_STATUS_CHANGE_SUCCESS:"Item status change Success"
+  ITEM_STATUS_CHANGE_SUCCESS:"Item status change Success",
+  ITEM_FETCHED_SUCCESS:"Items fetched successfully",
+  ITEM_FETCHED_FAILED:"Items fetched Failed",
+  CATEGORY_ALREADY_EXISTS:"Category Already Exist",
+  CATEGORY_ADDED_SUCCESS:"Category Added Successfully",
+  CATEGORY_ADDED_FAILED:"Category Added Failed",
+  CATEGORY_NOT_FOUND:"Category not Found",
+  CATEGORY_UPDATED_SUCCESS:"Category updated Successfully",
+  CATEGORY_UPDATED_FAILED:"Category updated Failed",
+  CATEGORY_DEL_SUCCESS:"Category deleted Success",
+  CATEGORY_DEL_FAILED:"Category deleted Failed",
+  CATEGORY_ALREADY_DEL:"Category is already deleted",
+  SUBCATEGORY_ADDED_SUCCESS:"Subcategory Added Successfully",
+  SUBCATEGORY_ADDED_FAILED:"Subcategory Added Failed",
+  SUBCATEGORY_EDITED_SUCCESS:"Subcategory Edited Successfully",
+  SUBCATEGORY_EDITED_FAILED:"Subcategory Edited Failed",
+  SUBCATEGORY_NOT_FOUND:"Subcategory Not Found",
+  SUBCATEGORY_DEL_SUCCESS:"Subcategory deleted Successfully",
+  SUBCATEGORY_DEL_FAILED:"Subcategory deleted Failed",
+  SUBCATGORY_NOT_FOUND:"Subcategory not found",
 };

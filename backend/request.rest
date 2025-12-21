@@ -1,8 +1,11 @@
 ### Block user
-PATCH    http://localhost:3000/api/superadmin/items/6946643784d3f0912f71142e/status
+GET   http://localhost:3000/api/superadmin/subcategory/692ea36738a54f8d01ed6747
 Content-Type: application/json
 
 {
- "isActive":true
+ "name":"Ravi",
+ "description":"drink 9",
+ "categoryId":"692ea36738a54f8d01ed6757",
+ "restaurantId":"692ea36738a54f8d01ed6747"
 }
 

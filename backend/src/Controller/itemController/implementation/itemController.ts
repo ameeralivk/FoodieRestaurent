@@ -59,42 +59,68 @@ export class ItemController implements IItemController {
     try {
       const { itemId } = req.params;
       const item = await this._itemsService.deleteItem(itemId as string);
-      if(item){
+      if (item) {
         return res.status(HttpStatus.OK).json({
-        success: true,
-        message: MESSAGES.ITEM_DEL_SUCCESS,
-      });
-      }else{
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        success:false,
-        message: MESSAGES.ITEM_DEL_FAILED,
-      });
+          success: true,
+          message: MESSAGES.ITEM_DEL_SUCCESS,
+        });
+      } else {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: MESSAGES.ITEM_DEL_FAILED,
+        });
       }
-     
     } catch (error: any) {
       throw new AppError(error.message);
     }
   };
 
-   changeStatus = async(req: Request, res: Response): Promise<Response> => {
+  changeStatus = async (req: Request, res: Response): Promise<Response> => {
     try {
-    const { itemId } = req.params;
-    const { isActive } = req.body;
+      const { itemId } = req.params;
+      const { isActive } = req.body;
 
-    const item = await this._itemsService.changeStatus(itemId as string, isActive);
-    if(item){
-      return res.status(HttpStatus.OK).json({
+      const item = await this._itemsService.changeStatus(
+        itemId as string,
+        isActive
+      );
+      if (item) {
+        return res.status(HttpStatus.OK).json({
+          success: true,
+          message: MESSAGES.ITEM_STATUS_CHANGE_SUCCESS,
+        });
+      } else {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: MESSAGES.ITEM_STATUS_CHANGE_FAILED,
+        });
+      }
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  };
+
+  getAllItems = async (req: Request, res: Response): Promise<Response> => {
+    try {
+    const { restaurantId } = req.params;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = req.query.search as string | undefined;
+     const result = await this._itemsService.getAllItemsByRestaurant(
+      restaurantId as string,
+      page,
+      limit,
+      search
+    );
+     return res.status(HttpStatus.OK).json({
       success: true,
-      message:MESSAGES.ITEM_STATUS_CHANGE_SUCCESS ,
+      message:MESSAGES.ITEM_FETCHED_SUCCESS ,
+      ...result,
+      page,
+      limit
     });
-    }else{
-      return res.status(HttpStatus.BAD_REQUEST).json({
-      success: false,
-      message: MESSAGES.ITEM_STATUS_CHANGE_FAILED,
-    });
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
-    } catch (error:any) {
-       throw new AppError(error.message)
-    }
-  }
+  };
 }

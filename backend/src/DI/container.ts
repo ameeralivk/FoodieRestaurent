@@ -32,6 +32,12 @@ import { UserRepository } from "../Repositories/user/implimentation/userReposito
 import { ItemController } from "../Controller/itemController/implementation/itemController";
 import { ItemsService } from "../services/itemService/implementation/itemsService";
 import { ItemsRepository } from "../Repositories/items/implementation/implementation";
+import { CategoryController } from "../Controller/categoryController/implementation/categoryController";
+import { CategoryService } from "../services/categoryService/implementation/categoryService";
+import { CategoryRepository } from "../Repositories/category/implementation/categoryRepository";
+import { SubCategoryController } from "../Controller/subCategoryController/implementation/subCategoryControlller";
+import { SubCategoryService } from "../services/subCategoryService/implementation/subCategoryService";
+import { SubCategoryRepository } from "../Repositories/subCategory/implementation/subCategoryRepository";
 
 const container = new Container();
 //payment
@@ -84,4 +90,17 @@ container.bind(TYPES.userRepository).to(UserRepository)
 container.bind(TYPES.itemsController).to(ItemController);
 container.bind(TYPES.itemsService).to(ItemsService);
 container.bind(TYPES.itemsRepository).to(ItemsRepository)
+
+
+
+//category
+container.bind(TYPES.categoryController).to(CategoryController)
+container.bind(TYPES.categoryService).to(CategoryService)
+container.bind(TYPES.categoryRepository).to(CategoryRepository)
+
+
+//subCategory
+container.bind(TYPES.SubCategoryController).to(SubCategoryController)
+container.bind(TYPES.subCategoryService).to(SubCategoryService)
+container.bind(TYPES.subCategoryRepository).to(SubCategoryRepository)
 export { container };

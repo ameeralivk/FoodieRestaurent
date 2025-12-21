@@ -128,3 +128,26 @@ export const StaffRequestSchema = z.object({
 
   password: z.string().min(6, "Password must be at least 6 characters").optional(),
 });
+
+
+
+export const createCategorySchema = z.object({
+  name: z.string().min(2, "Category name is required"),
+  description: z.string().min(3, "Category description is required"),
+});
+
+export const updateCategorySchema = z.object({
+  name: z.string().min(2).optional(),
+  description: z.string().optional(),
+  status: z.boolean().optional(),
+});
+
+
+
+export const createSubCategorySchema = z.object({
+  name: z.string().min(2),
+  description: z.string(),
+  restaurantId: z.string(),
+  categoryId: z.string(),
+});
+

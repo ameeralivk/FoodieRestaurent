@@ -44,4 +44,23 @@ export class ItemsRepository
   async changeStatus(id: string, isActive: boolean): Promise<IItemInterface | null> {
     return await this.findByIdAndUpdate(id,{isActive});
   }
+
+
+  async getAllByRestaurant(
+    restaurantId: string,
+    filter: FilterQuery<IItemInterface>,
+    page: number,
+    limit: number
+  ): Promise<{ data: IItemInterface[]; total: number }> {
+    return this.getAll(
+      {
+        restaurantId:restaurantId,
+        isDeleted: false,
+        ...filter
+      },
+      { page, limit }
+    );
+  }
+
+
 }

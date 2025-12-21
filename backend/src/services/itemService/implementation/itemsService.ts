@@ -5,6 +5,7 @@ import { TYPES } from "../../../DI/types";
 import { IItemInterface } from "../../../types/items";
 import { AppError } from "../../../utils/Error";
 import { MESSAGES } from "../../../constants/messages";
+import { FilterQuery } from "mongoose";
 
 @injectable()
 export class ItemsService implements IItemsService {
@@ -25,12 +26,10 @@ export class ItemsService implements IItemsService {
     return this._itemsRepo.createItem(data);
   }
 
-
-   async editItem(
+  async editItem(
     id: string,
     data: Partial<IItemInterface>
   ): Promise<IItemInterface> {
-
     const updated = await this._itemsRepo.editItem(id, data);
 
     if (!updated) {
@@ -40,9 +39,9 @@ export class ItemsService implements IItemsService {
     return updated;
   }
 
-   async deleteItem(id: string): Promise<IItemInterface> {
+  async deleteItem(id: string): Promise<IItemInterface> {
     const deleted = await this._itemsRepo.deleteItem(id);
-    console.log(deleted,'dele')
+    console.log(deleted, "dele");
     if (!deleted) {
       throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
     }
@@ -50,10 +49,7 @@ export class ItemsService implements IItemsService {
     return deleted;
   }
 
-   async changeStatus(
-    id: string,
-    isActive: boolean
-  ): Promise<IItemInterface> {
+  async changeStatus(id: string, isActive: boolean): Promise<IItemInterface> {
     const updated = await this._itemsRepo.changeStatus(id, isActive);
 
     if (!updated) {
@@ -63,4 +59,23 @@ export class ItemsService implements IItemsService {
     return updated;
   }
 
+  async getAllItemsByRestaurant(
+    restaurantId: string,
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<{ data: IItemInterface[]; total: number }> {
+    const filter: FilterQuery<IItemInterface> = {};
+
+    if (search) {
+      filter.name = { $regex: search, $options: "i" };
+    }
+
+    return this._itemsRepo.getAllByRestaurant(
+      restaurantId,
+      filter,
+      page,
+      limit
+    );
+  }
 }
