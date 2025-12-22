@@ -8,9 +8,13 @@ export interface ICategoryRepository {
     restaurantId: Types.ObjectId
   ): Promise<ICategory | null>;
   find(
-    categoryId: string,
+    categoryName: string,
     restaurantId: Types.ObjectId
   ): Promise<ICategory | null>;
+   findByCategoryId(
+      categoryId: Types.ObjectId,
+      restaurantId: Types.ObjectId
+    ): Promise<ICategory | null>
   findAndUpdate(
     id: string,
     data: Partial<ICategory>

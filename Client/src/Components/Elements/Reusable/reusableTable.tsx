@@ -43,6 +43,7 @@ interface ReusableTableProps {
   columns?: Column[];
   data?: any[];
   actions?: Action[];
+  actionStyle?: string;
   toggleField?: ToggleField;
   qrField?: QRField;
   imageField?: ImageField;
@@ -57,6 +58,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
   data = [],
   actions,
   toggleField,
+  actionStyle,
   qrField,
   imageField,
   loading,
@@ -182,15 +184,25 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                       </td>
                     )}
                     {/* DATA COLUMNS */}
-                    {columns.map((col, idx) => (
+                    {/* {columns.map((col, idx) => (
                       <td key={idx} className="py-4 px-6 text-gray-300">
+                        {renderValue(row[col.accessor], col, row)}
+                      </td>
+                    ))} */}
+                    {columns.map((col, idx) => (
+                      <td
+                        key={idx}
+                        className="py-4 px-6 text-gray-300 max-w-[200px] break-words whitespace-normal"
+                      >
                         {renderValue(row[col.accessor], col, row)}
                       </td>
                     ))}
 
                     {/* ACTIONS */}
                     {actions && (
-                      <td className="py-4 ml-10 px-6 flex gap-3">
+                      <td className="py-4 px-6 text-center">
+                       <div className={`flex items-center justify-center gap-3 ${actionStyle ?? ""}`}>
+
                         {actions.map((action, idx) => {
                           let icon = null;
                           let color = "";
@@ -220,6 +232,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                             </button>
                           );
                         })}
+                        </div>
                       </td>
                     )}
 

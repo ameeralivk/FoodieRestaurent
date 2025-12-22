@@ -6,6 +6,8 @@ import {
   FileText,
   Settings,
   Table,
+  LayoutGrid,
+  LayoutPanelTop,
 } from "lucide-react";
 
 const menuItems = [
@@ -13,6 +15,8 @@ const menuItems = [
   { name: "Subscription", icon: Crown, path: "/admin/subscriptionplan" },
   { name: "Staff", icon: Users, path: "/admin/staff" },
   { name: "Table", icon: Table, path: "/admin/table" },
+  {name:"Category",icon:LayoutGrid,path:"/admin/category"},
+  {name:"SubCategory",icon:LayoutPanelTop,path:"/admin/subcategory"},
   { name: "Analytics", icon: BarChart3 },
   { name: "Documents", icon: FileText },
   { name: "Settings", icon: Settings },

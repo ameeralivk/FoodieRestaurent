@@ -169,12 +169,6 @@ const TableComponent = () => {
   };
 
   const handleSearch = (query: string) => {
-    // setSearchQuery((prev) => {
-    //   if (prev !== query) {
-    //     setCurrentPage(1);
-    //   }
-    //   return query;
-    // });
     setSearchQuery(query);
   };
 
@@ -245,7 +239,7 @@ const TableComponent = () => {
     setModalErrors(validationErrors);
   };
   return (
-    <div className="">
+    <div>
       <ToastContainer />
       <header className="bg-[#111214] border-b border-gray-800/70 backdrop-blur-md shadow-md sticky top-0 z-20">
         <div className="max-w-9xl mx-auto px-6 py-5">

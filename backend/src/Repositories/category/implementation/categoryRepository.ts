@@ -24,7 +24,18 @@ export class CategoryRepository
   }
 
   async find(
-    categoryId: string,
+    categoryName: string,
+    restaurantId: Types.ObjectId
+  ): Promise<ICategory | null> {
+    return this.getByFilter({
+      name: categoryName,
+      restaurantId,
+      isDeleted: false,
+    });
+  }
+
+   async findByCategoryId(
+    categoryId: Types.ObjectId,
     restaurantId: Types.ObjectId
   ): Promise<ICategory | null> {
     return this.getByFilter({

@@ -63,7 +63,7 @@ export class SubCategoryController implements ISubCategoryController {
   ): Promise<Response> => {
     try {
       let result = await this._subCategoryService.deleteSubCategory(
-        req.params.id as string
+        req.params.categoryId as string
       );
       if (result) {
         return res.json({
@@ -104,11 +104,13 @@ export class SubCategoryController implements ISubCategoryController {
     }
   };
 
-   getAllByRestaurant = async(req: Request, res: Response):Promise<Response> => {
+  getAllByRestaurant = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
     try {
       const { restaurantId } = req.params;
-      const { search, page , limit } = req.query;
-
+      const { search, page, limit } = req.query;
       const result = await this._subCategoryService.getAllByRestaurant(
         restaurantId as string,
         search as string,
@@ -116,7 +118,7 @@ export class SubCategoryController implements ISubCategoryController {
         Number(limit)
       );
 
-     return res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Subcategories fetched successfully",
         ...result,
@@ -124,5 +126,5 @@ export class SubCategoryController implements ISubCategoryController {
     } catch (error: any) {
       throw new AppError(error.message);
     }
-  }
+  };
 }

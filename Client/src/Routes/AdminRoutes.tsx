@@ -13,6 +13,8 @@ import PaymentSuccessModal from "../Components/Component/Admin/PaymentSuccessmod
 import PaymentFailedPage from "../Components/Component/Admin/PaymentFailedModal";
 import StaffManagement from "../Pages/admin/StaffManagement";
 import TableManagement from "../Pages/admin/Table";
+import SubCategory from "../Pages/admin/SubCategory";
+import Category from "../Pages/admin/Category";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -71,6 +73,9 @@ const AdminRoutes = () => {
       />
       <Route path="/staff" element={<ProtectedRoute><StaffManagement/></ProtectedRoute>}/>
       <Route path="/table" element={<ProtectedRoute><TableManagement/></ProtectedRoute>} />
+      <Route path="/category" element={<ProtectedRoute><Category/></ProtectedRoute>}/>
+      <Route path="/subcategory" element={<ProtectedRoute><SubCategory/></ProtectedRoute>}/>
+
     </Routes>
   );
 };

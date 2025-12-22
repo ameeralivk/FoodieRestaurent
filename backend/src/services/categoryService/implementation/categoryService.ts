@@ -13,7 +13,7 @@ export class CategoryService implements ICategoryService{
     constructor(@inject(TYPES.categoryRepository)private _CategoryRepo:ICategoryRepository){}
 
     async addCategory(data:ICategoryAdd,restaurantId:string):Promise<{ success: boolean; message: string }> {
-     const restaurantObjectId = new Types.ObjectId(restaurantId)
+    const restaurantObjectId = new Types.ObjectId(restaurantId)
     const exists = await this._CategoryRepo.find(
       data.name.trim(),
       restaurantObjectId,
@@ -28,11 +28,10 @@ export class CategoryService implements ICategoryService{
 
   async editCategory(id: string,categoryId:string, data: Partial<ICategory>) {
     const restaurantObjectId = new Types.ObjectId(id)
-    if(data.name){
-    const exists = await this._CategoryRepo.find(categoryId,restaurantObjectId);
+     const categoryObjectId = new Types.ObjectId(categoryId)
+    const exists = await this._CategoryRepo.findByCategoryId(categoryObjectId,restaurantObjectId);
     if (!exists) {
       throw new AppError(MESSAGES.CATEGORY_NOT_FOUND)
-    }
     }
     await this._CategoryRepo.findAndUpdate(categoryId, data);
     return { success: true, message: MESSAGES.CATEGORY_UPDATED_SUCCESS };
@@ -41,7 +40,8 @@ export class CategoryService implements ICategoryService{
 
    async deleteCategory(categoryId: string,restaurantId:string):Promise<{success:boolean,message:string}> {
     const restaurantObjectId = new Types.ObjectId(restaurantId)
-    const exists = await this._CategoryRepo.find(categoryId,restaurantObjectId);
+    const categoryObjectId = new Types.ObjectId(categoryId)
+    const exists = await this._CategoryRepo.findByCategoryId(categoryObjectId,restaurantObjectId);
     if (!exists) {
         throw new AppError(MESSAGES.CATEGORY_NOT_FOUND)
     }
