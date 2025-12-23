@@ -35,7 +35,7 @@ export class ItemsRepository
 
   async deleteItem(id: string): Promise<IItemInterface | null> {
     try {
-      return await this.findByIdAndDel(id, "isDeleted", false);
+      return await this.findByIdAndDel(id, "isDeleted", true);
     } catch (error: any) {
       throw new AppError(error.message);
     }
@@ -46,21 +46,51 @@ export class ItemsRepository
   }
 
 
-  async getAllByRestaurant(
-    restaurantId: string,
-    filter: FilterQuery<IItemInterface>,
-    page: number,
-    limit: number
-  ): Promise<{ data: IItemInterface[]; total: number }> {
-    return this.getAll(
-      {
-        restaurantId:restaurantId,
-        isDeleted: false,
-        ...filter
-      },
-      { page, limit }
-    );
-  }
+  // async getAllByRestaurant(
+  //   restaurantId: string,
+  //   filter: FilterQuery<IItemInterface>,
+  //   page: number,
+  //   limit: number
+  // ): Promise<{ data: IItemInterface[]; total: number }> {
+  //   return this.getAll(
+  //     {
+  //       restaurantId:restaurantId,
+  //       isDeleted: false,
+  //       ...filter
+  //     },
+  //     { page, limit }
+  //   );
+  // }
 
+
+  async getAllByRestaurant(
+  restaurantId: string,
+  filter: FilterQuery<IItemInterface>,
+  page: number,
+  limit: number
+): Promise<{ data: IItemInterface[]; total: number }> {
+  const skip = (page - 1) * limit;
+
+  const queryFilter = {
+    restaurantId,
+    isDeleted: false,
+    ...filter,
+  };
+
+  const dataPromise = this.model
+    .find(queryFilter)
+    .populate("categoryId", "name")
+    .populate("subCategoryId", "name")
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 })
+    .exec();
+
+  const totalPromise = this.model.countDocuments(queryFilter).exec();
+
+  const [data, total] = await Promise.all([dataPromise, totalPromise]);
+
+  return { data, total };
+}
 
 }

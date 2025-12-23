@@ -11,6 +11,7 @@ import { TableController } from "../../Controller/tableController/implement/tabl
 import { ItemController } from "../../Controller/itemController/implementation/itemController";
 import { CategoryController } from "../../Controller/categoryController/implementation/categoryController";
 import { SubCategoryController } from "../../Controller/subCategoryController/implementation/subCategoryControlller";
+import { uploadItemImages } from "../../config/multerConfig";
 const paymentController = container.get<PaymentController>(
   TYPES.PaymentController
 );
@@ -70,7 +71,7 @@ Router.route("/table/:restaurantId")
 
 
 //items
-Router.route("/items").post(asyncHandler(itemsController.addItems));
+Router.route("/items").post(uploadItemImages,asyncHandler(itemsController.addItems));
 
 Router
   .route("/items/:itemId")

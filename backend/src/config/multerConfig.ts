@@ -94,7 +94,7 @@ const fileFilter = (
 };
 
 const uploadFile = multer({
-  storage, 
+  storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 });
@@ -109,3 +109,38 @@ export const updateDocumentUpload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single("proofDocument");
 
+//image =================== upload
+const imageOnlyFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed!"));
+  }
+};
+
+const itemImageStorage = multerS3({
+  s3,
+  bucket: process.env.S3_BUCKET_NAME || "foodierestaurent",
+  contentType: multerS3.AUTO_CONTENT_TYPE,
+  key: (
+    req: Request,
+    file: Express.Multer.File,
+    cb: (error: any, key?: string) => void
+  ) => {
+    const folder = "items/images/";
+    const filename = `item-${Date.now()}${path.extname(file.originalname)}`;
+    cb(null, folder + filename);
+  },
+});
+
+export const uploadItemImages = multer({
+  storage: itemImageStorage,
+  fileFilter: imageOnlyFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).array("images", 3);

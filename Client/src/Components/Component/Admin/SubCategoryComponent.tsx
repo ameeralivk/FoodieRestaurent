@@ -88,8 +88,9 @@ const SubCategoryComponent = () => {
   }, [subCategoryData]);
 
   const columns = [
-    { header: "CategoryName", accessor: "name" },
+    { header: "SubCategoryName", accessor: "name" },
     { header: "Description", accessor: "description" },
+    { header: "Category", accessor: "categoryName" },
   ];
 
   const handleSearch = (query: string) => {
@@ -107,7 +108,7 @@ const SubCategoryComponent = () => {
   };
   const handleDelete = async (row: SubCategory) => {
     const confirmed = await showConfirm(
-      "Delete this Category?",
+      "Delete this SubCategory?",
       `Are you sure you want to delete ${row.name}?`,
       "Delete",
       "Cancel"
@@ -316,7 +317,7 @@ const SubCategoryComponent = () => {
               label: "Main Category",
               type: "select",
               options: categoryNames,
-              value: currentRow?.role || [],
+              value: currentRow?.categoryName || [],
             },
           ]}
           externalErrors={modalErrors}

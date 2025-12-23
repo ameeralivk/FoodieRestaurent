@@ -5,6 +5,7 @@ export interface SubCategory {
   name: string;
   description: string;
   categoryId: string;
+  categoryName?:string,
   restaurantId: string;
   status: boolean;
   createdAt: string;

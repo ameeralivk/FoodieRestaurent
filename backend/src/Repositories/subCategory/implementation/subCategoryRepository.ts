@@ -59,26 +59,34 @@ export class SubCategoryRepository
     return this.getAll(filter, { page, limit });
   }
 
- async getAllByRestaurant(
-  restaurantId: Types.ObjectId,
-  search?: string,
-  page?: number,
-  limit?: number
-) {
-  const filter: any = {
-    restaurantId,
-    isDeleted: false,
-  };
+  async getAllByRestaurant(
+    restaurantId: Types.ObjectId,
+    search = "",
+    page = 1,
+    limit = 10
+  ): Promise<{ data: ISubCategory[]; total: number }> {
+    const filter: any = {
+      restaurantId,
+      isDeleted: false,
+    };
 
-  if (search && search.trim()) {
-    filter.$or = [
-      { name: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } },
-    ];
+    if (search) {
+      filter.name = { $regex: search, $options: "i" };
+    }
+
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      SubCategory.find(filter)
+        .populate({ path: "categoryId", select: "name status" })
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .lean()
+        .exec(),
+      SubCategory.countDocuments(filter).exec(),
+    ]);
+
+    return { data: data as ISubCategory[], total };
   }
-
-  return this.getAll(filter, { page, limit });
-}
-
 
 }

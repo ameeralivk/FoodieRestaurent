@@ -8,6 +8,7 @@ import {
   Table,
   LayoutGrid,
   LayoutPanelTop,
+  UtensilsCrossed,
 } from "lucide-react";
 
 const menuItems = [
@@ -17,6 +18,7 @@ const menuItems = [
   { name: "Table", icon: Table, path: "/admin/table" },
   {name:"Category",icon:LayoutGrid,path:"/admin/category"},
   {name:"SubCategory",icon:LayoutPanelTop,path:"/admin/subcategory"},
+  {name:"Items", icon:UtensilsCrossed ,path:"/admin/items"},
   { name: "Analytics", icon: BarChart3 },
   { name: "Documents", icon: FileText },
   { name: "Settings", icon: Settings },

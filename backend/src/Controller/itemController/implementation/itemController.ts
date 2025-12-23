@@ -13,24 +13,60 @@ export class ItemController implements IItemController {
     @inject(TYPES.itemsService) private _itemsService: IItemsService
   ) {}
 
+  // addItems = async (req: Request, res: Response): Promise<Response> => {
+  //   try {
+  //     const item = await this._itemsService.addItem(req.body);
+  //     if (item) {
+  //       return res.status(HttpStatus.CREATED).json({
+  //         success: true,
+  //         message: MESSAGES.ITEM_ADDED_SUCCESS,
+  //       });
+  //     } else {
+  //       return res.status(HttpStatus.BAD_REQUEST).json({
+  //         succcess: false,
+  //         message: MESSAGES.ITEM_ADDED_FAILED,
+  //       });
+  //     }
+  //   } catch (error: any) {
+  //     throw new AppError(error.message);
+  //   }
+  // };
+
+
   addItems = async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const item = await this._itemsService.addItem(req.body);
-      if (item) {
-        return res.status(HttpStatus.CREATED).json({
-          success: true,
-          message: MESSAGES.ITEM_ADDED_SUCCESS,
-        });
-      } else {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          succcess: false,
-          message: MESSAGES.ITEM_ADDED_FAILED,
-        });
-      }
-    } catch (error: any) {
-      throw new AppError(error.message);
+  try {
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "At least one image is required",
+      });
     }
-  };
+    const imageUrls = files.map(
+      (file: any) => file.location
+    );
+    const itemData = {
+      ...req.body,
+      images: imageUrls,
+    };
+    const item = await this._itemsService.addItem(itemData);
+
+    if (item) {
+      return res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: MESSAGES.ITEM_ADDED_SUCCESS,
+      });
+    }
+
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      success: false,
+      message: MESSAGES.ITEM_ADDED_FAILED,
+    });
+  } catch (error: any) {
+    throw new AppError(error.message);
+  }
+};
+
 
   editItem = async (req: Request, res: Response): Promise<Response> => {
     try {

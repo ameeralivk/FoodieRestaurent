@@ -11,7 +11,7 @@ export interface IItemInterface {
   description?: string;
   isDeleted:boolean;
   images: string[];
-  subCategory?: Types.ObjectId;
+  subCategoryId?: Types.ObjectId;
   category: Types.ObjectId;
   isStock: boolean;
   points: number;

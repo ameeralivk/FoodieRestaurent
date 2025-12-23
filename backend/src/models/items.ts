@@ -44,9 +44,9 @@ const items = new Schema<itemsDocument>({
       },
     ],
 
-    subCategory: {
+    subCategoryId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubCategory",
+      ref: "subCategory",
     },
 
     isStock: {
@@ -54,7 +54,7 @@ const items = new Schema<itemsDocument>({
       default: true,
     },
 
-    category: {
+    categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: true,

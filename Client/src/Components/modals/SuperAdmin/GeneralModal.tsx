@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import ErrorPTag from "../../Elements/ErrorParagraph";
@@ -14,7 +13,7 @@ interface FieldProps {
     | "select"
     | "duration"
     | "multi-select"
-    | "tags"; 
+    | "tags";
   value?: any;
   options?: string[];
 }
@@ -310,7 +309,7 @@ export default function ReusableModal({
         )}
 
         {/* IMAGE FIELD */}
-        {fields.some((f) => f.type === "image") && (
+        {/* {fields.some((f) => f.type === "image") && (
           <div className="mt-5">
             <span className="text-gray-400 text-sm mb-2 block">Images</span>
 
@@ -344,6 +343,83 @@ export default function ReusableModal({
               )}
             </div>
           </div>
+        )} */}
+
+        {fields.some((f) => f.type === "image") && (
+          <>
+            {/* IMAGE UPLOAD SECTION */}
+            <div className="flex gap-4 flex-wrap mt-7 ">
+              {/* Show existing previews */}
+              {imagePreviews.map((src, i) => (
+                <div key={i} className="relative">
+                  <img
+                    src={src}
+                    alt={`preview-${i}`}
+                    className="w-24 h-24 object-cover rounded border border-gray-600 cursor-pointer hover:opacity-80"
+                    onClick={() =>
+                      document.getElementById("imageInput")?.click()
+                    }
+                  />
+
+                  {/* Remove button */}
+                  {!isViewMode && (
+                    <button
+                      type="button"
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                      onClick={() => {
+                        const updatedImages = images.filter(
+                          (_, index) => index !== i
+                        );
+                        const updatedPreviews = imagePreviews.filter(
+                          (_, index) => index !== i
+                        );
+                        setImages(updatedImages);
+                        setImagePreviews(updatedPreviews);
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              {/* Add image placeholder */}
+              {!isViewMode && imagePreviews.length < 3 && (
+                <div
+                  className="w-24 h-24 flex items-center justify-center border border-gray-600 rounded cursor-pointer bg-gray-800 text-blue-700 hover:bg-gray-700"
+                  onClick={() => document.getElementById("imageInput")?.click()}
+                >
+                  Click to select
+                </div>
+              )}
+
+              {/* Hidden input */}
+              {!isViewMode && (
+                <input
+                  type="file"
+                  id="imageInput"
+                  className="hidden"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      const filesArray = Array.from(e.target.files).slice(
+                        0,
+                        3 - images.length
+                      );
+
+                      setImages((prev) => [...prev, ...filesArray]);
+
+                      const newPreviews = filesArray.map((file) =>
+                        URL.createObjectURL(file)
+                      );
+                      setImagePreviews((prev) => [...prev, ...newPreviews]);
+                    }
+                  }}
+                />
+              )}
+            </div>
+          </>
         )}
 
         {/* MULTI-SELECT FEATURES */}
