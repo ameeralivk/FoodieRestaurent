@@ -18,6 +18,7 @@ export class ItemsRepository
   ): Promise<IItemInterface | null> {
     return this.getByFilter({
       name: { $regex: `^${name}$`, $options: "i" },
+      isDeleted: false,
       restaurantId,
     });
   }
@@ -28,9 +29,20 @@ export class ItemsRepository
 
   async editItem(
     id: string,
-    data: Partial<IItemInterface>
+    data: Partial<IItemInterface>,
+    images: string[]
   ): Promise<IItemInterface | null> {
-    return await this.findByIdAndUpdate(id, data);
+    // return await this.findByIdAndUpdate(id, data);
+    if(images.length){
+       return await this.findByIdAndUpdate(id, {
+      ...data,
+      images, 
+    });
+    }else{
+      return await this.findByIdAndUpdate(id, {
+      ...data,
+      });
+    }
   }
 
   async deleteItem(id: string): Promise<IItemInterface | null> {
@@ -41,10 +53,12 @@ export class ItemsRepository
     }
   }
 
-  async changeStatus(id: string, isActive: boolean): Promise<IItemInterface | null> {
-    return await this.findByIdAndUpdate(id,{isActive});
+  async changeStatus(
+    id: string,
+    isActive: boolean
+  ): Promise<IItemInterface | null> {
+    return await this.findByIdAndUpdate(id, { isActive });
   }
-
 
   // async getAllByRestaurant(
   //   restaurantId: string,
@@ -62,35 +76,40 @@ export class ItemsRepository
   //   );
   // }
 
-
   async getAllByRestaurant(
-  restaurantId: string,
-  filter: FilterQuery<IItemInterface>,
-  page: number,
-  limit: number
-): Promise<{ data: IItemInterface[]; total: number }> {
-  const skip = (page - 1) * limit;
+    restaurantId: string,
+    filter: FilterQuery<IItemInterface>,
+    page: number,
+    limit: number
+  ): Promise<{ data: IItemInterface[]; total: number }> {
+    const skip = (page - 1) * limit;
 
-  const queryFilter = {
-    restaurantId,
-    isDeleted: false,
-    ...filter,
-  };
+    const queryFilter = {
+      restaurantId,
+      isDeleted: false,
+      ...filter,
+    };
 
-  const dataPromise = this.model
-    .find(queryFilter)
-    .populate("categoryId", "name")
-    .populate("subCategoryId", "name")
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 })
-    .exec();
+    const dataPromise = this.model
+      .find(queryFilter)
+      .populate("categoryId", "name")
+      .populate("subCategoryId", "name")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .exec();
 
-  const totalPromise = this.model.countDocuments(queryFilter).exec();
+    const totalPromise = this.model.countDocuments(queryFilter).exec();
 
-  const [data, total] = await Promise.all([dataPromise, totalPromise]);
+    const [data, total] = await Promise.all([dataPromise, totalPromise]);
 
-  return { data, total };
-}
+    return { data, total };
+  }
+
+
+  find(id: string): Promise<IItemInterface | null> {
+     return this.getById(id)
+  }
+
 
 }

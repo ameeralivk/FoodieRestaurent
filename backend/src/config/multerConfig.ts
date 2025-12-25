@@ -144,3 +144,9 @@ export const uploadItemImages = multer({
   fileFilter: imageOnlyFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 }).array("images", 3);
+
+export const updateItemImagesUpload = multer({
+  storage: itemImageStorage,
+  fileFilter: imageOnlyFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).array("images", 3);

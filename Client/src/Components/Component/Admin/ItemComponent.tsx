@@ -7,9 +7,15 @@ import { useState } from "react";
 import ReusableTable from "../../Elements/Reusable/reusableTable";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-import { addItems, deleteItem, getAllItems } from "../../../services/ItemsService";
+import {
+  addItems,
+  changeItemStatus,
+  deleteItem,
+  editItem,
+  getAllItems,
+} from "../../../services/ItemsService";
 import type { RootState } from "../../../redux/store/store";
-import type {IItem, IItemResponse } from "../../../types/Items";
+import type { IItem, IItemResponse } from "../../../types/Items";
 import type { CategoryResponse } from "../../../types/category";
 import { getAllCategory } from "../../../services/category";
 import { showSuccessToast } from "../../Elements/SuccessToast";
@@ -18,6 +24,11 @@ import { getAllSubCategory } from "../../../services/subCategory";
 import { showConfirm } from "../../Elements/ConfirmationSwall";
 import { useQueryClient } from "@tanstack/react-query";
 import type { SubCategoryResponse } from "../../../types/subCategory";
+import {
+  validateImages,
+  validateItem,
+} from "../../../Validation/validateItems";
+import { showErrorToast } from "../../Elements/ErrorToast";
 const ItemComponent = () => {
   const [currentRow, setCurrentRow] = useState<any>(null);
   const [modalErrors, setModalErrors] = useState<{ [key: string]: string }>({});
@@ -26,6 +37,7 @@ const ItemComponent = () => {
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(3);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [searchTerm, setSearchQuery] = useState("");
   const restaurentId = useSelector((state: RootState) => state.auth.admin?._id);
   const [subCategory, setSubCategory] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,6 +98,23 @@ const ItemComponent = () => {
   });
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (ItemsList?.total) {
+      setTotalPages(Math.ceil(ItemsList.total / limit));
+    }
+  }, [ItemsList]);
+
+  useEffect(() => {
     if (modalMode === "edit" && currentRow && SubCategory?.data) {
       const names =
         SubCategory?.data
@@ -97,19 +126,33 @@ const ItemComponent = () => {
   }, [modalMode, currentRow, SubCategory]);
 
   const categoryList = categoryData?.data.map((cat) => cat.name);
-  const handleSearch = () => {};
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
   const handleSubmit = (row: any) => {
+    console.log(row, "row");
+    const { isValid, errors } = validateItem(row);
+    if (!isValid) {
+      setModalErrors(errors);
+      return;
+    }
+    console.log(errors, "errors");
     const formData = new FormData();
     formData.append("name", row.name);
     formData.append("price", row.price);
     formData.append("stock", row.stock);
-    formData.append("categoryId", categoryId);
-    formData.append("subCategoryId", subCategoryId);
+    formData.append("categoryId", categoryId || currentRow?.categoryId?._id);
+    if (subCategory.length) {
+      formData.append(
+        "subCategoryId",
+        subCategoryId || currentRow?.subCategoryId?._id
+      );
+    }
     formData.append("restaurantId", restaurentId as string);
-    formData.append("points", row.points);
     row.images?.forEach((file: File) => {
       formData.append("images", file);
     });
+
     if (modalMode == "add") {
       const itemsAdd = async () => {
         try {
@@ -129,7 +172,23 @@ const ItemComponent = () => {
       };
       itemsAdd();
     } else {
-      alert("hi");
+      const EditItem = async () => {
+        try {
+          const res = await editItem(currentRow._id, formData);
+          if (res.success) {
+            showSuccessToast(res.message);
+            queryClient.invalidateQueries({
+              queryKey: ["ItemsList", restaurentId],
+            });
+            setModalOpen(false);
+            setCurrentRow({});
+            setModalErrors({});
+          }
+        } catch (error) {
+          return;
+        }
+      };
+      EditItem();
     }
   };
   const handleView = (row: any) => {
@@ -142,12 +201,51 @@ const ItemComponent = () => {
     setModalOpen(true);
     setModalMode("edit");
   };
+  const updateItemStatus = async (row: any, value: any) => {
+    const confirmed = await showConfirm(
+      "Change this status?",
+      `Are you Wand to Change the Status?`,
+      "Change",
+      "Cancel"
+    );
+    if (!confirmed) return;
+    const newValue = value;
+    const changeStatus = async () => {
+      try {
+        const res = await changeItemStatus(row._id, newValue);
+        if (res.success) {
+          showSuccessToast(res.message);
+          // queryClient.invalidateQueries({
+          //   queryKey: ["activeTable", restaurentId],
+          // });
+          queryClient.invalidateQueries({
+            queryKey: ["ItemsList", restaurentId],
+          });
+          setModalOpen(false);
+        }
+      } catch (error) {
+        return;
+      }
+    };
+    changeStatus();
+  };
+
   const handleFieldChange = (name: string, value: any) => {
-    const sub = SubCategory?.data?.filter((sub) => sub.name === value);
-    setSubCategoryId(sub?.[0]?.id as string);
+    const updatedRow = {
+      ...currentRow,
+      [name]: value,
+    };
+
+    setCurrentRow(updatedRow);
+
+    const { errors } = validateItem(updatedRow);
+    setModalErrors(errors);
+
+    // existing category logic
     if (name === "categoryName") {
-      const cat = categoryData?.data?.filter((sub) => sub.name === value);
-      setCategoryId(cat?.[0]?.id as string);
+      const cat = categoryData?.data?.find((c) => c.name === value);
+      setCategoryId(cat?.id as string);
+
       const names =
         SubCategory?.data
           ?.filter((sub) => sub.categoryName === value)
@@ -155,33 +253,40 @@ const ItemComponent = () => {
 
       setSubCategory(names);
     }
+
+    if (name === "SubcategoryName") {
+      const sub = SubCategory?.data?.find((s) => s.name === value);
+      setSubCategoryId(sub?.id as string);
+    }
   };
-  console.log(currentRow, "curofrojfokdjsaklfjdas============00000000");
-  const handleDelete = async(row:IItem) => {
-     const confirmed = await showConfirm(
-          "Delete this Item?",
-          `Are you sure you want to delete ${row.name}?`,
-          "Delete",
-          "Cancel"
-        );
-        if (!confirmed) return;
-        const del = async () => {
-          try {
-            const res = await deleteItem(row._id);
-            if (res.success) {
-              showSuccessToast(res.message);
-              queryClient.invalidateQueries({
-                queryKey: ["ItemsList", restaurentId],
-              });
-              setModalOpen(false);
-            }
-          } catch (error) {
-            return;
-          }
-        };
-        del();
+
+  const handleDelete = async (row: IItem) => {
+    const confirmed = await showConfirm(
+      "Delete this Item?",
+      `Are you sure you want to delete ${row.name}?`,
+      "Delete",
+      "Cancel"
+    );
+    if (!confirmed) return;
+    const del = async () => {
+      try {
+        const res = await deleteItem(row._id);
+        if (res.success) {
+          showSuccessToast(res.message);
+          queryClient.invalidateQueries({
+            queryKey: ["ItemsList", restaurentId],
+          });
+          setModalOpen(false);
+        }
+      } catch (error) {
+        return;
+      }
+    };
+    del();
   };
-  const handlePageChange = () => {};
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
   const Items = ItemsList?.data;
   return (
     <div>
@@ -240,6 +345,13 @@ const ItemComponent = () => {
                 { type: "edit", onClick: handleEdit },
                 { type: "delete", onClick: handleDelete },
               ]}
+              toggleField={{
+                accessor: "isActive",
+                invert: false,
+                onToggle: (row, value) => {
+                  updateItemStatus(row, value);
+                },
+              }}
             />
             <Pagination
               currentPage={currentPage}
@@ -302,12 +414,14 @@ const ItemComponent = () => {
               name: "stock",
               label: "Stock *",
               type: "number",
+              placeholder: "Enter Stock : Optional",
               value: currentRow?.stock || "",
             },
             {
               name: "points",
               label: "Points *",
               type: "number",
+              placeholder: "Enter Points : Optional",
               value: currentRow?.points || "",
             },
             {

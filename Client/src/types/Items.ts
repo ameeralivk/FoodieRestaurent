@@ -10,7 +10,7 @@ export interface IItem {
   isDeleted: boolean;
   restaurantId: string;
   category: string; // categoryId
-  images: string[];
+  images:File[];
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   __v: number;
@@ -57,9 +57,10 @@ export interface IItem {
   stock: number;
   points: number;
   isActive: boolean;
+  categoryName?:string;
   isDeleted: boolean;
   isStock: boolean;
-  images: string[];
+  images: File[];
   restaurantId: string;
   categoryId: ICategory; // Nested object
   subCategoryId: ISubCategory; // Nested object

@@ -3,10 +3,15 @@ import { showErrorToast } from "../Components/Elements/ErrorToast";
 import axios from "axios";
 import { AxiosError } from "axios";
 import { showSuccessToast } from "../Components/Elements/SuccessToast";
-export const getAllRestaurent = async (approval:boolean,page: number, limit: number ,searchTerm:string) => {
+export const getAllRestaurent = async (
+  approval: boolean,
+  page: number,
+  limit: number,
+  searchTerm: string
+) => {
   try {
     const response = await api.get("/superadmin/getallrestaurent", {
-      params: { page, limit , searchTerm , approval},
+      params: { page, limit, searchTerm, approval },
       withCredentials: true,
     });
     if (response) {

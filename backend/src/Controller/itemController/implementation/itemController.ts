@@ -32,48 +32,53 @@ export class ItemController implements IItemController {
   //   }
   // };
 
-
   addItems = async (req: Request, res: Response): Promise<Response> => {
-  try {
-    const files = req.files as Express.Multer.File[];
-    if (!files || files.length === 0) {
+    try {
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "At least one image is required",
+        });
+      }
+      const imageUrls = files.map((file: any) => file.location);
+      const itemData = {
+        ...req.body,
+        images: imageUrls,
+      };
+      const item = await this._itemsService.addItem(itemData);
+
+      if (item) {
+        return res.status(HttpStatus.CREATED).json({
+          success: true,
+          message: MESSAGES.ITEM_ADDED_SUCCESS,
+        });
+      }
+
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "At least one image is required",
+        message: MESSAGES.ITEM_ADDED_FAILED,
       });
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
-    const imageUrls = files.map(
-      (file: any) => file.location
-    );
-    const itemData = {
-      ...req.body,
-      images: imageUrls,
-    };
-    const item = await this._itemsService.addItem(itemData);
-
-    if (item) {
-      return res.status(HttpStatus.CREATED).json({
-        success: true,
-        message: MESSAGES.ITEM_ADDED_SUCCESS,
-      });
-    }
-
-    return res.status(HttpStatus.BAD_REQUEST).json({
-      success: false,
-      message: MESSAGES.ITEM_ADDED_FAILED,
-    });
-  } catch (error: any) {
-    throw new AppError(error.message);
-  }
-};
-
+  };
 
   editItem = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { itemId } = req.params;
+      const files = req.files as Express.Multer.File[];
+      // if (!files || files.length === 0) {
+      //   return res.status(HttpStatus.BAD_REQUEST).json({
+      //     success: false,
+      //     message: "At least one image is required",
+      //   });
+      // }
+      const imageUrls = files.map((file: any) => file.location);
       const item = await this._itemsService.editItem(
         itemId as string,
-        req.body
+        req.body,
+        imageUrls
       );
       if (item) {
         return res.status(HttpStatus.OK).json({
@@ -138,23 +143,23 @@ export class ItemController implements IItemController {
 
   getAllItems = async (req: Request, res: Response): Promise<Response> => {
     try {
-    const { restaurantId } = req.params;
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-    const search = req.query.search as string | undefined;
-     const result = await this._itemsService.getAllItemsByRestaurant(
-      restaurantId as string,
-      page,
-      limit,
-      search
-    );
-     return res.status(HttpStatus.OK).json({
-      success: true,
-      message:MESSAGES.ITEM_FETCHED_SUCCESS ,
-      ...result,
-      page,
-      limit
-    });
+      const { restaurantId } = req.params;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const search = req.query.search as string | undefined;
+      const result = await this._itemsService.getAllItemsByRestaurant(
+        restaurantId as string,
+        page,
+        limit,
+        search
+      );
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGES.ITEM_FETCHED_SUCCESS,
+        ...result,
+        page,
+        limit,
+      });
     } catch (error: any) {
       throw new AppError(error.message);
     }

@@ -30,7 +30,7 @@ export class TableService implements ITableService {
     if (existing) {
       throw new Error("Table number already exists");
     }
-    const qrCodeUrl = `${process.env.FRONTEND_BASE_URL}/r/${restaurantId}?table=${tableNo}`;
+    const qrCodeUrl = `${process.env.FRONTEND_BASE_URL}/user/restaurant/${restaurantId}?table=${tableNo}`;
      const res = await this._tableRepo.createTable({
       restaurantId: restaurantObjectId,
       tableNo,

@@ -36,4 +36,8 @@ export class UserRepository
     console.log(userId, isBlocked, "hie");
     return this.updateOne({ _id: userId } as FilterQuery<IUser>, { isBlocked });
   }
+
+   async findById(id: string) {
+    return await this.getById(id);
+  }
 }

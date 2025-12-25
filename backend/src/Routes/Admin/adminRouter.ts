@@ -12,6 +12,7 @@ import { ItemController } from "../../Controller/itemController/implementation/i
 import { CategoryController } from "../../Controller/categoryController/implementation/categoryController";
 import { SubCategoryController } from "../../Controller/subCategoryController/implementation/subCategoryControlller";
 import { uploadItemImages } from "../../config/multerConfig";
+import { updateItemImagesUpload } from "../../config/multerConfig";
 const paymentController = container.get<PaymentController>(
   TYPES.PaymentController
 );
@@ -75,7 +76,7 @@ Router.route("/items").post(uploadItemImages,asyncHandler(itemsController.addIte
 
 Router
   .route("/items/:itemId")
-  .patch(asyncHandler(itemsController.editItem))
+  .patch(updateItemImagesUpload,asyncHandler(itemsController.editItem))
   .delete(asyncHandler(itemsController.deleteItem));
 
 Router

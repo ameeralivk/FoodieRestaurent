@@ -16,6 +16,7 @@ interface FieldProps {
     | "tags";
   value?: any;
   options?: string[];
+  placeholder?: string;
 }
 
 interface ModalProps {
@@ -56,7 +57,6 @@ export default function ReusableModal({
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const isViewMode = mode === "view";
-
   useEffect(() => {
     if (isOpen) {
       const empty: any = {};
@@ -157,7 +157,6 @@ export default function ReusableModal({
                 <span className="text-gray-400 text-sm mb-1">
                   {field.label}
                 </span>
-
                 {field.type === "duration" ? (
                   isViewMode ? (
                     <div className="bg-gray-800 px-3 py-2 rounded border border-gray-700">
@@ -184,7 +183,6 @@ export default function ReusableModal({
                           type="number"
                           name={field.name}
                           value={formData[field.name] || ""}
-                          placeholder="Enter number"
                           onChange={handleChange}
                           className="w-1/2 px-3 py-2 bg-gray-700 border border-gray-600 rounded"
                         />
@@ -214,6 +212,7 @@ export default function ReusableModal({
                           </option>
                         ))}
                       </select>
+
                       {externalErrors[field.name] && (
                         <ErrorPTag Text={externalErrors[field.name]} />
                       )}
@@ -230,6 +229,7 @@ export default function ReusableModal({
                       name={field.name}
                       value={formData[field.name] || ""}
                       onChange={handleChange}
+                      placeholder={field.placeholder || `Enter ${field.label}`}
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded"
                     />
                     {externalErrors[field.name] && (
@@ -360,7 +360,6 @@ export default function ReusableModal({
                       document.getElementById("imageInput")?.click()
                     }
                   />
-
                   {/* Remove button */}
                   {!isViewMode && (
                     <button
@@ -385,12 +384,21 @@ export default function ReusableModal({
 
               {/* Add image placeholder */}
               {!isViewMode && imagePreviews.length < 3 && (
-                <div
-                  className="w-24 h-24 flex items-center justify-center border border-gray-600 rounded cursor-pointer bg-gray-800 text-blue-700 hover:bg-gray-700"
-                  onClick={() => document.getElementById("imageInput")?.click()}
-                >
-                  Click to select
-                </div>
+                <>
+                  <div
+                    className="w-24 h-24 flex items-center justify-center text-center border border-gray-600 rounded cursor-pointer bg-gray-800 text-blue-700 hover:bg-gray-700"
+                    onClick={() =>
+                      document.getElementById("imageInput")?.click()
+                    }
+                  >
+                    Click to select
+                  </div>
+                  {externalErrors.images && (
+                    <div className="mt-2">
+                      <ErrorPTag Text={externalErrors.images} />
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Hidden input */}

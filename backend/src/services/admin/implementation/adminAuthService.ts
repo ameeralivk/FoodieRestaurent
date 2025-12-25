@@ -22,13 +22,16 @@ import { AdminDTO, adminDTO } from "../../../utils/dto/adminDto";
 import { AdminDocument } from "../../../models/admin";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../DI/types";
+import { IUserRepository } from "../../../Repositories/user/interface/IUserRepository";
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 
 @injectable()
 export class AdminAuthService implements IAdminAuthService {
   constructor(
     @inject(TYPES.AdminAuthRepository)
-    private _adminAuthRepository: IAdminAuthRepository
+    private _adminAuthRepository: IAdminAuthRepository,
+    @inject(TYPES.userRepository)
+    private _userRepo: IUserRepository
   ) {}
 
   async register(
@@ -68,8 +71,8 @@ export class AdminAuthService implements IAdminAuthService {
     });
     const { sub, name, email, picture } = response.data;
     let admin = await this._adminAuthRepository.findByEmail(email);
-    if(admin?.isBlocked){
-      throw new AppError(MESSAGES.ADMIN_BLOCKED)
+    if (admin?.isBlocked) {
+      throw new AppError(MESSAGES.ADMIN_BLOCKED);
     }
     if (!admin) {
       const result = await this._adminAuthRepository.register({
@@ -148,8 +151,43 @@ export class AdminAuthService implements IAdminAuthService {
     return { success: true, message: MESSAGES.OTP_RESENT_SUCCESS };
   };
 
+  // async refreshToken(refreshToken: string) {
+  //   if (!refreshToken) throw new Error(MESSAGES.NO_REFRESH_TOKEN_FOUND);
+
+  //   const decoded = verifyRefreshToken(refreshToken);
+
+  //   if (!decoded) {
+  //     throw {
+  //       status: HttpStatus.UNAUTHORIZED,
+  //       message: MESSAGES.INVALID_TOKEN,
+  //     };
+  //   }
+  //   if(decoded.role == "user"){
+  //     const user = await this._userRepo.findById(decoded.id)
+  //     if(!user){
+  //       throw {status:HttpStatus.NOT_FOUND,message:MESSAGES.USER_NOT_FOUND}
+  //     }
+  //   }
+  //   const admin = await this._adminAuthRepository.findById(decoded.id);
+  //   if (!admin) {
+  //     throw { status: HttpStatus.NOT_FOUND, message: MESSAGES.ADMIN_NOT_FOUND };
+  //   }
+
+  //   if (admin.isBlocked) {
+  //     throw {
+  //       status: HttpStatus.FORBIDDEN,
+  //       message: MESSAGES.ACCOUNT_IS_BLOCKED,
+  //     };
+  //   }
+  //   const newAccessToken = generateToken(decoded.id, decoded.role);
+
+  //   return { newAccessToken };
+  // }
+
   async refreshToken(refreshToken: string) {
-    if (!refreshToken) throw new Error(MESSAGES.NO_REFRESH_TOKEN_FOUND);
+    if (!refreshToken) {
+      throw new Error(MESSAGES.NO_REFRESH_TOKEN_FOUND);
+    }
 
     const decoded = verifyRefreshToken(refreshToken);
 
@@ -159,21 +197,51 @@ export class AdminAuthService implements IAdminAuthService {
         message: MESSAGES.INVALID_TOKEN,
       };
     }
+    if (decoded.role === "user") {
+      const user = await this._userRepo.findById(decoded.id);
 
-    const admin = await this._adminAuthRepository.findById(decoded.id);
-    if (!admin) {
-      throw { status: HttpStatus.NOT_FOUND, message: MESSAGES.ADMIN_NOT_FOUND };
+      if (!user) {
+        throw {
+          status: HttpStatus.NOT_FOUND,
+          message: MESSAGES.USER_NOT_FOUND,
+        };
+      }
+
+      if (user.isBlocked) {
+        throw {
+          status: HttpStatus.FORBIDDEN,
+          message: MESSAGES.ACCOUNT_IS_BLOCKED,
+        };
+      }
+
+      const newAccessToken = generateToken(decoded.id, decoded.role);
+      return { newAccessToken };
+    }
+    if (decoded.role === "admin") {
+      const admin = await this._adminAuthRepository.findById(decoded.id);
+
+      if (!admin) {
+        throw {
+          status: HttpStatus.NOT_FOUND,
+          message: MESSAGES.ADMIN_NOT_FOUND,
+        };
+      }
+
+      if (admin.isBlocked) {
+        throw {
+          status: HttpStatus.FORBIDDEN,
+          message: MESSAGES.ACCOUNT_IS_BLOCKED,
+        };
+      }
+
+      const newAccessToken = generateToken(decoded.id, decoded.role);
+      return { newAccessToken };
     }
 
-    if (admin.isBlocked) {
-      throw {
-        status: HttpStatus.FORBIDDEN,
-        message: MESSAGES.ACCOUNT_IS_BLOCKED,
-      };
-    }
-    const newAccessToken = generateToken(decoded.id, decoded.role);
-
-    return { newAccessToken };
+    throw {
+      status: HttpStatus.UNAUTHORIZED,
+      message: MESSAGES.INVALID_TOKEN,
+    };
   }
 
   createLink = async (
@@ -192,8 +260,8 @@ export class AdminAuthService implements IAdminAuthService {
     password: string
   ): Promise<{ mapedAdmin: AdminDTO; token: string; refreshToken: string }> {
     const admin = await this._adminAuthRepository.findByEmail(email);
-    if(admin?.isBlocked){
-      throw new AppError(MESSAGES.ADMIN_BLOCKED)
+    if (admin?.isBlocked) {
+      throw new AppError(MESSAGES.ADMIN_BLOCKED);
     }
     if (!admin) {
       throw new AppError(MESSAGES.ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND);

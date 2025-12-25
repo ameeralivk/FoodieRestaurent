@@ -1,37 +1,98 @@
-import React from "react";
+import React, { useState } from "react";
 import { Search } from "lucide-react";
 import Navbar from "../../../Components/Layouts/userLayouts/Navbar";
 import { Box } from "@mui/material";
+import { useEffect } from "react";
+import { styled } from "@mui/material/styles";
+import Button from "@mui/material/Button";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { getAllRestaurent } from "../../../services/superAdmin";
+import Pagination from "../../../Components/Elements/Reusable/Pagination";
+import { useNavigate } from "react-router-dom";
+import jsQR from "jsqr";
 import { RestaurantCard } from "../../../Components/user/reservationCard";
+import { ToastContainer } from "react-toastify";
 const UserLandingPage: React.FC = () => {
-  const restaurants = [
-    {
-      id: 1,
-      name: "The Olive Branch",
-      distance: "1.2 km away",
-      image:
-        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=400&fit=crop",
-    },
-    {
-      id: 2,
-      name: "Spice Route",
-      distance: "2.5 km away",
-      image:
-        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=400&fit=crop",
-    },
-    {
-      id: 3,
-      name: "The Cozy Corner",
-      distance: "0.8 km away",
-      image:
-        "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&h=400&fit=crop",
-    },
-  ];
+  const VisuallyHiddenInput = styled("input")({
+    clip: "rect(0 0 0 0)",
+    clipPath: "inset(50%)",
+    height: 1,
+    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    whiteSpace: "nowrap",
+    width: 1,
+  });
+  const [loating, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [restaurants, setRestaurants] = useState<any[]>([]);
+  const [total, setTotal] = useState(10);
+  const limit = 10;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllRestaurent(false, page, limit, searchTerm);
+        if (response && response.success) {
+          await new Promise((res) => setTimeout(res, 300));
+          setRestaurants(response.data);
+          setTotal(response.pagination.totalPages);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [searchTerm, page]);
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+  };
+
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+
+    // Convert file to ImageData
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) return;
+
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const imageData = ctx.getImageData(0, 0, img.width, img.height);
+
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+      if (code) {
+        // code.data contains the URL from QR
+        console.log("QR Code Data:", code.data);
+        navigate(new URL(code.data).pathname + new URL(code.data).search);
+      } else {
+        alert("No QR code detected");
+      }
+    };
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <Navbar />
+      <ToastContainer />
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
@@ -41,15 +102,37 @@ const UserLandingPage: React.FC = () => {
           </h2>
 
           {/* Scan QR Button */}
-          <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 mb-6 inline-block">
-            Scan QR to Enter
-          </button>
+          <div className="flex flex-col">
+            <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 mb-6 inline-block">
+              Scan QR to Enter
+            </button>
+            <Button
+              className="h-12 rounded-lg"
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload files
+              <VisuallyHiddenInput
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={(event) => handleFileUpload(event.target.files)}
+                multiple={false}
+              />
+            </Button>
+          </div>
 
           {/* Search Bar */}
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-7xl mx-auto mt-5">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
                 type="text"
                 placeholder="Search for a restaurant..."
                 className="w-full pl-12 pr-4 py-3 bg-orange-50 border border-orange-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700 placeholder-gray-400"
@@ -57,7 +140,6 @@ const UserLandingPage: React.FC = () => {
             </div>
           </div>
         </div>
-
         {/* Nearby Restaurants Section */}
         <div className="mt-12">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">
@@ -73,15 +155,15 @@ const UserLandingPage: React.FC = () => {
               >
                 {/* Restaurant Card with overlay */}
                 <RestaurantCard
-                  image={restaurant.image}
-                  title={restaurant.name}
+                  image={restaurant.restaurantPhoto}
+                  title={restaurant.restaurantName}
                   width="100%" // full width of parent card
                 />
 
                 {/* Restaurant Info */}
                 <div className="p-4">
                   <h4 className="text-lg font-semibold text-gray-900 mb-1">
-                    {restaurant.name}
+                    {restaurant.restaurantName}
                   </h4>
                   <p className="text-sm text-gray-500">{restaurant.distance}</p>
                 </div>
@@ -89,47 +171,15 @@ const UserLandingPage: React.FC = () => {
             ))}
           </Box>
         </div>
+        <Pagination
+          currentPage={page}
+          totalPages={total}
+          onPageChange={handlePageChange}
+        />
       </main>
     </div>
   );
 };
 
 export default UserLandingPage;
-// import { Box } from "@mui/material";
-// import { RestaurantCard } from "../../../Components/user/reservationCard";
 
-// const restaurants = [
-//   {
-//     id: 1,
-//     name: "The Olive Branch",
-//     image:
-//       "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=400&fit=crop",
-//   },
-//   {
-//     id: 2,
-//     name: "Spice Route",
-//     image:
-//       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=400&fit=crop",
-//   },
-//   {
-//     id: 3,
-//     name: "The Cozy Corner",
-//     image:
-//       "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&h=400&fit=crop",
-//   },
-// ];
-
-// export default function UserLandingPage() {
-//   return (
-//     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-//       {restaurants.map((restaurant) => (
-//         <RestaurantCard
-//           key={restaurant.id}
-//           image={restaurant.image}
-//           title={restaurant.name}
-//           width="33%" // You can adjust width per card
-//         />
-//       ))}
-//     </Box>
-//   );
-// }
