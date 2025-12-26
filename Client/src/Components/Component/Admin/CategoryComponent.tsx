@@ -114,7 +114,7 @@ const CategoryComponent = () => {
     setModalOpen(true);
     setModalMode("edit");
   };
-  const handleFieldChange = (name:string,value:any) => {
+  const handleFieldChange = (name: string, value: any) => {
     const updatedRow = { ...currentRow, [name]: value };
     setCurrentRow(updatedRow);
     const validationErrors = validateCategory(updatedRow);

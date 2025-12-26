@@ -29,43 +29,93 @@ export class ItemsService implements IItemsService {
     return this._itemsRepo.createItem(data);
   }
 
+  // async editItem(
+  //   id: string,
+  //   data: Partial<IItemInterface>,
+  //   images: string[]
+  // ): Promise<IItemInterface> {
+  //   const item = await this._itemsRepo.find(id);
+
+  //   if (!item) {
+  //     throw new AppError(MESSAGES.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
+  //   }
+
+  //   /** 🔹 DELETE OLD IMAGES FROM S3 */
+  //   if (item.images?.length) {
+  //     const bucketName = process.env.S3_BUCKET_NAME!;
+  //     const region = process.env.AWS_REGION || "ap-south-1";
+
+  //     for (const oldImage of item.images) {
+  //       const key = oldImage.replace(
+  //         `https://${bucketName}.s3.${region}.amazonaws.com/`,
+  //         ""
+  //       );
+
+  //       if (key) {
+  //         await s3.send(
+  //           new DeleteObjectCommand({
+  //             Bucket: bucketName,
+  //             Key: key,
+  //           })
+  //         );
+  //       }
+  //     }
+  //   }
+
+  //   const updated = await this._itemsRepo.editItem(id, data, images);
+
+  //   if (!updated) {
+  //     throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
+  //   }
+
+  //   return updated;
+  // }
+
   async editItem(
     id: string,
     data: Partial<IItemInterface>,
-    images: string[]
-  ): Promise<IItemInterface> {
+    newImages: string[]
+  ): Promise<IItemInterface | undefined> {
     const item = await this._itemsRepo.find(id);
 
     if (!item) {
       throw new AppError(MESSAGES.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    /** 🔹 DELETE OLD IMAGES FROM S3 */
-    if (item.images?.length) {
-      const bucketName = process.env.S3_BUCKET_NAME!;
-      const region = process.env.AWS_REGION || "ap-south-1";
-
-      for (const oldImage of item.images) {
-        const key = oldImage.replace(
-          `https://${bucketName}.s3.${region}.amazonaws.com/`,
-          ""
-        );
-
-        if (key) {
-          await s3.send(
-            new DeleteObjectCommand({
-              Bucket: bucketName,
-              Key: key,
-            })
-          );
-        }
-      }
+    const existingImages = item.images || [];
+    const incomingCount = newImages.length;
+    const MAX_IMAGES = 3;
+    if (incomingCount === 0) {
+      await this._itemsRepo.editItem(id, data, existingImages);
+      return;
     }
 
-    const updated = await this._itemsRepo.editItem(id, data, images);
+    const bucketName = process.env.S3_BUCKET_NAME!;
+    const region = process.env.AWS_REGION || "ap-south-1";
+    const imagesToDelete = existingImages.slice(MAX_IMAGES - incomingCount);
+    for (const oldImage of imagesToDelete) {
+      const key = oldImage.replace(
+        `https://${bucketName}.s3.${region}.amazonaws.com/`,
+        ""
+      );
+
+      if (key) {
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: bucketName,
+            Key: key,
+          })
+        );
+      }
+    }
+    const imagesToKeep = existingImages.slice(0, MAX_IMAGES - incomingCount);
+
+    const finalImages = [...imagesToKeep, ...newImages];
+
+    const updated = await this._itemsRepo.editItem(id, data, finalImages);
 
     if (!updated) {
-      throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
+      throw new AppError(MESSAGES.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     return updated;

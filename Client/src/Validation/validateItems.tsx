@@ -34,12 +34,16 @@ export const validateItem = (data: IItem) => {
   }
 
   // Category (MANDATORY)
-  if (!data.categoryName) {
+  let categoryId = data.categoryId ? true : false;
+  if (!data.categoryName && !categoryId) {
+    errors.categoryName = "Please select a main category";
+  }
+  if (!data.categoryId && categoryId) {
     errors.categoryName = "Please select a main category";
   }
 
   // SubCategory (OPTIONAL → no validation needed)
-   const imageError = validateImages(data.images);
+  const imageError = validateImages(data.images);
   if (imageError) {
     errors.images = imageError;
   }
@@ -49,7 +53,6 @@ export const validateItem = (data: IItem) => {
       errors.images = "You can upload a maximum of 3 images";
     }
   }
-
   return {
     isValid: Object.keys(errors).length === 0,
     errors,
@@ -57,7 +60,6 @@ export const validateItem = (data: IItem) => {
 };
 
 export const validateImages = (images?: File[]) => {
-  console.log(images, "image");
   if (!images) return null;
   if (!images.length) {
     return "Atleast one image is required";
@@ -66,15 +68,15 @@ export const validateImages = (images?: File[]) => {
     return "You can upload a maximum of 3 images";
   }
 
-  for (const file of images) {
-    if (!file.type.startsWith("image/")) {
-      return "Only image files are allowed";
-    }
+  // for (const file of images) {
+  //   if (!file.type.startsWith("image/")) {
+  //     return "Only image files are allowed";
+  //   }
 
-    if (file.size > 2 * 1024 * 1024) {
-      return "Each image must be less than 2MB";
-    }
-  }
+  //   if (file.size > 2 * 1024 * 1024) {
+  //     return "Each image must be less than 2MB";
+  //   }
+  // }
 
   return null;
 };

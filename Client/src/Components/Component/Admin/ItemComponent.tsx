@@ -1,4 +1,4 @@
-import { UtensilsCrossed } from "lucide-react";
+import { ChartNoAxesColumn, UtensilsCrossed } from "lucide-react";
 import SearchBar from "../../Elements/Reusable/reusableSearchBar";
 import { ToastContainer } from "react-toastify";
 import ReusableModal from "../../modals/SuperAdmin/GeneralModal";
@@ -130,13 +130,11 @@ const ItemComponent = () => {
     setSearchQuery(query);
   };
   const handleSubmit = (row: any) => {
-    console.log(row, "row");
     const { isValid, errors } = validateItem(row);
     if (!isValid) {
       setModalErrors(errors);
       return;
     }
-    console.log(errors, "errors");
     const formData = new FormData();
     formData.append("name", row.name);
     formData.append("price", row.price);
@@ -152,6 +150,10 @@ const ItemComponent = () => {
     row.images?.forEach((file: File) => {
       formData.append("images", file);
     });
+
+    for (let [key, val] of formData.entries()) {
+      console.log(key, val);
+    }
 
     if (modalMode == "add") {
       const itemsAdd = async () => {
@@ -235,7 +237,7 @@ const ItemComponent = () => {
       ...currentRow,
       [name]: value,
     };
-
+    console.log(updatedRow, "rowlsleodlsod");
     setCurrentRow(updatedRow);
 
     const { errors } = validateItem(updatedRow);

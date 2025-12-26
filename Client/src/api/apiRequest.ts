@@ -1,5 +1,3 @@
-
-
 import api from "../services/Api";
 import axios, { type AxiosRequestConfig } from "axios";
 import { showErrorToast } from "../Components/Elements/ErrorToast";
@@ -29,8 +27,6 @@ export const apiRequest = async <T>(
       showErrorToast("An unknown error occurred");
     }
 
-    throw error; 
+    throw error;
   }
 };
-
-

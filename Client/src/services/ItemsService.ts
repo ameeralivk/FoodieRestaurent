@@ -29,7 +29,6 @@ export const editItem = async (
   ItemId: string,
   data: FormData
 ): Promise<{ success: boolean; message: string }> => {
-  console.log(ItemId, data, "dfalfjdsaameer ali kafalk");
   return apiRequest("PATCH", `/admin/items/${ItemId}`, data);
 };
 
@@ -42,11 +41,7 @@ export const changeItemStatus = async (
 };
 
 export const getAllMenuItems = async (
-  restaurantId: string,
+  restaurantId: string
 ): Promise<IItemResponse> => {
-  return apiRequest(
-    "GET",
-    `/admin/items/${restaurantId}`
-  );
+  return apiRequest("GET", `/admin/items/${restaurantId}`);
 };
-
