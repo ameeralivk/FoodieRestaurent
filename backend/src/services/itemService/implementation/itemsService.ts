@@ -25,7 +25,6 @@ export class ItemsService implements IItemsService {
     if (existingItem) {
       throw new AppError("Item with this name already exists", 409);
     }
-
     return this._itemsRepo.createItem(data);
   }
 

@@ -42,6 +42,7 @@ export class ItemController implements IItemController {
         });
       }
       const imageUrls = files.map((file: any) => file.location);
+      console.log(imageUrls,'rul')
       const itemData = {
         ...req.body,
         images: imageUrls,
@@ -78,7 +79,7 @@ export class ItemController implements IItemController {
       const item = await this._itemsService.editItem(
         itemId as string,
         req.body,
-        imageUrls
+        imageUrls?imageUrls:req.body.existingImage
       );
       if (item) {
         return res.status(HttpStatus.OK).json({
@@ -87,7 +88,7 @@ export class ItemController implements IItemController {
         });
       } else {
         return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
+          success: true,
           message: MESSAGES.ITEM_EDITED_SUCCESS,
         });
       }

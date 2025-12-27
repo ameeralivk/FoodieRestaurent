@@ -58,6 +58,7 @@ import multer, { FileFilterCallback } from "multer";
 import path from "path";
 import s3 from "./Bucket";
 import multerS3 from "multer-s3";
+import crypto from "crypto";
 import { Request } from "express";
 
 const storage = multerS3({
@@ -124,18 +125,30 @@ const imageOnlyFilter = (
   }
 };
 
+// const itemImageStorage = multerS3({
+//   s3,
+//   bucket: process.env.S3_BUCKET_NAME || "foodierestaurent",
+//   contentType: multerS3.AUTO_CONTENT_TYPE,
+//   key: (
+//     req: Request,
+//     file: Express.Multer.File,
+//     cb: (error: any, key?: string) => void
+//   ) => {
+//     const folder = "items/images/";
+//     const filename = `item-${Date.now()}${path.extname(file.originalname)}`;
+//     cb(null, folder + filename);
+//   },
+// });
+
 const itemImageStorage = multerS3({
   s3,
   bucket: process.env.S3_BUCKET_NAME || "foodierestaurent",
   contentType: multerS3.AUTO_CONTENT_TYPE,
-  key: (
-    req: Request,
-    file: Express.Multer.File,
-    cb: (error: any, key?: string) => void
-  ) => {
+  key: (req, file, cb) => {
     const folder = "items/images/";
-    const filename = `item-${Date.now()}${path.extname(file.originalname)}`;
-    cb(null, folder + filename);
+    const uniqueId = crypto.randomUUID(); // Node 16+
+    const ext = path.extname(file.originalname);
+    cb(null, `${folder}item-${Date.now()}-${uniqueId}${ext}`);
   },
 });
 

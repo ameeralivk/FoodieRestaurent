@@ -1,3 +1,4 @@
+import { showErrorToast } from "../Components/Elements/ErrorToast";
 import type { IItem } from "../types/Items";
 
 export const validateItem = (data: IItem) => {
@@ -64,19 +65,19 @@ export const validateImages = (images?: File[]) => {
   if (!images.length) {
     return "Atleast one image is required";
   }
-  if (images.length > 3) {
-    return "You can upload a maximum of 3 images";
+  if (images.length != 3) {
+    return "You wand to updload minimum 3 images";
   }
-
-  // for (const file of images) {
-  //   if (!file.type.startsWith("image/")) {
-  //     return "Only image files are allowed";
-  //   }
-
-  //   if (file.size > 2 * 1024 * 1024) {
-  //     return "Each image must be less than 2MB";
-  //   }
-  // }
+  for (let image of images) {
+    if (image.type) {
+      if (!image.type.startsWith("image/")) {
+        showErrorToast("Only image files are allowed");
+      }
+      if (image.size > 2 * 1024 * 1024) {
+        showErrorToast("Each image must be less than 2MB");
+      }
+    }
+  }
 
   return null;
 };

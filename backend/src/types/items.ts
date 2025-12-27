@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 export interface IItemInterface {
   _id?: Types.ObjectId;
   isActive: boolean;
+  existingImages?:string;
   name: string;
   price: number;
   restaurantId: Types.ObjectId;

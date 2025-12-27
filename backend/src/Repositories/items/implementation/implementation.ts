@@ -33,14 +33,14 @@ export class ItemsRepository
     images: string[]
   ): Promise<IItemInterface | null> {
     // return await this.findByIdAndUpdate(id, data);
-    if(images.length){
-       return await this.findByIdAndUpdate(id, {
-      ...data,
-      images, 
-    });
-    }else{
+    if (images.length) {
       return await this.findByIdAndUpdate(id, {
-      ...data,
+        ...data,
+        images: images || data.existingImages,
+      });
+    } else {
+      return await this.findByIdAndUpdate(id, {
+        ...data,
       });
     }
   }
@@ -106,10 +106,7 @@ export class ItemsRepository
     return { data, total };
   }
 
-
   find(id: string): Promise<IItemInterface | null> {
-     return this.getById(id)
+    return this.getById(id);
   }
-
-
 }

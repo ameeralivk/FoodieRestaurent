@@ -6,7 +6,7 @@ import ForgotPassword from "../Pages/user/auth/forgetPasswordPage";
 import UserPrivateRoute from "./user/userPrivateRoute";
 import UserPublicRoute from "./user/userPublicRoute";
 import PageNotFound from "../Pages/auth/PageNotFound";
-import UserRestaurantPage from "../Pages/user/UserRestaurentPage";
+import UserRestaurantPage from "../Pages/user/UserMenuPage";
 const UserRoutes = () => {
   return (
     <Routes>

@@ -8,7 +8,7 @@ import type { RootState } from "../../redux/store/store";
 import HeroBanner from "../../Components/user/BannerSection";
 import { getAllItems } from "../../services/ItemsService";
 import { useParams, useSearchParams } from "react-router-dom";
-import type{ IItemResponse } from "../../types/Items";
+import type { IItemResponse } from "../../types/Items";
 
 const UserRestaurantPage: React.FC = () => {
   const banners = [
@@ -79,7 +79,7 @@ const UserRestaurantPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Navbar restaurantName="Foodie Restaurent" />
       {/* Hero Section */}
       <HeroBanner banners={banners} current={current} onChange={setCurrent} />
 
