@@ -48,8 +48,20 @@ const ItemComponent = () => {
   const columns = [
     { header: "Item Name", accessor: "name" },
     { header: "Price", accessor: "price" },
-    { header: "Stock", accessor: "stock" },
-    { header: "Points", accessor: "points" },
+    {
+      header: "Stock",
+      accessor: "stock",
+      render: (value: number | null | undefined) => {
+        return value ?? "Null";
+      },
+    },
+    {
+      header: "Preparation Time",
+      accessor: "preparationTime",
+      render: (value: number | null | undefined) => {
+        return value != null ? `${value} minutes` : "—";
+      },
+    },
     {
       header: "Created At",
       accessor: "createdAt",
@@ -139,6 +151,7 @@ const ItemComponent = () => {
     formData.append("name", row.name);
     formData.append("price", row.price);
     formData.append("stock", row.stock);
+    formData.append("preparationTime", row.preparationTime);
     formData.append("categoryId", categoryId || currentRow?.categoryId?._id);
     if (subCategory.length) {
       formData.append(
@@ -425,6 +438,13 @@ const ItemComponent = () => {
               type: "number",
               placeholder: "Enter Points : Optional",
               value: currentRow?.points || "",
+            },
+            {
+              name: "preparationTime",
+              label: "PrepartionTime (minutes)",
+              type: "number",
+              placeholder: "preparationTime : Optional",
+              value: currentRow?.preparationTime || "",
             },
             {
               name: "categoryName",

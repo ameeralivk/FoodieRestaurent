@@ -24,7 +24,7 @@ export class ItemsRepository
   }
 
   async createItem(data: IItemInterface): Promise<IItemInterface> {
-    return this.create(data);
+    return this.create({...data,preparationTime:data.preparationTime});
   }
 
   async editItem(
@@ -32,11 +32,11 @@ export class ItemsRepository
     data: Partial<IItemInterface>,
     images: string[]
   ): Promise<IItemInterface | null> {
-    // return await this.findByIdAndUpdate(id, data);
     if (images.length) {
       return await this.findByIdAndUpdate(id, {
         ...data,
         images: images || data.existingImages,
+        preparationTime:Number(data.preparationTime),
       });
     } else {
       return await this.findByIdAndUpdate(id, {

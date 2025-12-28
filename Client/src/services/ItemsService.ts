@@ -9,7 +9,7 @@ export const getAllItems = async (
 ): Promise<IItemResponse> => {
   return apiRequest(
     "GET",
-    `/admin/items/${restaurantId}?search=${search}&page=${page}&limit=${limit}`
+    `/admin/restaurants/items/${restaurantId}?search=${search}&page=${page}&limit=${limit}`
   );
 };
 

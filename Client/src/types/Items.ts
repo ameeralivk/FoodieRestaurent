@@ -1,4 +1,3 @@
-
 export interface IItem {
   _id: string;
   name: string;
@@ -8,9 +7,11 @@ export interface IItem {
   isStock: boolean;
   isActive: boolean;
   isDeleted: boolean;
+  categoryName:string;
   restaurantId: string;
+  categoryId:string;
   category: string; // categoryId
-  images:File[];
+  images: File[];
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   __v: number;
@@ -30,10 +31,10 @@ export interface addItemInterface {
   price: number;
   restaurantId: string;
   stock?: string;
-  images:File[]
+  images: File[];
   points?: number;
-  category:string;
-  subCategory?:string;
+  category: string;
+  subCategory?: string;
 }
 
 export interface ICategory {
@@ -50,23 +51,28 @@ export interface ISubCategory {
   updatedAt?: string;
 }
 
-export interface IItem {
+export interface Item {
   _id: string;
   name: string;
   price: number;
-  stock: number;
+  images: string[];
+  preparationTime: number;
   points: number;
-  isActive: boolean;
-  categoryName?:string;
-  isDeleted: boolean;
+  stock: number;
   isStock: boolean;
-  images: File[];
+  isActive: boolean;
+  categoryId: string;
   restaurantId: string;
-  categoryId: ICategory; // Nested object
-  subCategoryId: ISubCategory; // Nested object
   createdAt: string;
   updatedAt: string;
+  __v: number;
 }
 
-
+export interface GetMenuItemsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    data: Item;  
+  };
+}
 

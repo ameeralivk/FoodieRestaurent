@@ -7,6 +7,7 @@ import UserPrivateRoute from "./user/userPrivateRoute";
 import UserPublicRoute from "./user/userPublicRoute";
 import PageNotFound from "../Pages/auth/PageNotFound";
 import UserRestaurantPage from "../Pages/user/UserMenuPage";
+import ItemDetailPage from "../Pages/user/ItemDetailsPage";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -28,6 +29,7 @@ const UserRoutes = () => {
         path="/restaurant/:restaurantId"
         element={<UserRestaurantPage />}
       />
+      <Route path="/items/:itemId" element={<ItemDetailPage/>}/>
     </Routes>
   );
 };

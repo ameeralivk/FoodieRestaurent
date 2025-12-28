@@ -16,6 +16,7 @@ import { container } from "./DI/container";
 import { PaymentController } from "./Controller/paymentController/Implimentation/paymentController";
 import { TYPES } from "./DI/types";
 import "reflect-metadata";
+import userRouter from "./Routes/user/userRoutes"
 const paymentController = container.get<PaymentController>(TYPES.PaymentController)
 const app = express();
 app.use(
@@ -40,6 +41,7 @@ app.use("/api/user/auth", userAuthRouter);
 app.use("/api/staff/auth",staffAuthRouter)
 app.use("/api/superadmin", superAdminRouter);
 app.use("/api/admin", AdminRouter);
+app.use("/api/user",userRouter)
 app.use(errorHandler);
 const port = process.env.PORT;
 app.listen(port, () => {

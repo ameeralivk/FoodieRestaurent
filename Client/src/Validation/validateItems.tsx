@@ -73,7 +73,7 @@ export const validateImages = (images?: File[]) => {
       if (!image.type.startsWith("image/")) {
         showErrorToast("Only image files are allowed");
       }
-      if (image.size > 2 * 1024 * 1024) {
+      if (image.size > 5 * 1024 * 1024) {
         showErrorToast("Each image must be less than 2MB");
       }
     }

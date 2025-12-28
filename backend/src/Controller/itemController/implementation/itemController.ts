@@ -42,7 +42,7 @@ export class ItemController implements IItemController {
         });
       }
       const imageUrls = files.map((file: any) => file.location);
-      console.log(imageUrls,'rul')
+      console.log(imageUrls, "rul");
       const itemData = {
         ...req.body,
         images: imageUrls,
@@ -79,7 +79,7 @@ export class ItemController implements IItemController {
       const item = await this._itemsService.editItem(
         itemId as string,
         req.body,
-        imageUrls?imageUrls:req.body.existingImage
+        imageUrls ? imageUrls : req.body.existingImage
       );
       if (item) {
         return res.status(HttpStatus.OK).json({
@@ -161,6 +161,26 @@ export class ItemController implements IItemController {
         page,
         limit,
       });
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  };
+
+  getItem = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { itemId } = req.params;
+      const item = await this._itemsService.getItem(itemId as string);
+      if (item) {
+        return res.status(HttpStatus.OK).json({
+          succss: true,
+          message: MESSAGES.ITEM_EDITED_SUCCESS,
+          data: item,
+        });
+      } else {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ sucess: false, messaeg: MESSAGES.ITEM_FETCHED_FAILED });
+      }
     } catch (error: any) {
       throw new AppError(error.message);
     }

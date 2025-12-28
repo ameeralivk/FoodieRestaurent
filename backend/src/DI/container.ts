@@ -38,6 +38,8 @@ import { CategoryRepository } from "../Repositories/category/implementation/cate
 import { SubCategoryController } from "../Controller/subCategoryController/implementation/subCategoryControlller";
 import { SubCategoryService } from "../services/subCategoryService/implementation/subCategoryService";
 import { SubCategoryRepository } from "../Repositories/subCategory/implementation/subCategoryRepository";
+import { AiController } from "../Controller/aiController/implementation/aiController";
+import { AIService } from "../services/aiService/implimentation/aiService";
 
 const container = new Container();
 //payment
@@ -103,4 +105,9 @@ container.bind(TYPES.categoryRepository).to(CategoryRepository)
 container.bind(TYPES.SubCategoryController).to(SubCategoryController)
 container.bind(TYPES.subCategoryService).to(SubCategoryService)
 container.bind(TYPES.subCategoryRepository).to(SubCategoryRepository)
+
+
+//Ai
+container.bind(TYPES.aiController).to(AiController)
+container.bind(TYPES.aiService).to(AIService)
 export { container };

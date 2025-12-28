@@ -86,7 +86,6 @@ export class ItemsService implements IItemsService {
     const MAX_IMAGES = 3;
     if (incomingCount === 0) {
       await this._itemsRepo.editItem(id, data, existingImages);
-      return;
     }
 
     const bucketName = process.env.S3_BUCKET_NAME!;
@@ -159,4 +158,10 @@ export class ItemsService implements IItemsService {
       limit
     );
   }
+
+  async getItem(id: string): Promise<{ success: boolean , data: IItemInterface|null }> {
+    let res = await this._itemsRepo.find(id)
+    return {success:true,data:res}
+  }
 }
+

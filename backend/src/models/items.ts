@@ -1,10 +1,10 @@
-import { Schema } from "mongoose"
-import { Document } from "mongoose"
-import mongoose from "mongoose"
-import { IItemInterface } from "../types/items"
+import { Schema } from "mongoose";
+import { Document } from "mongoose";
+import mongoose from "mongoose";
+import { IItemInterface } from "../types/items";
 
-
-const items = new Schema<itemsDocument>({
+const items = new Schema<itemsDocument>(
+  {
     isActive: {
       type: Boolean,
       default: true,
@@ -37,6 +37,11 @@ const items = new Schema<itemsDocument>({
     description: {
       type: String,
     },
+    preparationTime: {
+      type: Number, 
+      default: 0,
+      min: 0,
+    },
 
     images: [
       {
@@ -59,9 +64,9 @@ const items = new Schema<itemsDocument>({
       ref: "Category",
       required: true,
     },
-    isDeleted:{
-      type:Boolean,
-      default:false,
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
     points: {
       type: Number,
@@ -70,11 +75,10 @@ const items = new Schema<itemsDocument>({
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
-)
+);
 
-export type itemsDocument = IItemInterface  & Document 
-const Items = mongoose.model<itemsDocument>("items",items)
-export default Items
-
+export type itemsDocument = IItemInterface & Document;
+const Items = mongoose.model<itemsDocument>("items", items);
+export default Items;

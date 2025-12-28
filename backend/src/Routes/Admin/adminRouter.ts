@@ -77,14 +77,16 @@ Router.route("/items").post(uploadItemImages,asyncHandler(itemsController.addIte
 Router
   .route("/items/:itemId")
   .patch(updateItemImagesUpload,asyncHandler(itemsController.editItem))
-  .delete(asyncHandler(itemsController.deleteItem));
+  .delete(asyncHandler(itemsController.deleteItem))
+  .get(asyncHandler(itemsController.getItem))
 
 Router
   .route("/items/:itemId/status")
   .patch(asyncHandler(itemsController.changeStatus));
 Router
-  .route("/items/:restaurantId")
+  .route("/restaurants/items/:restaurantId")
   .get(asyncHandler(itemsController.getAllItems));
+
 
 
 
@@ -115,5 +117,9 @@ Router.route("/subcategory/:categoryId")
     .delete(asyncHandler(subCategoryController.deleteSubCategory))
 Router.route("/subcategory/:restaurantId/:categoryId")
      .get(asyncHandler(subCategoryController.getAllSubCategories))
+
+
+//Ai 
+
 
 export default Router;

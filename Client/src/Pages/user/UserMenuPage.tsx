@@ -9,8 +9,11 @@ import HeroBanner from "../../Components/user/BannerSection";
 import { getAllItems } from "../../services/ItemsService";
 import { useParams, useSearchParams } from "react-router-dom";
 import type { IItemResponse } from "../../types/Items";
+import DraggableAIChatbot from "../../Components/Component/user/chatBot";
+import { useNavigate } from "react-router-dom";
 
 const UserRestaurantPage: React.FC = () => {
+  const navigate = useNavigate();
   const banners = [
     {
       title: "Friday pizza!",
@@ -76,9 +79,12 @@ const UserRestaurantPage: React.FC = () => {
   };
 
   const handleAddToCart = () => {};
-
   return (
     <div className="min-h-screen bg-gray-50">
+      <div className="fixed bottom-6 right-6 z-[9999]">
+        <DraggableAIChatbot />
+      </div>
+
       <Navbar restaurantName="Foodie Restaurent" />
       {/* Hero Section */}
       <HeroBanner banners={banners} current={current} onChange={setCurrent} />
@@ -88,7 +94,7 @@ const UserRestaurantPage: React.FC = () => {
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
           Recommended menu
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 cursor-pointer">
           {Items?.map((item) => (
             <ItemCard
               key={item?._id}
@@ -96,6 +102,10 @@ const UserRestaurantPage: React.FC = () => {
               selectedSize={sizes[item?._id]}
               onSizeChange={handleSizeChange}
               onAddToCart={handleAddToCart}
+              onClick={() => {
+                navigate(`/user/items/${item._id}`);
+                console.log("Hi hellow");
+              }}
             />
           ))}
         </div>
