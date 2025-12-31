@@ -10,6 +10,5 @@ export const changeRestaurantStatus = async (
   } else {
     temp = "unblock";
   }
-  console.log(restaurantId, temp, "ready");
   return apiRequest("PATCH", `/superadmin/restaurant/${restaurantId}/${temp}`);
 };

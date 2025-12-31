@@ -15,7 +15,6 @@ export const searchLocation = async (query: string) => {
         longitude: parseFloat(lon),
       };
     } else {
-      console.warn("Location not found!");
       return null;
     }
   } catch (error) {

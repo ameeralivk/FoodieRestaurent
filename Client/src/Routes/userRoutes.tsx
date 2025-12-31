@@ -8,6 +8,7 @@ import UserPublicRoute from "./user/userPublicRoute";
 import PageNotFound from "../Pages/auth/PageNotFound";
 import UserRestaurantPage from "../Pages/user/UserMenuPage";
 import ItemDetailPage from "../Pages/user/ItemDetailsPage";
+import CartPage from "../Pages/user/cartPage";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -29,7 +30,8 @@ const UserRoutes = () => {
         path="/restaurant/:restaurantId"
         element={<UserRestaurantPage />}
       />
-      <Route path="/items/:itemId" element={<ItemDetailPage/>}/>
+      <Route path="/:restaurantId/items/:itemId" element={<ItemDetailPage />} />
+      <Route path="/:restaurantId/cart" element={<CartPage />} />
     </Routes>
   );
 };

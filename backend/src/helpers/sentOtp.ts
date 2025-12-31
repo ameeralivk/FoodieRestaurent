@@ -68,7 +68,6 @@ export const sentOtp = async (email: string, otp: string): Promise<otpResponse> 
     await transporter.sendMail(mailOptions);
     return {success:true,message:"Otp sented successfully"}
   } catch (error) {
-  console.error(error);
   return { success: false, message: "Failed to send OTP" };
   }
 };
@@ -192,7 +191,6 @@ export const sendResetPasswordEmail = async (email: string, token: string,role:"
 
     return { success: true, message: "Password reset link sent successfully" };
   } catch (error) {
-    console.error(error);
     return { success: false, message: "Failed to send password reset email" };
   }
 };

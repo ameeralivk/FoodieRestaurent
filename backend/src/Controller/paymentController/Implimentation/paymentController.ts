@@ -49,7 +49,6 @@ export class PaymentController implements IPaymentController {
 
       res.status(200).send("Webhook received");
     } catch (err: any) {
-      console.error("Webhook error:", err.message);
       res.status(400).send(`Webhook Error: ${err.message}`);
     }
   };

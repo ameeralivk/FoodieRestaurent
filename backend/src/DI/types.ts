@@ -38,5 +38,8 @@ export const TYPES = {
   subCategoryService:Symbol("subCategoryService"),
   SubCategoryController:Symbol("subCategoryController"),
   aiController:Symbol("aiController"),
-  aiService:Symbol("aiService")
+  aiService:Symbol("aiService"),
+  cartController:Symbol("cartController"),
+  CartService:Symbol("cartService"),
+  cartRepository:Symbol("cartRepository")
 };

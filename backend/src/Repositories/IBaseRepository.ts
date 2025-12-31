@@ -56,13 +56,6 @@ export class BaseRepository<T> {
     const [data, total] = await Promise.all([dataPromise, totalPromise]);
     return { data, total };
   }
-  // async findByIdAndDel(id: string): Promise<T | null> {
-  //   try {
-  //     return await this.model.findByIdAndDelete(id);
-  //   } catch (error: any) {
-  //     throw new Error(error.message);
-  //   }
-  // }
   async findByIdAndDel(
   id: string,
   statusField?: keyof T,

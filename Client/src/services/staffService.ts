@@ -41,7 +41,6 @@ export const changeStaffStatus = async (
   staffId: string,
   status: boolean
 ): Promise<{ success: boolean; message: string }> => {
-  console.log(status, "status");
   return apiRequest("PATCH", `/admin/staff/${staffId}`, { status });
 };
 

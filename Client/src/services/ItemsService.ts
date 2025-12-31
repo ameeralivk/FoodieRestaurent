@@ -36,7 +36,6 @@ export const changeItemStatus = async (
   ItemId: string,
   isActive: boolean
 ): Promise<{ success: boolean; message: string }> => {
-  console.log(ItemId, isActive, "fdlsafjdsaj");
   return apiRequest("PATCH", `/admin/items/${ItemId}/status`, { isActive });
 };
 

@@ -80,7 +80,6 @@ const UserLandingPage: React.FC = () => {
 
       if (code) {
         // code.data contains the URL from QR
-        console.log("QR Code Data:", code.data);
         navigate(new URL(code.data).pathname + new URL(code.data).search);
       } else {
         alert("No QR code detected");

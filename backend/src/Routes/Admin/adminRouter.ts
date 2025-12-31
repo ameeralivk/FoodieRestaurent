@@ -57,16 +57,16 @@ Router.route("/staff/:restaurantId").get(
 
 //table
 Router.route("/table")
-.post(asyncHandler(tableController.addTable))
+.post(verifyAccessToken,asyncHandler(tableController.addTable))
 
 Router.route("/table/:tableId")
-.put(asyncHandler(tableController.editTable))
-.delete(asyncHandler(tableController.deleteTable))
-.patch(asyncHandler(tableController.updateAvailability))
+.put(verifyAccessToken,asyncHandler(tableController.editTable))
+.delete(verifyAccessToken,asyncHandler(tableController.deleteTable))
+.patch(verifyAccessToken,asyncHandler(tableController.updateAvailability))
 
 
 Router.route("/table/:restaurantId")
-.get(asyncHandler(tableController.getAllTables))
+.get(verifyAccessToken,asyncHandler(tableController.getAllTables))
 
 
 
@@ -76,16 +76,16 @@ Router.route("/items").post(uploadItemImages,asyncHandler(itemsController.addIte
 
 Router
   .route("/items/:itemId")
-  .patch(updateItemImagesUpload,asyncHandler(itemsController.editItem))
-  .delete(asyncHandler(itemsController.deleteItem))
-  .get(asyncHandler(itemsController.getItem))
+  .patch(verifyAccessToken,updateItemImagesUpload,asyncHandler(itemsController.editItem))
+  .delete(verifyAccessToken,asyncHandler(itemsController.deleteItem))
+  .get(verifyAccessToken,asyncHandler(itemsController.getItem))
 
 Router
   .route("/items/:itemId/status")
-  .patch(asyncHandler(itemsController.changeStatus));
+  .patch(verifyAccessToken,asyncHandler(itemsController.changeStatus));
 Router
   .route("/restaurants/items/:restaurantId")
-  .get(asyncHandler(itemsController.getAllItems));
+  .get(verifyAccessToken,asyncHandler(itemsController.getAllItems));
 
 
 
@@ -94,29 +94,29 @@ Router
 
 //category
 Router.route("/category")
-     .post(asyncHandler(categoryController.addCategory))
+     .post(verifyAccessToken,asyncHandler(categoryController.addCategory))
 
 Router.route("/category/:restaurantId")
-     .get(asyncHandler(categoryController.getAllCategory))
+     .get(verifyAccessToken,asyncHandler(categoryController.getAllCategory))
 
 Router.route("/category/:restaurantId/:categoryId")
-     .patch(asyncHandler(categoryController.editCategory))
-     .delete(asyncHandler(categoryController.deleteCategory))
+     .patch(verifyAccessToken,asyncHandler(categoryController.editCategory))
+     .delete(verifyAccessToken,asyncHandler(categoryController.deleteCategory))
 
 
 //subcategory
 
 Router.route("/subcategory")
-    .post(asyncHandler(subCategoryController.addSubCategory))
+    .post(verifyAccessToken,asyncHandler(subCategoryController.addSubCategory))
 
 Router.route("/subcategory/:restaurantId")
-     .get(asyncHandler(subCategoryController.getAllByRestaurant))
+     .get(verifyAccessToken,asyncHandler(subCategoryController.getAllByRestaurant))
 
 Router.route("/subcategory/:categoryId")
-    .patch(asyncHandler(subCategoryController.editSubCategory))
-    .delete(asyncHandler(subCategoryController.deleteSubCategory))
+    .patch(verifyAccessToken,asyncHandler(subCategoryController.editSubCategory))
+    .delete(verifyAccessToken,asyncHandler(subCategoryController.deleteSubCategory))
 Router.route("/subcategory/:restaurantId/:categoryId")
-     .get(asyncHandler(subCategoryController.getAllSubCategories))
+     .get(verifyAccessToken,asyncHandler(subCategoryController.getAllSubCategories))
 
 
 //Ai 

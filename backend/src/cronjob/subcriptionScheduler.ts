@@ -16,5 +16,4 @@ export async function activateQueuedSubscriptions() {
 
 export function startSubscriptionScheduler() {
   setInterval(activateQueuedSubscriptions, 1000 * 60);
-  console.log("Subscription scheduler started");
 }

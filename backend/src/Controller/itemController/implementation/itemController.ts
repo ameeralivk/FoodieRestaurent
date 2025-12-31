@@ -42,7 +42,6 @@ export class ItemController implements IItemController {
         });
       }
       const imageUrls = files.map((file: any) => file.location);
-      console.log(imageUrls, "rul");
       const itemData = {
         ...req.body,
         images: imageUrls,
@@ -69,12 +68,6 @@ export class ItemController implements IItemController {
     try {
       const { itemId } = req.params;
       const files = req.files as Express.Multer.File[];
-      // if (!files || files.length === 0) {
-      //   return res.status(HttpStatus.BAD_REQUEST).json({
-      //     success: false,
-      //     message: "At least one image is required",
-      //   });
-      // }
       const imageUrls = files.map((file: any) => file.location);
       const item = await this._itemsService.editItem(
         itemId as string,

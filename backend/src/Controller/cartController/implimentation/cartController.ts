@@ -1,0 +1,114 @@
+import { injectable, inject } from "inversify";
+import { ICartService } from "../../../services/cart/interface/ICartService";
+import { TYPES } from "../../../DI/types";
+import { ICartController } from "../interface/ICartController";
+import { AppError } from "../../../utils/Error";
+import HttpStatus from "../../../constants/htttpStatusCode";
+import { MESSAGES } from "../../../constants/messages";
+import { Request, Response } from "express";
+
+@injectable()
+export class CartController implements ICartController {
+  constructor(@inject(TYPES.CartService) private _cartService: ICartService) {}
+
+  addToCart = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { itemId, restaurantId, userId, tableId, quantity } = req.body;
+
+      const cart = await this._cartService.addToCart(
+        userId,
+        itemId,
+        restaurantId,
+        tableId,
+        quantity
+      );
+
+      if (cart) {
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: MESSAGES.CART_CREATION_SUCCESS });
+      } else {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: MESSAGES.CART_CREATION_FAILED });
+      }
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  };
+
+  updateQuantity = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { cartId, restaurantId, itemId, action } = req.body;
+      const cart = await this._cartService.updateQuantity(
+        cartId,
+        restaurantId,
+        itemId,
+        action
+      );
+
+      if (cart.success) {
+        return res.status(HttpStatus.OK).json({
+          success: true,
+          message: MESSAGES.CART_QUANTITY_UPDATED,
+        });
+      } else {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: MESSAGES.CART_QUANTITY_UPDATED_FAILED,
+        });
+      }
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  };
+
+  getCart = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { userId, restaurantId } = req.params;
+
+      const cart = await this._cartService.getCart(
+        userId as string,
+        restaurantId as string
+      );
+      if (cart) {
+        return res.status(200).json({
+          success: true,
+          cart,
+        });
+      } else {
+        return res.status(200).json({
+          success: true,
+          cart: [],
+        });
+      }
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  };
+
+  deleteCart = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { cartId, restaurantId } = req.params;
+      const { itemId } = req.body;
+      let result = await this._cartService.deleteCart(
+        cartId as string,
+        restaurantId as string,
+        itemId as string
+      );
+      if (result.success) {
+        return res.status(HttpStatus.OK).json({
+          success: true,
+          message: MESSAGES.CART_DELETED_SUCCESS,
+        });
+      } else {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: MESSAGES.CART_DELETED_FAILED,
+        });
+      }
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  };
+}

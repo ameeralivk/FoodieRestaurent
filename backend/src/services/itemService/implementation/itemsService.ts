@@ -121,7 +121,6 @@ export class ItemsService implements IItemsService {
 
   async deleteItem(id: string): Promise<IItemInterface> {
     const deleted = await this._itemsRepo.deleteItem(id);
-    console.log(deleted, "dele");
     if (!deleted) {
       throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
     }

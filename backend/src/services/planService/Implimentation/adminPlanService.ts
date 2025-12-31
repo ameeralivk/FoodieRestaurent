@@ -45,7 +45,6 @@ export class AdminPlanService implements IAdminPlanService {
       total: result.total,
     };
   } catch (error: any) {
-    console.error("Error fetching plans:", error);
     return { success: false, data: [], total: 0 };
   }
   }

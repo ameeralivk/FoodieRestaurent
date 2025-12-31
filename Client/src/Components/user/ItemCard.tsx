@@ -11,7 +11,7 @@ interface PizzaCardProps {
   Item: IItem;
   selectedSize?: string;
   onSizeChange: (id: IItem["_id"], size: string) => void;
-  onAddToCart: (pizza: IItem) => void;
+  onAddToCart: (e: React.MouseEvent<HTMLButtonElement>, pizza: string) => void;
   onClick?: () => void;
 }
 
@@ -23,7 +23,10 @@ const ItemCard: React.FC<PizzaCardProps> = ({
   onClick,
 }) => {
   return (
-    <div onClick={onClick} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300">
+    <div
+      onClick={onClick}
+      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300"
+    >
       <div className="p-6">
         <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center overflow-hidden">
           <img
@@ -51,19 +54,9 @@ const ItemCard: React.FC<PizzaCardProps> = ({
           ₹{Item.price.toFixed(2)}
         </p>
 
-        <select
-          value={selectedSize ?? "Regular"}
-          onChange={(e) => onSizeChange(Item._id, e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
-        >
-          <option value="Regular">Regular</option>
-          <option value="Medium">Medium</option>
-          <option value="Large">Large</option>
-        </select>
-
         <button
-          onClick={() => onAddToCart(Item)}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition duration-200"
+          onClick={(e) => onAddToCart(e, Item._id.toString())}
+          className="w-full bg-red-600 hover:bg-red-700 mt-10 text-white font-semibold py-3 rounded-lg transition duration-200"
         >
           ADD TO CART
         </button>

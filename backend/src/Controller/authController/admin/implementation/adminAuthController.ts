@@ -121,10 +121,6 @@ export class AdminAuthController implements IAdminAuthController {
         accesstoken,
       });
     } catch (error:any) {
-      // console.error(error);
-      // return res
-      //   .status(500)
-      //   .json({ success: false, message: "Google auth failed" });
       throw new AppError(error.message)
     }
   };

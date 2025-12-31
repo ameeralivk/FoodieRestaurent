@@ -118,7 +118,6 @@ const CategoryComponent = () => {
     const updatedRow = { ...currentRow, [name]: value };
     setCurrentRow(updatedRow);
     const validationErrors = validateCategory(updatedRow);
-    console.log(validationErrors, "error");
     setModalErrors(validationErrors.errors);
   };
 

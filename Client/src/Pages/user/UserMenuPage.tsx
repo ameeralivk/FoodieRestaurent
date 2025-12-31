@@ -11,6 +11,9 @@ import { useParams, useSearchParams } from "react-router-dom";
 import type { IItemResponse } from "../../types/Items";
 import DraggableAIChatbot from "../../Components/Component/user/chatBot";
 import { useNavigate } from "react-router-dom";
+import { AddToCart } from "../../services/cart";
+import { showErrorToast } from "../../Components/Elements/ErrorToast";
+import { showSuccessToast } from "../../Components/Elements/SuccessToast";
 
 const UserRestaurantPage: React.FC = () => {
   const navigate = useNavigate();
@@ -42,7 +45,7 @@ const UserRestaurantPage: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
-
+  const userId = useSelector((state:RootState)=>state.userAuth.user?._id)
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const [searchParams] = useSearchParams();
   const table = searchParams.get("table");
@@ -78,7 +81,28 @@ const UserRestaurantPage: React.FC = () => {
     setQuantities((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleAddToCart = () => {};
+  const handleAddToCart = async(e:React.MouseEvent<HTMLButtonElement>,id:string) => {
+     e.stopPropagation();
+    try {
+          if (userId && restaurantId && table) {
+            const res = await AddToCart(
+              userId,
+              restaurantId,
+              id,
+              table,
+              "1"
+            );
+            if (res.success) {
+              showSuccessToast("Added to Cart Successfully");
+              navigate(`/user/${restaurantId}/cart`);
+            }
+          } else {
+            showErrorToast("userId or restaurentId or tableId is not found");
+          }
+        } catch (error) {
+          return;
+        }
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="fixed bottom-6 right-6 z-[9999]">
@@ -103,8 +127,7 @@ const UserRestaurantPage: React.FC = () => {
               onSizeChange={handleSizeChange}
               onAddToCart={handleAddToCart}
               onClick={() => {
-                navigate(`/user/items/${item._id}`);
-                console.log("Hi hellow");
+                navigate(`/user/${restaurantId}/items/${item._id}?tableId=${table}`);
               }}
             />
           ))}

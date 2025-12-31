@@ -1,19 +1,41 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Clock, Star, Plus, Minus, ShoppingCart } from "lucide-react";
+import {
+  ChevronLeft,
+  Clock,
+  Star,
+  Plus,
+  Minus,
+  ShoppingCart,
+} from "lucide-react";
 import { getItem, sendToAi } from "../../services/user";
 import type { GetMenuItemsResponse } from "../../types/Items";
 import { useNavigate } from "react-router-dom";
+import { AddToCart } from "../../services/cart";
+import type { RootState } from "../../redux/store/store";
+import { useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { showErrorToast } from "../../Components/Elements/ErrorToast";
+import { showSuccessToast } from "../../Components/Elements/SuccessToast";
+import { ToastContainer } from "react-toastify";
 const ItemDetailPage: React.FC = () => {
   const { itemId } = useParams<{ itemId: string }>();
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [aiDescription, setAiDescription] = useState<string>("");
   const [loadingNutrition, setLoadingNutrition] = useState(true);
-  const [nutrition, setNutrition] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
-   const navigate = useNavigate();
+  const [nutrition, setNutrition] = useState({
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  });
+  const [searchParams] = useSearchParams();
+  const userId = useSelector((state: RootState) => state.userAuth.user?._id);
+  const { restaurantId } = useParams<{ restaurantId: string }>();
+  const table = searchParams.get("tableId");
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery<GetMenuItemsResponse>({
     queryKey: ["item", itemId],
     queryFn: () => getItem(itemId as string),
@@ -27,7 +49,9 @@ const ItemDetailPage: React.FC = () => {
   useEffect(() => {
     if (!images.length) return;
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+      setCurrentImageIndex((prev) =>
+        prev === images.length - 1 ? 0 : prev + 1
+      );
     }, 3000);
     return () => clearInterval(interval);
   }, [images.length]);
@@ -43,7 +67,8 @@ const ItemDetailPage: React.FC = () => {
       setLoadingNutrition(true);
 
       try {
-        const res = await sendToAi(`Give me a JSON with description and nutritional info (Calories, Protein in g, Carbs in g, Fat in g) for ${item.name}.
+        const res =
+          await sendToAi(`Give me a JSON with description and nutritional info (Calories, Protein in g, Carbs in g, Fat in g) for ${item.name}.
 Example format:
 {
   "description": "...",
@@ -78,17 +103,42 @@ Example format:
     return <div className="text-center py-20">Loading item...</div>;
   }
 
-  const handleQuantityDecrease = () => { if (quantity > 1) setQuantity(quantity - 1); };
+  async function handleAddToCart(id: string) {
+    try {
+      if (userId && restaurantId && table) {
+        const res = await AddToCart(
+          userId,
+          restaurantId,
+          id,
+          table,
+          quantity.toString()
+        );
+        if (res.success) {
+          showSuccessToast("Added to Cart Successfully");
+          navigate(`/user/${restaurantId}/cart`);
+        }
+      } else {
+        showErrorToast("userId or restaurentId or tableId is not found");
+      }
+    } catch (error) {
+      return;
+    }
+  }
+
+  const handleQuantityDecrease = () => {
+    if (quantity > 1) setQuantity(quantity - 1);
+  };
   const handleQuantityIncrease = () => setQuantity(quantity + 1);
   const totalPrice = item.price * quantity;
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ToastContainer />
       {/* Header */}
       <div className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-8xl mx-auto px-4 py-4 flex items-center">
           <button className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition">
-            <ChevronLeft onClick={()=>navigate(-1)} className="w-6 h-6" />
+            <ChevronLeft onClick={() => navigate(-1)} className="w-6 h-6" />
           </button>
           <h1 className="ml-2 text-lg font-semibold">Item Details</h1>
         </div>
@@ -98,7 +148,11 @@ Example format:
         {/* Image Gallery */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
           <div className="relative aspect-[4/2] bg-gray-100">
-            <img src={images[currentImageIndex]} alt={item?.name} className="w-full h-full object-cover" />
+            <img
+              src={images[currentImageIndex]}
+              alt={item?.name}
+              className="w-full h-full object-cover"
+            />
             {item?.isStock && (
               <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                 In Stock
@@ -112,10 +166,16 @@ Example format:
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
                 className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition ${
-                  currentImageIndex === index ? "border-red-500" : "border-gray-200"
+                  currentImageIndex === index
+                    ? "border-red-500"
+                    : "border-gray-200"
                 }`}
               >
-                <img src={image} alt={`${item.name} ${index + 1}`} className="w-full h-full object-cover" />
+                <img
+                  src={image}
+                  alt={`${item.name} ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
               </button>
             ))}
           </div>
@@ -125,7 +185,9 @@ Example format:
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{item?.name}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {item?.name}
+              </h2>
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
@@ -138,7 +200,9 @@ Example format:
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-green-600">₹{item?.price}</div>
+              <div className="text-2xl font-bold text-green-600">
+                ₹{item?.price}
+              </div>
             </div>
           </div>
 
@@ -146,7 +210,9 @@ Example format:
           <div className="border-t pt-4 mb-4">
             <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
             {aiDescription ? (
-              <p className="text-gray-600 text-sm leading-relaxed">{aiDescription}</p>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {aiDescription}
+              </p>
             ) : (
               <div className="h-6 w-full bg-gray-200 rounded animate-pulse"></div>
             )}
@@ -154,7 +220,9 @@ Example format:
 
           {/* Nutritional Info */}
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Nutritional Info</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">
+              Nutritional Info
+            </h3>
             <div className="grid grid-cols-4 gap-4 text-center">
               {["calories", "protein", "carbs", "fat"].map((key) => (
                 <div key={key} className="bg-gray-50 rounded-lg p-3">
@@ -172,7 +240,9 @@ Example format:
                     )}
                   </div>
                   <div className="text-xs text-gray-600 capitalize">
-                    {key === "calories" ? "Calories" : key.charAt(0).toUpperCase() + key.slice(1)}
+                    {key === "calories"
+                      ? "Calories"
+                      : key.charAt(0).toUpperCase() + key.slice(1)}
                   </div>
                 </div>
               ))}
@@ -191,7 +261,9 @@ Example format:
               >
                 <Minus className="w-5 h-5" />
               </button>
-              <span className="text-xl font-bold w-8 text-center">{quantity}</span>
+              <span className="text-xl font-bold w-8 text-center">
+                {quantity}
+              </span>
               <button
                 onClick={handleQuantityIncrease}
                 className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-red-500 hover:text-red-500 transition"
@@ -203,10 +275,15 @@ Example format:
 
           <div className="flex items-center justify-between pt-4 border-t mb-4">
             <span className="text-gray-700 font-medium">Total Price</span>
-            <span className="text-2xl font-bold text-green-600">₹{totalPrice.toFixed(2)}</span>
+            <span className="text-2xl font-bold text-green-600">
+              ₹{totalPrice.toFixed(2)}
+            </span>
           </div>
 
-          <button className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-red-500/30">
+          <button
+            onClick={() => handleAddToCart(item._id)}
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-red-500/30"
+          >
             <ShoppingCart className="w-5 h-5" />
             Add to Cart
           </button>
@@ -217,4 +294,3 @@ Example format:
 };
 
 export default ItemDetailPage;
-

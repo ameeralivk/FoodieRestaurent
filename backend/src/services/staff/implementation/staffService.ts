@@ -77,7 +77,6 @@ export class StaffService implements IStaffService {
   ): Promise<{ success: boolean; message: string }> {
     const { staffId, ...updateData } = data;
     const updatedStaff = await this._staffRepo.editStaff(staffId, updateData);
-    console.log(updatedStaff, "======================");
     if (!updatedStaff) {
       throw new AppError(MESSAGES.STAFF_NOT_FOUND, 404);
     }

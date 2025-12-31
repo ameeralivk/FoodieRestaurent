@@ -301,7 +301,6 @@ export class AdminAuthService implements IAdminAuthService {
 
       return { success: true, message: MESSAGES.PASS_CHANGE_SUCCESS };
     } catch (error) {
-      console.error("Error in updatePassword:", error);
       return { success: false, message: "Internal Server Error" };
     }
   }

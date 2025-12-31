@@ -87,4 +87,13 @@ export const MESSAGES = {
   SUBCATEGORY_DEL_SUCCESS:"Subcategory deleted Successfully",
   SUBCATEGORY_DEL_FAILED:"Subcategory deleted Failed",
   SUBCATGORY_NOT_FOUND:"Subcategory not found",
+  CART_CREATION_SUCCESS:"Cart Created Successfully",
+  CART_CREATION_FAILED:"Cart Creation Failed",
+  CART_QUANTITY_UPDATED: "Quantity updated",
+  CART_QUANTITY_UPDATED_FAILED: "Quantity updation Failed",
+  CART_DELETED_SUCCESS:"Cart deleted successfully",
+  CART_DELETED_FAILED:"Cart deleted Failed",
+  CART_NOT_FOUND:"Cart not found",
+  CART_ITEM_REMOVED_SUCCES:"cartItem Removed Successfully",
+  CART_EMPTY_OR_NOT_FOUND:"Cart is empty and removed"
 };

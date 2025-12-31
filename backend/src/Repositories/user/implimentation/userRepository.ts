@@ -33,7 +33,6 @@ export class UserRepository
     userId: string,
     isBlocked: boolean
   ): Promise<IUser | null> {
-    console.log(userId, isBlocked, "hie");
     return this.updateOne({ _id: userId } as FilterQuery<IUser>, { isBlocked });
   }
 

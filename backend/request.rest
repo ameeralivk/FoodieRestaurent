@@ -1,11 +1,15 @@
 ### Block user
-GET   http://localhost:3000/api/superadmin/subcategory/692ea36738a54f8d01ed6747
-Content-Type: application/json
+GET   http://localhost:3000/api/user/cart/695522fee17ec859a20badae/692ea36738a54f8d01ed6747
+# Content-Type: application/json
 
-{
- "name":"Ravi",
- "description":"drink 9",
- "categoryId":"692ea36738a54f8d01ed6757",
- "restaurantId":"692ea36738a54f8d01ed6747"
-}
+# {
+#   "cartId": "6954ada167375b84dc6b330b",
+#   "restaurantId": "692ea36738a54f8d01ed6747",
+#   "itemId": "694f8339949880ccad2f7dc5",
+#   "action": "dec"|"dec"
+# }
+
+
+
+
 

@@ -4,7 +4,6 @@ import type { ITable, ITableForm } from "../types/tableTypes";
 export const addTable = async (
   tableData: ITableForm
 ): Promise<{ success: boolean; message: string }> => {
-  console.log(tableData, "tad");
   return apiRequest("POST", `/admin/table`, tableData);
 };
 
@@ -38,7 +37,6 @@ export const changeTableAvailability = async (
   isAvailable: boolean,
   tableId: string
 ): Promise<{ success: boolean; message: string }> => {
-  console.log(isAvailable, "availableity");
   return apiRequest("PATCH", `/admin/table/${tableId}`, {isAvailable});
 };
 
