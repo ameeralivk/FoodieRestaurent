@@ -66,7 +66,6 @@ export class CategoryService implements ICategoryService{
     }
 
     const result = await this._CategoryRepo.findAll(filter, page, limit);
-
     return {
       success: true,
       data: result.data.map(categoryDTO),

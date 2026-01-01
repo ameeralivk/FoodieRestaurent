@@ -6,7 +6,7 @@ import { PlanController } from "../../Controller/SuperAdmin/planController/Impli
 import { container } from "../../DI/container";
 import { TYPES } from "../../DI/types";
 import { UserController } from "../../Controller/userController/implementation/userController";
-
+import { authorizeRoles } from "../../middleware/authorizeRole";
 
 const superAdminController = container.get<SuperAdminController>(
   TYPES.SuperAdminController
@@ -21,44 +21,46 @@ const userController = container.get<UserController>(TYPES.userController);
 const router = exprees.Router();
 router
   .route("/getallrestaurent")
-  .get(verifyAccessToken, asyncHandler(superAdminController.getAllRestaurent));
+  .get(verifyAccessToken,authorizeRoles("superadmin","user"),asyncHandler(superAdminController.getAllRestaurent));
 
 router
   .route("/restaurent/approve/:id")
   .patch(
     verifyAccessToken,
+    authorizeRoles("superadmin"),
     asyncHandler(superAdminController.approveRestaurant)
   );
 router
   .route("/restaurent/reject/:id")
   .patch(
     verifyAccessToken,
+    authorizeRoles("superadmin"),
     asyncHandler(superAdminController.rejectRestaurant)
   );
 
 router
   .route("/plan")
-  .get(verifyAccessToken, asyncHandler(superAdminPlanController.getAllPlan))
-  .post(verifyAccessToken, asyncHandler(superAdminPlanController.addPlan));
+  .get(verifyAccessToken,authorizeRoles("superadmin"), asyncHandler(superAdminPlanController.getAllPlan))
+  .post(verifyAccessToken,authorizeRoles("superadmin"), asyncHandler(superAdminPlanController.addPlan));
 
 router
   .route("/plan/:id")
-  .put(verifyAccessToken, asyncHandler(superAdminPlanController.editPlan))
-  .delete(verifyAccessToken, asyncHandler(superAdminPlanController.delPlan));
+  .put(verifyAccessToken,authorizeRoles("superadmin"), asyncHandler(superAdminPlanController.editPlan))
+  .delete(verifyAccessToken,authorizeRoles("superadmin"), asyncHandler(superAdminPlanController.delPlan));
 
 
 //Block and unblock restaurant
 router
   .route("/restaurant/:restaurantId/:status")
-  .patch(asyncHandler(superAdminController.changeStatus));
+  .patch(verifyAccessToken,authorizeRoles("superadmin"),asyncHandler(superAdminController.changeStatus));
 
 //users
 router
   .route("/user")
-  .get(verifyAccessToken, asyncHandler(userController.getAllUsers));
+  .get(verifyAccessToken,authorizeRoles("superadmin"), asyncHandler(userController.getAllUsers));
 router
   .route("/user/:userId/status")
-  .patch(verifyAccessToken, asyncHandler(userController.updateUserStatus));
+  .patch(verifyAccessToken,authorizeRoles("superadmin"), asyncHandler(userController.updateUserStatus));
 
 
 export default router;

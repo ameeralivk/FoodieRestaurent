@@ -120,8 +120,8 @@ export class AdminAuthController implements IAdminAuthController {
         data: mapedAdmin,
         accesstoken,
       });
-    } catch (error:any) {
-      throw new AppError(error.message)
+    } catch (error: any) {
+      throw new AppError(error.message);
     }
   };
 

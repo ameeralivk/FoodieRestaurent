@@ -5,6 +5,7 @@ import { TYPES } from "../../DI/types";
 import { CartController } from "../../Controller/cartController/implimentation/cartController";
 import { asyncHandler } from "../../middleware/asyncHandler";
 import { verifyAccessToken } from "../../middleware/jwt";
+import { authorizeRoles } from "../../middleware/authorizeRole";
 const aiController = container.get<AiController>(TYPES.aiController);
 const cartController = container.get<CartController>(TYPES.cartController);
 
@@ -16,13 +17,13 @@ Router.route("/ai").post(
 );
 
 //cart
-Router.route("/cart").post(asyncHandler(cartController.addToCart));
+Router.route("/cart").post(verifyAccessToken,asyncHandler(cartController.addToCart));
 Router.route("/cart/update-quantity").put(
-  asyncHandler(cartController.updateQuantity)
+ verifyAccessToken,asyncHandler(cartController.updateQuantity)
 );
 Router.route("/cart/:cartId/:restaurantId")
-     .delete(asyncHandler(cartController.deleteCart))
+     .delete(verifyAccessToken,asyncHandler(cartController.deleteCart))
 Router.route("/cart/:userId/:restaurantId")
-    .get(asyncHandler(cartController.getCart))
+    .get(verifyAccessToken,asyncHandler(cartController.getCart))
 
 export default Router;

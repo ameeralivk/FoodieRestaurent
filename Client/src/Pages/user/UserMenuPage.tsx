@@ -14,52 +14,33 @@ import { useNavigate } from "react-router-dom";
 import { AddToCart } from "../../services/cart";
 import { showErrorToast } from "../../Components/Elements/ErrorToast";
 import { showSuccessToast } from "../../Components/Elements/SuccessToast";
+import CategorySubCategoryFilter from "../../Components/user/filterComponent";
+import { SearchInput } from "../../Components/user/SearchComponent";
+import Pagination from "../../Components/Elements/Reusable/Pagination";
 
 const UserRestaurantPage: React.FC = () => {
   const navigate = useNavigate();
-  const banners = [
-    {
-      title: "Friday pizza!",
-      description: "Time to enjoy our delicious pizza.",
-      emoji: "🍕",
-      bg: "from-yellow-100 to-orange-100",
-    },
-    {
-      title: "Hot & Spicy!",
-      description: "Feel the heat with our special recipes.",
-      emoji: "🌶️",
-      bg: "from-red-100 to-orange-200",
-    },
-    {
-      title: "Cheese Burst",
-      description: "Loaded with extra cheese & love.",
-      emoji: "🧀",
-      bg: "from-yellow-200 to-yellow-100",
-    },
-  ];
-
-  const [quantities, setQuantities] = useState<Record<string, string>>({});
-  const [current, setCurrent] = useState(0);
   const [sizes, setSizes] = useState<Record<number | string, string>>({});
   const restaurentId = useSelector((state: RootState) => state.auth.admin?._id);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const limit = 10;
-  const userId = useSelector((state:RootState)=>state.userAuth.user?._id)
+  const userId = useSelector((state: RootState) => state.userAuth.user?._id);
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const [searchParams] = useSearchParams();
   const table = searchParams.get("table");
-
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>("all");
+  const [totalPages, setTotalPages] = useState(3);
+  const [search, setSearch] = useState("");
+  const limit = 12;
   const {
     data: ItemsList,
-    isLoading: isItemCaLoading,
-    isFetching: isItemFetching,
   } = useQuery<IItemResponse, Error>({
     queryKey: ["ItemsList", restaurentId, currentPage, debouncedSearch],
     queryFn: () =>
       getAllItems(restaurantId as string, currentPage, limit, debouncedSearch),
   });
-
+  console.log(ItemsList, "list");
   const handleSizeChange = (id: number | string, size: string) => {
     setSizes((prev) => ({
       ...prev,
@@ -68,40 +49,62 @@ const UserRestaurantPage: React.FC = () => {
   };
 
   const Items = ItemsList?.data;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % banners.length);
-    }, 3000);
+    if (ItemsList?.total) {
+      setTotalPages(Math.ceil(ItemsList.total / limit));
+    }
+  }, [ItemsList]);
 
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleQuantityChange = (id: number, value: string) => {
-    setQuantities((prev) => ({ ...prev, [id]: value }));
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
-  const handleAddToCart = async(e:React.MouseEvent<HTMLButtonElement>,id:string) => {
-     e.stopPropagation();
+  const filteredItems = Items?.filter((item) => {
+    // Category filter
+    if (
+      selectedCategory !== "all" &&
+      item.categoryId.name !== selectedCategory
+    ) {
+      return false;
+    }
+
+    // SubCategory filter
+    if (
+      selectedSubCategory !== "all" &&
+      item?.subCategoryId?.name !== selectedSubCategory
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const handleAddToCart = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+    id: string
+  ) => {
+    e.stopPropagation();
     try {
-          if (userId && restaurantId && table) {
-            const res = await AddToCart(
-              userId,
-              restaurantId,
-              id,
-              table,
-              "1"
-            );
-            if (res.success) {
-              showSuccessToast("Added to Cart Successfully");
-              navigate(`/user/${restaurantId}/cart`);
-            }
-          } else {
-            showErrorToast("userId or restaurentId or tableId is not found");
-          }
-        } catch (error) {
-          return;
+      if (userId && restaurantId && table) {
+        const res = await AddToCart(userId, restaurantId, id, table, "1");
+        if (res.success) {
+          showSuccessToast("Added to Cart Successfully");
+          navigate(`/user/${restaurantId}/cart`);
         }
+      } else {
+        showErrorToast("userId or restaurentId or tableId is not found");
+      }
+    } catch (error) {
+      return;
+    }
   };
   return (
     <div className="min-h-screen bg-gray-50">
@@ -110,8 +113,17 @@ const UserRestaurantPage: React.FC = () => {
       </div>
 
       <Navbar restaurantName="Foodie Restaurent" />
+      <div className="max-w-7xl mx-auto mt-6">
+        <SearchInput value={search} onChange={setSearch} />
+      </div>
+      <CategorySubCategoryFilter
+        onChange={(category, subCategory) => {
+          setSelectedCategory(category);
+          setSelectedSubCategory(subCategory);
+        }}
+      />
       {/* Hero Section */}
-      <HeroBanner banners={banners} current={current} onChange={setCurrent} />
+      {/* <HeroBanner banners={banners} current={current} onChange={setCurrent} /> */}
 
       {/* Menu Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -119,7 +131,7 @@ const UserRestaurantPage: React.FC = () => {
           Recommended menu
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 cursor-pointer">
-          {Items?.map((item) => (
+          {filteredItems?.map((item) => (
             <ItemCard
               key={item?._id}
               Item={item}
@@ -127,11 +139,20 @@ const UserRestaurantPage: React.FC = () => {
               onSizeChange={handleSizeChange}
               onAddToCart={handleAddToCart}
               onClick={() => {
-                navigate(`/user/${restaurantId}/items/${item._id}?tableId=${table}`);
+                navigate(
+                  `/user/${restaurantId}/items/${item._id}?tableId=${table}`
+                );
               }}
             />
           ))}
         </div>
+      </div>
+      <div className="flex justify-center items-center mb-20">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

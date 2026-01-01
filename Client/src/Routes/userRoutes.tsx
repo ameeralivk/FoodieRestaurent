@@ -9,6 +9,7 @@ import PageNotFound from "../Pages/auth/PageNotFound";
 import UserRestaurantPage from "../Pages/user/UserMenuPage";
 import ItemDetailPage from "../Pages/user/ItemDetailsPage";
 import CartPage from "../Pages/user/cartPage";
+import FilterComponent from "../Components/user/filterComponent";
 const UserRoutes = () => {
   return (
     <Routes>

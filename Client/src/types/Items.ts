@@ -7,9 +7,10 @@ export interface IItem {
   isStock: boolean;
   isActive: boolean;
   isDeleted: boolean;
-  categoryName:string;
+  categoryName: string;
+  subCategoryId?: { name: string; _id: string };
   restaurantId: string;
-  categoryId:string;
+  categoryId: { name: string , _id:string};
   category: string; // categoryId
   images: File[];
   createdAt: string; // ISO date string
@@ -72,7 +73,6 @@ export interface GetMenuItemsResponse {
   success: boolean;
   message: string;
   data: {
-    data: Item;  
+    data: Item;
   };
 }
-
