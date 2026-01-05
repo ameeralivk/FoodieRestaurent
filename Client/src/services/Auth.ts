@@ -88,6 +88,7 @@ export const useGoogleLoginHandler = (dispatch: AppDispatch) => {
         });
         if (res.data.success) {
           const saveddata: AdminType = {
+            
             _id: res.data.data._id,
             restaurantName: res.data.data.restaurantName,
             email: res.data.data.email,

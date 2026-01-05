@@ -4,7 +4,7 @@ const EmptyCart = () => {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <img
-        src="\public\empty-cart.png" // optional image
+        src="/empty-cart.png"
         alt="Empty cart"
         className="w-40 mb-6"
       />

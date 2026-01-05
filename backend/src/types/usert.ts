@@ -15,3 +15,7 @@ export interface IUser extends Document {
   isBlocked:boolean;
   createdAt?:Date;
 }
+
+export type UpdateProfileResult =
+  | { requiresEmailVerification: true }
+  | { updated: true };

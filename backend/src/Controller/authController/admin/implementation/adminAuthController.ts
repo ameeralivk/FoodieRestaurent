@@ -7,6 +7,7 @@ import { loginSchema, registerSchema } from "../../../../helpers/zodvalidation";
 import { MESSAGES } from "../../../../constants/messages";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../../DI/types";
+import { getS3PublicUrl } from "../../../../utils/s3-url.utils";
 
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
@@ -266,16 +267,8 @@ export class AdminAuthController implements IAdminAuthController {
       const proofDocumentKey = files?.proofDocument?.[0]?.key;
 
       // Construct public URLs directly
-      const bucketName = process.env.S3_BUCKET_NAME;
-      const region = process.env.AWS_REGION || "ap-south-1";
-
-      const restaurantPhoto = restaurantPhotoKey
-        ? `https://${bucketName}.s3.${region}.amazonaws.com/${restaurantPhotoKey}`
-        : undefined;
-
-      const proofDocument = proofDocumentKey
-        ? `https://${bucketName}.s3.${region}.amazonaws.com/${proofDocumentKey}`
-        : undefined;
+      const restaurantPhoto = getS3PublicUrl(restaurantPhotoKey)
+      const proofDocument = getS3PublicUrl(proofDocumentKey)
       const response = await this._adminauthService.registerRestaurant({
         email,
         restaurantName,

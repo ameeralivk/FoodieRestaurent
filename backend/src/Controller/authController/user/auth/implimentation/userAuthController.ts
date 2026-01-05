@@ -101,7 +101,9 @@ export class UserAuthController implements IUserAuthController {
       const { token } = req.body;
       const { user, accesstoken, refreshToken } =
         await this._userAuthService.googleAuth(token);
+        console.log(user,'user is here')
       const data = {
+        phone:user.phone,
         _id: user._id,
         role: "user",
         name: user.Name,

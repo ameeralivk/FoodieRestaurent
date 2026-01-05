@@ -9,7 +9,9 @@ import PageNotFound from "../Pages/auth/PageNotFound";
 import UserRestaurantPage from "../Pages/user/UserMenuPage";
 import ItemDetailPage from "../Pages/user/ItemDetailsPage";
 import CartPage from "../Pages/user/cartPage";
-import FilterComponent from "../Components/user/filterComponent";
+import UserProfile from "../Pages/user/profilePage";
+import CheckoutPage from "../Pages/user/checkoutPage";
+import UserOrderSuccessPage from "../Pages/user/orderSuccessPage";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -33,6 +35,9 @@ const UserRoutes = () => {
       />
       <Route path="/:restaurantId/items/:itemId" element={<ItemDetailPage />} />
       <Route path="/:restaurantId/cart" element={<CartPage />} />
+      <Route path="/profile" element={<UserProfile />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/payment-success" element={<UserOrderSuccessPage />} />
     </Routes>
   );
 };

@@ -36,7 +36,36 @@ export class UserRepository
     return this.updateOne({ _id: userId } as FilterQuery<IUser>, { isBlocked });
   }
 
-   async findById(id: string) {
+  async findById(id: string) {
     return await this.getById(id);
+  }
+
+  async updateUser(
+    userId: string,
+    data: { name: string; phone: string; email?: string }
+  ): Promise<IUser | null> {
+    let result;
+    console.log(data.email,userId,'===============')
+    if (data.email) {
+      result = {
+        Name: data.name,
+        phone: data.phone,
+        Email: data.email,
+      };
+    } else {
+      result = {
+        Name: data.name,
+        phone: data.phone,
+      };
+    }
+    return await this.findByIdAndUpdate(userId, result);
+  }
+
+   async updateProfileImage(image: string, userId: string): Promise<IUser | null> {
+    return await this.findByIdAndUpdate(userId,{imageUrl:image})
+  }
+
+  async updatePassword(userId: string, newPassword: string): Promise<IUser | null> {
+     return await this.findByIdAndUpdate(userId,{password:newPassword})
   }
 }

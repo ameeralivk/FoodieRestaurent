@@ -4,6 +4,9 @@ export interface FormData {
 }
 
 export interface userType {
+  name?:string,
+  phone?:string,
+  tableNo?:string,
   _id: string;
   role: string;
   email: string;

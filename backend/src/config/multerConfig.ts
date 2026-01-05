@@ -93,3 +93,26 @@ export const updateItemImagesUpload = multer({
   fileFilter: imageOnlyFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 }).array("images", 3);
+
+//profileImage
+
+const ProfileImageStorage = multerS3({
+  s3,
+  bucket: process.env.S3_BUCKET_NAME || "foodierestaurent",
+  contentType: multerS3.AUTO_CONTENT_TYPE,
+  key: (req, file, cb) => {
+    const folder = "profile/images/";
+    const uniqueId = crypto.randomUUID(); // Node 16+
+    const ext = path.extname(file.originalname);
+    cb(null, `${folder}item-${Date.now()}-${uniqueId}${ext}`);
+  },
+});
+
+
+
+
+export const updateProfile = multer({
+  storage: ProfileImageStorage,
+  fileFilter: imageOnlyFilter, // ✅ add this
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).single("profileImage");

@@ -16,7 +16,12 @@ export class PaymentController implements IPaymentController {
     try {
       const data = req.body as any;
 
-      if (!data?.amount || !data.restaurentId || !data.planId || !data.planName) {
+      if (
+        !data?.amount ||
+        !data.restaurentId ||
+        !data.planId ||
+        !data.planName
+      ) {
         return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ message: "Missing required fields" });
@@ -35,6 +40,24 @@ export class PaymentController implements IPaymentController {
     } catch (error: any) {
       throw new AppError(error.message);
     }
+  };
+
+  createOrderPayment = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    const { amount, restaurantId, userId, items } = req.body;
+    const result = await this._paymentService.createOneTimePayment(
+      amount,
+      restaurantId,
+      userId,
+      items
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: { url: result.url },
+    });
   };
 
   webhook = async (req: Request, res: Response) => {

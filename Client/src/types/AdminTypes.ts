@@ -24,6 +24,8 @@ export interface RestaurantFormData {
 }
 
 export interface AdminType {
+  name?:string,
+  phone?:string,
   _id: string;
   role: string;
   restaurantName?: string;

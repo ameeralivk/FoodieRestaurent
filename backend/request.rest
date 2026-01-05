@@ -1,13 +1,34 @@
-### Block user
-GET   http://localhost:3000/api/user/cart/695522fee17ec859a20badae/692ea36738a54f8d01ed6747
+# Update User Profile
+# PUT http://localhost:3000/api/user/profile/6930063477bdbd4c43e863aa
 # Content-Type: application/json
+# Authorization: Bearer YOUR_JWT_TOKEN_HERE
 
 # {
-#   "cartId": "6954ada167375b84dc6b330b",
-#   "restaurantId": "692ea36738a54f8d01ed6747",
-#   "itemId": "694f8339949880ccad2f7dc5",
-#   "action": "dec"|"dec"
+#   "name": "Shakir jamal",
+#   "phone": "8675867483",
+#   "email": "ameeralivk1875@gmail.com"
 # }
+
+# POST http://localhost:3000/api/user/profile/verify-email-otp
+# Content-Type: application/json
+# Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+# {
+#   "email": "ameeralivk1875@gmail.com",
+#   "otp": "626107"
+# }
+
+
+### Update restaurant image
+# PUT http://localhost:3000/api/user/profile/6930063477bdbd4c43e863aa/image
+# Content-Type: multipart/form-data; boundary=boundary
+
+# --boundary
+# Content-Disposition: form-data; name="profileImage"; filename="pexels-pixabay-414660.jpg"
+# Content-Type: image/jpeg
+
+# < ./assets/pexels-pixabay-414660.jpg
+# --boundary--
 
 
 

@@ -9,4 +9,11 @@ export interface IPaymentRepository{
     amount: number,
     paymentIntentId?: string|null
   ): Promise<IPayment>;
+  addOrderPayment(
+    sessionId: string,
+    status: "paid" | "failed" | "pending",
+    restaurentId: string|null,
+    amount: number,
+    paymentIntentId?: string|null
+  ): Promise<IPayment>;
 }

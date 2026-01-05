@@ -4,7 +4,8 @@ import { IPayment } from "../types/payment";
 
 const PaymentSchema = new Schema<PaymentDocument>({
   restaurentId: { type: String, required: true },
-  planId: { type: String, required: true },
+  planId: { type: String ,required:false},
+  orderId:{type:String,required:false},
   amount: { type: Number, required: true },
   currency: { type: String, default: "inr" },
   status: { type: String, enum: ["pending", "paid", "failed"], default: "pending" },

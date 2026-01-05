@@ -5,3 +5,6 @@ export const generateOtp = () => {
   const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
   return { otp, hashedOtp };
 };
+export const hashOtp = (otp: string) => {
+  return crypto.createHash("sha256").update(otp).digest("hex");
+};

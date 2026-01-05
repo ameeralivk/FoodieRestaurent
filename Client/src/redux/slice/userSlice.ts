@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type{ userType } from "../../types/userTypes";
+import type { userType } from "../../types/userTypes";
 
 interface UserAuthState {
   user: userType | null;
@@ -18,7 +18,7 @@ const userAuthSlice = createSlice({
   initialState,
   reducers: {
     userLoginAction: (state, action: PayloadAction<UserLoginPayload>) => {
-      const { user} = action.payload;
+      const { user } = action.payload;
       state.user = { ...user };
     },
     userLogoutAction: (state) => {
@@ -29,13 +29,41 @@ const userAuthSlice = createSlice({
         state.user.status = action.payload;
       }
     },
+    updateUser: (state, action: PayloadAction<Partial<userType>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
+    setRestaurantId: (state, action: PayloadAction<string>) => {
+      if (state.user) {
+        state.user.restaurantId = action.payload;
+      }
+    },
+     setTableNo: (state, action: PayloadAction<string>) => {
+      if (state.user) {
+        state.user.tableNo = action.payload;
+      }
+    },
+    updateUserField: (
+      state,
+      action: PayloadAction<{ key: keyof userType; value: any }>
+    ) => {
+      if (state.user) {
+        state.user[action.payload.key] = action.payload.value;
+      }
+    },
   },
+  
 });
 
 export const {
   userLoginAction,
   userLogoutAction,
   updateUserStatus,
+  updateUser,
+  setRestaurantId,
+  setTableNo,
+  updateUserField
 } = userAuthSlice.actions;
 
 export default userAuthSlice.reducer;

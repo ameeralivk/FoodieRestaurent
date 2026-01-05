@@ -5,7 +5,6 @@ import ItemCard from "../../Components/user/ItemCard";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../redux/store/store";
-import HeroBanner from "../../Components/user/BannerSection";
 import { getAllItems } from "../../services/ItemsService";
 import { useParams, useSearchParams } from "react-router-dom";
 import type { IItemResponse } from "../../types/Items";
@@ -17,8 +16,11 @@ import { showSuccessToast } from "../../Components/Elements/SuccessToast";
 import CategorySubCategoryFilter from "../../Components/user/filterComponent";
 import { SearchInput } from "../../Components/user/SearchComponent";
 import Pagination from "../../Components/Elements/Reusable/Pagination";
-
+import BottomNavBar from "../../Components/user/DownBar";
+import { useDispatch } from "react-redux";
+import { setRestaurantId, setTableNo } from "../../redux/slice/userSlice";
 const UserRestaurantPage: React.FC = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [sizes, setSizes] = useState<Record<number | string, string>>({});
   const restaurentId = useSelector((state: RootState) => state.auth.admin?._id);
@@ -33,9 +35,7 @@ const UserRestaurantPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(3);
   const [search, setSearch] = useState("");
   const limit = 12;
-  const {
-    data: ItemsList,
-  } = useQuery<IItemResponse, Error>({
+  const { data: ItemsList } = useQuery<IItemResponse, Error>({
     queryKey: ["ItemsList", restaurentId, currentPage, debouncedSearch],
     queryFn: () =>
       getAllItems(restaurantId as string, currentPage, limit, debouncedSearch),
@@ -47,6 +47,13 @@ const UserRestaurantPage: React.FC = () => {
       [id]: size,
     }));
   };
+
+  useEffect(() => {
+    if (restaurantId) {
+      dispatch(setRestaurantId(restaurantId));
+      dispatch(setTableNo(table?table:""))
+    }
+  }, [restaurantId, dispatch]);
 
   const Items = ItemsList?.data;
   useEffect(() => {
@@ -154,6 +161,7 @@ const UserRestaurantPage: React.FC = () => {
           onPageChange={handlePageChange}
         />
       </div>
+      <BottomNavBar restaurantId={restaurantId} tableNo={table?table:""} />
     </div>
   );
 };

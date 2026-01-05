@@ -6,9 +6,13 @@ import { CartController } from "../../Controller/cartController/implimentation/c
 import { asyncHandler } from "../../middleware/asyncHandler";
 import { verifyAccessToken } from "../../middleware/jwt";
 import { authorizeRoles } from "../../middleware/authorizeRole";
+import { UserController } from "../../Controller/userController/implementation/userController";
+import { updateProfile } from "../../config/multerConfig";
+import { PaymentController } from "../../Controller/paymentController/Implimentation/paymentController";
 const aiController = container.get<AiController>(TYPES.aiController);
 const cartController = container.get<CartController>(TYPES.cartController);
-
+const userController = container.get<UserController>(TYPES.userController);
+const paymentController = container.get<PaymentController>(TYPES.PaymentController)
 const Router = express.Router();
 
 Router.route("/ai").post(
@@ -17,13 +21,42 @@ Router.route("/ai").post(
 );
 
 //cart
-Router.route("/cart").post(verifyAccessToken,asyncHandler(cartController.addToCart));
-Router.route("/cart/update-quantity").put(
- verifyAccessToken,asyncHandler(cartController.updateQuantity)
+Router.route("/cart").post(
+  verifyAccessToken,
+  asyncHandler(cartController.addToCart)
 );
-Router.route("/cart/:cartId/:restaurantId")
-     .delete(verifyAccessToken,asyncHandler(cartController.deleteCart))
-Router.route("/cart/:userId/:restaurantId")
-    .get(verifyAccessToken,asyncHandler(cartController.getCart))
+Router.route("/cart/update-quantity").put(
+  verifyAccessToken,
+  asyncHandler(cartController.updateQuantity)
+);
+Router.route("/cart/:cartId/:restaurantId").delete(
+  verifyAccessToken,
+  asyncHandler(cartController.deleteCart)
+);
+Router.route("/cart/:userId/:restaurantId").get(
+  verifyAccessToken,
+  asyncHandler(cartController.getCart)
+);
+
+//user
+Router.route("/profile/verify-email-otp").post(
+  asyncHandler(userController.verifyEmailOtp)
+);
+Router.route("/profile/:userId/image")
+      .put(updateProfile,asyncHandler(userController.updateImage))
+Router.route("/profile/:userId")
+  .get(asyncHandler(userController.getAllUsers))
+  .put(asyncHandler(userController.updateProfile))
+  .post(asyncHandler(userController.changePassword))
+
+
+//order 
+
+Router.route("/order/payment")
+       .post(asyncHandler(paymentController.createOrderPayment))
+
+
+
+
 
 export default Router;

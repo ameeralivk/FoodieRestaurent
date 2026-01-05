@@ -40,7 +40,7 @@ router
 
 router
   .route("/plan")
-  .get(verifyAccessToken,authorizeRoles("superadmin"), asyncHandler(superAdminPlanController.getAllPlan))
+  .get(verifyAccessToken,authorizeRoles("superadmin","admin"), asyncHandler(superAdminPlanController.getAllPlan))
   .post(verifyAccessToken,authorizeRoles("superadmin"), asyncHandler(superAdminPlanController.addPlan));
 
 router

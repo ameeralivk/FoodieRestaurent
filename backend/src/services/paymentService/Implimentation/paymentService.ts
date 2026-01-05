@@ -5,6 +5,11 @@ import { IPaymentRepository } from "../../../Repositories/payment/Interface/inte
 import { TYPES } from "../../../DI/types";
 import mongoose from "mongoose";
 import { ISubcriptionService } from "../../subscription/interface/ISubscriptionServer";
+import { ICartItem } from "../../../types/cart";
+import { IOrderRepo } from "../../../Repositories/order/interface/interface";
+import { ICartRepository } from "../../../Repositories/cart/interface/ICartRepository";
+import { AppError } from "../../../utils/Error";
+import { MESSAGES } from "../../../constants/messages";
 const stripe = new Stripe(process.env.STRIP_SECRET_KEY as string, {
   apiVersion: "2024-06-20" as unknown as Stripe.LatestApiVersion,
 });
@@ -15,13 +20,17 @@ export class PaymentService implements IPaymentService {
     @inject(TYPES.PaymentRepository)
     private _paymentRepository: IPaymentRepository,
     @inject(TYPES.SubcriptionService)
-    private _subcriptionServer: ISubcriptionService
+    private _subcriptionServer: ISubcriptionService,
+    @inject(TYPES.orderRepository)
+    private _orderRepository:IOrderRepo,
+    @inject(TYPES.cartRepository)
+    private _cartRepository:ICartRepository
   ) {}
   async paymentCreate(
     amount: number,
     restaurentId: string,
     planId: string,
-    planName:string
+    planName: string
   ): Promise<{ success: boolean; message: string; url: string }> {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -46,7 +55,8 @@ export class PaymentService implements IPaymentService {
         restaurentId,
         planId,
         amount,
-        planName
+        planName,
+        paymentType: "subscription",
       },
     });
 
@@ -57,31 +67,79 @@ export class PaymentService implements IPaymentService {
     };
   }
 
+  async createOneTimePayment(
+    amount: number,
+    restaurentId: string,
+    userId: string,
+    items: ICartItem[]
+  ): Promise<{ success: boolean; url: string }> {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: items.map((item) => ({
+        price_data: {
+          currency: "inr",
+          product_data: { name: item.name },
+          unit_amount: item.price * 100,
+        },
+        quantity: item.quantity,
+      })),
+      success_url: `${process.env.FRONTEND_BASE_URL}/user/payment-success`,
+      cancel_url: `${process.env.FRONTEND_BASE_URL}/payment-failed`,
+      metadata: {
+        paymentType: "orderpayment",
+        restaurentId,
+        userId,
+        amount,
+      },
+    });
+
+    return { success: true, url: session.url! };
+  }
+
   async handleWebhook(event: Stripe.Event): Promise<void> {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-
       const metadata = session.metadata ?? {};
-
-      await this._paymentRepository.addPayment(
-        session.id,
-        "paid",
-        metadata.restaurentId || null,
-        metadata.planId || null,
-        (session.amount_total ?? 0) / 100,
-        session.payment_intent as string
-      );
-      const restaurentObjectId = new mongoose.Types.ObjectId(metadata.restaurentId);
-      const planObjectId = new mongoose.Types.ObjectId(metadata.planId);
-      await this._subcriptionServer.addSubcription({
-        restaurentId: restaurentObjectId,
-        planId: planObjectId,
-        planName: metadata.planName,
-        planPrice: Number(metadata.amount),
-        stripeSessionId: session.id,
-        stripePaymentIntentId: session.payment_intent as string,
-      });
-      return;
+      if (metadata.paymentType === "subscription") {
+        await this._paymentRepository.addPayment(
+          session.id,
+          "paid",
+          metadata.restaurentId || null,
+          metadata.planId || null,
+          (session.amount_total ?? 0) / 100,
+          session.payment_intent as string
+        );
+        const restaurentObjectId = new mongoose.Types.ObjectId(
+          metadata.restaurentId
+        );
+        const planObjectId = new mongoose.Types.ObjectId(metadata.planId);
+        await this._subcriptionServer.addSubcription({
+          restaurentId: restaurentObjectId,
+          planId: planObjectId,
+          planName: metadata.planName,
+          planPrice: Number(metadata.amount),
+          stripeSessionId: session.id,
+          stripePaymentIntentId: session.payment_intent as string,
+        });
+        return;
+      } else if (metadata.paymentType === "orderpayment") {
+        let cart = await this._cartRepository.findCart(metadata.userId as string,metadata.restaurentId as string)
+        if(!cart){
+           throw new AppError(MESSAGES.CART_NOT_FOUND)
+        }
+        await this._paymentRepository.addOrderPayment(
+          session.id,
+          "paid",
+          metadata.restaurentId as string,
+          (session.amount_total ?? 0) / 100,
+          session.payment_intent as string
+        );
+        let res = await this._orderRepository.addOrder(cart)
+        if(res){
+          await this._cartRepository.deleteCart(cart._id.toString())
+        }
+      }
     }
     if (event.type === "payment_intent.payment_failed") {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;

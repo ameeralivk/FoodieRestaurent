@@ -1,14 +1,18 @@
 import { ChefHat, User, LogOut } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { showConfirm } from "../../Elements/ConfirmationSwall";
 import Swal from "sweetalert2";
 import { logoutRequest } from "../../../services/Auth";
 import { userLogoutAction } from "../../../redux/slice/userSlice";
+import type{ RootState } from "../../../redux/store/store";
 interface NavbarProps {
   restaurantName?: string;
 }
 const Navbar = ({ restaurantName }: NavbarProps) => {
+  const imageUrl = useSelector(
+    (state: RootState) => state.userAuth.user?.imageUrl
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = async () => {
@@ -44,7 +48,18 @@ const Navbar = ({ restaurantName }: NavbarProps) => {
           <div className="flex items-center gap-4">
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
               <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-gray-600" />
+                {/* <User
+                  onClick={() => {
+                    navigate("/user/profile");
+                  }}
+                  className="w-5 h-5 text-gray-600"
+                /> */}
+                <img
+                  src={imageUrl || "/default-avatar.png"}
+                  alt="Profile"
+                  onClick={() => navigate("/user/profile")}
+                  className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                />
               </div>
             </button>
             <LogOut onClick={handleLogout} className=" cursor-pointer" />

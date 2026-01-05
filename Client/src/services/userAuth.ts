@@ -27,6 +27,8 @@ export const handleUserLogin = async (
 
     if (response.status === 200) {
       const userData: AdminType = {
+        phone: response.data.user.phone,
+        name: response.data.user.name,
         _id: response.data.user._id,
         restaurantName: response.data.user.restaurantName,
         email: response.data.user.Email,
@@ -134,8 +136,10 @@ export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
           token: tokenResponse.access_token,
         });
         if (res.data.success) {
-
+          console.log(res.data.data, "data is here");
           const saveddata: AdminType = {
+            name: res.data.data.name,
+            phone: res.data.data.phone,
             _id: res.data.data._id,
             restaurantName: res.data.data.restaurantName,
             email: res.data.data.email,

@@ -6,7 +6,6 @@ import ForgetPasswordPage from "../Pages/auth/ForgotPassword";
 import RestaurantMainRegistration from "../Pages/auth/RestuarantRegisterMainPage";
 import ProtectedRoute from "./protectedRoute";
 import PublicRoute from "./publicRoute";
-import ResetPasswordPage from "../Pages/auth/forgetPasswordResetPage";
 import AdminDashboard from "../Pages/admin/AdminDashboard";
 import AdminSubscriptionPage from "../Pages/admin/AdminSubscriptionPage";
 import PaymentSuccessModal from "../Components/Component/Admin/PaymentSuccessmodal";
@@ -52,7 +51,6 @@ const AdminRoutes = () => {
         }
       />
       {/* <Route path="/otp" element={<OTPVerificationModal modalOpen={true} email=""/>}/> */}
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/*" element={<PageNotFound />} />
       <Route
         path="/dashboard"
