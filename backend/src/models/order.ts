@@ -13,6 +13,10 @@ const OrderItemSchema = new Schema(
       required: true,
       trim: true,
     },
+    itemImages: {
+      type: [String],
+      required: true,
+    },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "Category",
@@ -52,7 +56,10 @@ const UserOrderSchema = new Schema<IUserOrderDocument>(
       required: true,
       index: true,
     },
-
+    userId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
     tableId: {
       type: String,
       required: true,

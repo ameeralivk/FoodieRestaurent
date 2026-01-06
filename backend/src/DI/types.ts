@@ -42,5 +42,7 @@ export const TYPES = {
   cartController:Symbol("cartController"),
   CartService:Symbol("cartService"),
   cartRepository:Symbol("cartRepository"),
-  orderRepository:Symbol("orderRepository")
+  orderRepository:Symbol("orderRepository"),
+  orderController:Symbol("orderController"),
+  orderService:Symbol("orderService")
 };

@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Home, User, ShoppingCart, Search, Heart } from "lucide-react";
+import {
+  Home,
+  User,
+  ShoppingCart,
+  Heart,
+  ShoppingCartIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 interface NavItem {
   id: string;
@@ -32,7 +38,12 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
       icon: <Home size={24} />,
       path: `/user/restaurant/${restaurantId}?table=${tableNo}`,
     },
-    { id: "favorites", label: "Favorites", icon: <Heart size={24} /> },
+    {
+      id: "Orders",
+      label: "Orders",
+      icon: <ShoppingCart size={24} />,
+      path: "/user/order",
+    },
     {
       id: "cart",
       label: "Cart",

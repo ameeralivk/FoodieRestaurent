@@ -30,6 +30,11 @@
 # < ./assets/pexels-pixabay-414660.jpg
 # --boundary--
 
+### Get all orders with pagination and search
+GET http://localhost:3000/api/user/orders?restaurentId=692ea36738a54f8d01ed6747&userId=6930063477bdbd4c43e863aa&page=1&limit=10
+Content-Type: application/json
+
+
 
 
 

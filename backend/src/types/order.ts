@@ -6,7 +6,7 @@ export interface IOrderItem {
   categoryId?: Types.ObjectId;
   price: number;
   quantity: number;
-
+  itemImages:string[];
   assignedCookId?: Types.ObjectId | null;
 
   itemStatus: "PENDING" | "PREPARING" | "READY";
@@ -26,6 +26,7 @@ export interface IUserOrder {
   items: IOrderItem[];
 
   subTotal: number;
+  userId:Types.ObjectId;
   totalAmount: number;
 
   currency: "INR";

@@ -9,10 +9,14 @@ import { authorizeRoles } from "../../middleware/authorizeRole";
 import { UserController } from "../../Controller/userController/implementation/userController";
 import { updateProfile } from "../../config/multerConfig";
 import { PaymentController } from "../../Controller/paymentController/Implimentation/paymentController";
+import { OrderController } from "../../Controller/orderController/implimentation/orderController";
 const aiController = container.get<AiController>(TYPES.aiController);
 const cartController = container.get<CartController>(TYPES.cartController);
 const userController = container.get<UserController>(TYPES.userController);
-const paymentController = container.get<PaymentController>(TYPES.PaymentController)
+const paymentController = container.get<PaymentController>(
+  TYPES.PaymentController
+);
+const orderController = container.get<OrderController>(TYPES.orderController);
 const Router = express.Router();
 
 Router.route("/ai").post(
@@ -42,21 +46,20 @@ Router.route("/cart/:userId/:restaurantId").get(
 Router.route("/profile/verify-email-otp").post(
   asyncHandler(userController.verifyEmailOtp)
 );
-Router.route("/profile/:userId/image")
-      .put(updateProfile,asyncHandler(userController.updateImage))
+Router.route("/profile/:userId/image").put(
+  updateProfile,
+  asyncHandler(userController.updateImage)
+);
 Router.route("/profile/:userId")
   .get(asyncHandler(userController.getAllUsers))
   .put(asyncHandler(userController.updateProfile))
-  .post(asyncHandler(userController.changePassword))
+  .post(asyncHandler(userController.changePassword));
 
+//order
 
-//order 
-
-Router.route("/order/payment")
-       .post(asyncHandler(paymentController.createOrderPayment))
-
-
-
-
+Router.route("/order/payment").post(
+  asyncHandler(paymentController.createOrderPayment)
+);
+Router.route("/orders").get(asyncHandler(orderController.getAllOrders));
 
 export default Router;
