@@ -25,6 +25,9 @@ export class CartService implements ICartService {
     if (!item || item.isDeleted || !item.isActive) {
       throw new Error(MESSAGES.ITEM_NOT_FOUND);
     }
+    if(item.stock && item.stock <= 0){
+      throw new AppError("Item stock is not")
+    }
     let cart = await this._cartRepo.findByUserAndRestaurant(
       userId,
       restaurantId

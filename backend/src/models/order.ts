@@ -56,6 +56,10 @@ const UserOrderSchema = new Schema<IUserOrderDocument>(
       required: true,
       index: true,
     },
+     orderId:{
+      type:String,
+      required:false,
+    },
     userId: {
       type: Schema.Types.ObjectId,
       required: true,

@@ -14,6 +14,7 @@ import CheckoutPage from "../Pages/user/checkoutPage";
 import UserOrderSuccessPage from "../Pages/user/orderSuccessPage";
 import OrderHistory from "../Pages/user/orderPage";
 import OrderDetail from "../Pages/user/orderDetailsPage";
+import WalletPage from "../Pages/user/walletPage";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -41,7 +42,8 @@ const UserRoutes = () => {
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/payment-success" element={<UserOrderSuccessPage />} />
       <Route path="/order" element={<OrderHistory />} />
-      <Route path="/order/details" element={<OrderDetail />} />
+      <Route path="/order/:orderId" element={<OrderDetail />} />
+      <Route path="/wallet" element={<WalletPage />} />
     </Routes>
   );
 };

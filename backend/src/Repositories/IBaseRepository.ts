@@ -57,29 +57,42 @@ export class BaseRepository<T> {
     return { data, total };
   }
   async findByIdAndDel(
-  id: string,
-  statusField?: keyof T,
-  statusValue: boolean = false
-): Promise<T | null> {
-  try {
-    if (statusField) {
-      return await this.model.findByIdAndUpdate(
-        id,
-        { [statusField]: statusValue } as UpdateQuery<T>,
-        { new: true }
-      );
+    id: string,
+    statusField?: keyof T,
+    statusValue: boolean = false
+  ): Promise<T | null> {
+    try {
+      if (statusField) {
+        return await this.model.findByIdAndUpdate(
+          id,
+          { [statusField]: statusValue } as UpdateQuery<T>,
+          { new: true }
+        );
+      }
+      return await this.model.findByIdAndDelete(id);
+    } catch (error: any) {
+      throw new Error(error.message);
     }
-    return await this.model.findByIdAndDelete(id);
-  } catch (error: any) {
-    throw new Error(error.message);
   }
-}
 
   async findByEmail(email: string): Promise<T | null> {
     try {
-      return await this.model.findOne({email,status:true})
-    } catch (error:any) {
-       throw new Error(error.message)
+      return await this.model.findOne({ email, status: true });
+    } catch (error: any) {
+      throw new Error(error.message);
     }
   }
+
+  // BaseRepository.ts
+async findOneAndUpdateUpsert(
+  filter: FilterQuery<T>,
+  update: UpdateQuery<T>
+): Promise<T | null> {
+  return this.model.findOneAndUpdate(filter, update, {
+    new: true,
+    upsert: true,
+    setDefaultsOnInsert: true,
+  });
+}
+
 }

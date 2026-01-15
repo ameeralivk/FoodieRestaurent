@@ -80,6 +80,7 @@ Router.route("/staff/:restaurantId").get(
 Router.route("/table").post(
   verifyAccessToken,
   authorizeRoles("admin"),
+  checkActivePlan,
   asyncHandler(tableController.addTable)
 );
 
@@ -110,6 +111,7 @@ Router.route("/table/:restaurantId").get(
 Router.route("/items").post(
   verifyAccessToken,
   authorizeRoles("admin"),
+  checkActivePlan,
   uploadItemImages,
   asyncHandler(itemsController.addItems)
 );

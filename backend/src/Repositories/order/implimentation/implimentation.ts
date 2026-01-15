@@ -1,6 +1,6 @@
 import { BaseRepository } from "../../IBaseRepository";
 import { IOrderRepo } from "../interface/interface";
-import { IUserOrderDocument } from "../../../types/order";
+import { IOrderItem, IUserOrderDocument } from "../../../types/order";
 import UserOrder from "../../../models/order";
 import { ICart } from "../../../types/cart";
 import { Types } from "mongoose";
@@ -13,13 +13,12 @@ export class OrderRepository
     super(UserOrder);
   }
 
-  async addOrder(data: ICart): Promise<IUserOrderDocument> {
+  async addOrder(data: ICart, orderId: string): Promise<IUserOrderDocument> {
     try {
-      console.log(data.items,'data is here')
       const orderItems = data.items.map((item) => ({
         itemId: item.itemId,
         itemName: item.name,
-        itemImages:item.images,
+        itemImages: item.images,
         price: item.price,
         quantity: item.quantity,
         assignedCookId: null,
@@ -34,6 +33,7 @@ export class OrderRepository
         subTotal: data.totalAmount,
         totalAmount: data.totalAmount,
         currency: "INR",
+        orderId,
         orderStatus: "PLACED",
       });
       return res;
@@ -64,4 +64,20 @@ export class OrderRepository
 
     return await this.getAll(filter, { page, limit });
   }
+
+  async getOrder(orderId: string): Promise<IUserOrderDocument | null> {
+    const order = await this.getByFilter({
+      orderId: orderId,
+    });
+    return order;
+  }
+   async getOrderById(orderId: string): Promise<IUserOrderDocument | null> {
+    const order = await this.getByFilter({
+      _id: new Types.ObjectId(orderId),
+    });
+    return order;
+  }
+   changeStatus(orderId: string, status: string): Promise<IUserOrderDocument | null> {
+     return this.findByIdAndUpdate(orderId,{orderStatus:status})
+   }
 }

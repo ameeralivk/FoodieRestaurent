@@ -1,6 +1,6 @@
 import { apiRequest } from "../api/apiRequest";
 import type { CartItem } from "../types/cart";
-import type{ IPaginatedOrdersResponse, IUserOrder } from "../types/order";
+import type { IGetOrderResponse, IPaginatedOrdersResponse, IUserOrder } from "../types/order";
 export const orderPayment = async (
   amount: number,
   restaurantId: string,
@@ -24,6 +24,22 @@ export const getAllOrders = async (
 ): Promise<IPaginatedOrdersResponse> => {
   return apiRequest(
     "GET",
-    `/user/orders?restaurentId=${restaurantId}&userId=${userId}&page=${page}&limit=${limit}&search=${search||""}`
+    `/user/orders?restaurentId=${restaurantId}&userId=${userId}&page=${page}&limit=${limit}&search=${
+      search || ""
+    }`
   );
 };
+
+export const getOrder = async (
+  orderId: string
+): Promise<IGetOrderResponse> => {
+  return apiRequest("GET", `/user/orders/${orderId}`);
+};
+
+
+export const cancellOrder = async(
+  orderId:string,
+  userId:string
+):Promise<{success:boolean,message:string}>=>{
+  return apiRequest("POST",`/user/orders/${orderId}/cancell`,{userId})
+}

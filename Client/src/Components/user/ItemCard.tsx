@@ -17,8 +17,6 @@ interface PizzaCardProps {
 
 const ItemCard: React.FC<PizzaCardProps> = ({
   Item,
-  selectedSize,
-  onSizeChange,
   onAddToCart,
   onClick,
 }) => {

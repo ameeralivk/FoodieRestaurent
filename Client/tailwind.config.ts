@@ -2,6 +2,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/**/*.{js,ts,jsx,tsx}", // scan all JS/TS/JSX/TSX files
   ],
@@ -11,6 +12,8 @@ const config: Config = {
         // optional: add custom colors
         primary: "#FFD700",
         secondary: "#1E293B",
+        background: "rgb(var(--bg) / <alpha-value>)",
+        foreground: "rgb(var(--text) / <alpha-value>)",
       },
     },
   },
@@ -18,5 +21,3 @@ const config: Config = {
 };
 
 export default config;
-
-

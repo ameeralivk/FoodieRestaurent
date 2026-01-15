@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Home,
-  User,
-  ShoppingCart,
-  Heart,
-  ShoppingCartIcon,
-} from "lucide-react";
+import { Home, User, ShoppingCart, Wallet, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 interface NavItem {
   id: string;
@@ -41,7 +35,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
     {
       id: "Orders",
       label: "Orders",
-      icon: <ShoppingCart size={24} />,
+      icon: <ShoppingBag size={24} />,
       path: "/user/order",
     },
     {
@@ -55,6 +49,12 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
       label: "Profile",
       icon: <User size={24} />,
       path: "/user/profile",
+    },
+    {
+      id: "wallet",
+      label: "wallet",
+      icon: <Wallet size={24} />,
+      path: "/user/wallet",
     },
   ];
 

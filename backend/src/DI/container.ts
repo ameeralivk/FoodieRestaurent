@@ -46,6 +46,8 @@ import { CartRepository } from "../Repositories/cart/implimentation/cartReposito
 import { OrderRepository } from "../Repositories/order/implimentation/implimentation";
 import { OrderController } from "../Controller/orderController/implimentation/orderController";
 import { OrderService } from "../services/orderService/implimentation/orderService";
+import { UserWalletRepository } from "../Repositories/userWallet/implementation/implementation";
+
 
 const container = new Container();
 //payment
@@ -128,4 +130,8 @@ container.bind(TYPES.cartRepository).to(CartRepository)
 container.bind(TYPES.orderRepository).to(OrderRepository)
 container.bind(TYPES.orderController).to(OrderController)
 container.bind(TYPES.orderService).to(OrderService)
+
+
+//userWallet
+container.bind(TYPES.userWalletRepository).to(UserWalletRepository)
 export { container };

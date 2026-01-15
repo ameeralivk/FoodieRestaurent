@@ -103,4 +103,6 @@ export const MESSAGES = {
   PROFILE_IMAGE_ADDED_SUCCESS: "Profile Image Updated Success",
   INVALID_CURRENT_PASSWORD: "Current password is incorrect",
   PASSWORD_CHANGED_SUCCESS: "Password changed successfully",
+  ORDER_CANCELLED_SUCCESS:"Order Cancelled Successfully",
+  ORDER_CANCELLED_FAILED:"Order Cancelled Failed"
 };

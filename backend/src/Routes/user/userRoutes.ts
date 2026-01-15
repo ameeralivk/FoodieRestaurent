@@ -56,10 +56,10 @@ Router.route("/profile/:userId")
   .post(asyncHandler(userController.changePassword));
 
 //order
-
 Router.route("/order/payment").post(
   asyncHandler(paymentController.createOrderPayment)
 );
 Router.route("/orders").get(asyncHandler(orderController.getAllOrders));
-
+Router.route("/orders/:orderId").get(asyncHandler(orderController.getOrder))
+Router.route("/orders/:orderId/cancell").post(asyncHandler(orderController.cancelOrder))
 export default Router;

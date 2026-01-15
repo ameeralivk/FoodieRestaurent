@@ -1,3 +1,4 @@
+import { OrderService } from "../services/orderService/implimentation/orderService";
 
 export const TYPES = {
   PaymentRepository: Symbol("PaymentService"),
@@ -44,5 +45,6 @@ export const TYPES = {
   cartRepository:Symbol("cartRepository"),
   orderRepository:Symbol("orderRepository"),
   orderController:Symbol("orderController"),
-  orderService:Symbol("orderService")
+  orderService:Symbol("orderService"),
+  userWalletRepository:Symbol("userWalletRepository")
 };

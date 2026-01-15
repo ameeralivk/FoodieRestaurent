@@ -1,0 +1,10 @@
+import { IUserWallet } from "../../../types/wallet";
+
+export interface IUserWalletRepository {
+  creditWallet(
+    userId: string,
+    amount: number,
+    description: string,
+    method: string
+  ):Promise<IUserWallet|null>
+}

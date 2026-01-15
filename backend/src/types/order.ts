@@ -28,10 +28,10 @@ export interface IUserOrder {
   subTotal: number;
   userId:Types.ObjectId;
   totalAmount: number;
-
+  orderId:string;
   currency: "INR";
 
-  orderStatus: "PLACED" | "IN_KITCHEN" | "READY" | "SERVED";
+  orderStatus: "PLACED" | "PREPARING" | "READY" | "SERVED" | "CANCELLED";
 
   assignedByStaffId?: Types.ObjectId;
 

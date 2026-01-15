@@ -3,21 +3,23 @@ import { CheckCircle, Package, Mail, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../redux/store/store";
-
+import { useSearchParams } from "react-router-dom";
 const OrderSuccessPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get("orderId");
   const restaurantId = useSelector(
     (state: RootState) => state.userAuth.user?.restaurantId
   );
   const tableNo = useSelector(
     (state: RootState) => state.userAuth.user?.tableNo
   );
-  const orderNumber =
-    "ORD-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-  const orderDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  // const orderNumber =
+  //   "ORD-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+  // const orderDate = new Date().toLocaleDateString("en-US", {
+  //   year: "numeric",
+  //   month: "long",
+  //   day: "numeric",
+  // });
   const Navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
@@ -45,20 +47,23 @@ const OrderSuccessPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500 mb-1">Order Number</p>
-              <p className="text-lg font-semibold text-gray-900">
-                {orderNumber}
-              </p>
+              <p className="text-lg font-semibold text-gray-900">{orderId}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Order Date</p>
-              <p className="text-lg font-semibold text-gray-900">{orderDate}</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {new Date().toLocaleDateString("en-IN")}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <button className="flex-1 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+          <button
+            onClick={() => Navigate("/user/order")}
+            className="flex-1 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+          >
             Track Order
             <ArrowRight className="w-4 h-4 ml-2" />
           </button>

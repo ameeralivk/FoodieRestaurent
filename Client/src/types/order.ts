@@ -18,7 +18,7 @@ export interface IUserOrder {
   restaurantId: string;
   userId: string;
   tableId: string;
-
+  orderId:string;
   items: IOrderItem[];
 
   subTotal: number;
@@ -37,4 +37,27 @@ export interface IPaginatedOrdersResponse {
   page: number;
   limit: number;
 }
+
+
+export interface IOrder {
+  _id: string;
+  orderId: string;
+  userId: string;
+  restaurantId: string;
+  tableId: string;
+  currency: "INR";
+  items: IOrderItem[];
+  subTotal: number;
+  totalAmount: number;
+  orderStatus: "PLACED" | "CONFIRMED" | "PREPARING" | "READY" | "COMPLETED" | "CANCELLED";
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+}
+
+export interface IGetOrderResponse {
+  success: boolean;
+  result: IOrder;
+}
+
 

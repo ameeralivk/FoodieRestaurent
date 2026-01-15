@@ -5,6 +5,8 @@ import { IOrderService } from "../../../services/orderService/interface/IOrderSe
 import { AppError } from "../../../utils/Error";
 import { Response, Request } from "express";
 import HttpStatus from "../../../constants/htttpStatusCode";
+import { MESSAGES } from "../../../constants/messages";
+import { success } from "zod";
 @injectable()
 export class OrderController implements IOrderController {
   constructor(
@@ -20,7 +22,6 @@ export class OrderController implements IOrderController {
         limit = 10,
         search = "",
       } = req.query;
-
 
       const result = await this._orderService.getAllOrders(
         restaurentId as string,
@@ -41,4 +42,45 @@ export class OrderController implements IOrderController {
       throw new AppError(error.message);
     }
   };
-}
+
+  getOrder = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { orderId } = req.params;
+      if (!orderId) {
+        throw new AppError("Order NotFound");
+      }
+      let result = await this._orderService.getOrder(orderId);
+      if (result != null) {
+        return res.status(HttpStatus.OK).json({ success: true, result });
+      } else {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, result: [] });
+      }
+    } catch (error: any) {
+      throw new AppError(error.message);
+    }
+  };
+  cancelOrder = async(req: Request, res: Response): Promise<Response> => {
+     try {
+      const { orderId } = req.params;
+      const {userId} = req.body // from auth middleware
+
+      const result = await this._orderService.cancelOrder(
+        orderId as string,
+        userId,
+      );
+
+      if (!result.allowed) {
+        return res.status(400).json(result);
+      }
+
+      return res.json({
+        success: true,
+        message: MESSAGES.ORDER_CANCELLED_SUCCESS,
+      });
+    } catch (error: any) {
+       throw new AppError(error.message)
+    }
+  }
+  }

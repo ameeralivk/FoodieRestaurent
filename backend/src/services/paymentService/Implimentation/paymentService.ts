@@ -10,6 +10,7 @@ import { IOrderRepo } from "../../../Repositories/order/interface/interface";
 import { ICartRepository } from "../../../Repositories/cart/interface/ICartRepository";
 import { AppError } from "../../../utils/Error";
 import { MESSAGES } from "../../../constants/messages";
+import { generateOrderId } from "../../../helpers/generateOrderId";
 const stripe = new Stripe(process.env.STRIP_SECRET_KEY as string, {
   apiVersion: "2024-06-20" as unknown as Stripe.LatestApiVersion,
 });
@@ -73,6 +74,7 @@ export class PaymentService implements IPaymentService {
     userId: string,
     items: ICartItem[]
   ): Promise<{ success: boolean; url: string }> {
+    const orderId = generateOrderId()
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -84,11 +86,12 @@ export class PaymentService implements IPaymentService {
         },
         quantity: item.quantity,
       })),
-      success_url: `${process.env.FRONTEND_BASE_URL}/user/payment-success`,
+      success_url: `${process.env.FRONTEND_BASE_URL}/user/payment-success?orderId=${orderId}`,
       cancel_url: `${process.env.FRONTEND_BASE_URL}/payment-failed`,
       metadata: {
         paymentType: "orderpayment",
         restaurentId,
+        orderId,
         userId,
         amount,
       },
@@ -135,7 +138,7 @@ export class PaymentService implements IPaymentService {
           (session.amount_total ?? 0) / 100,
           session.payment_intent as string
         );
-        let res = await this._orderRepository.addOrder(cart)
+        let res = await this._orderRepository.addOrder(cart,metadata.orderId as string)
         if(res){
           await this._cartRepository.deleteCart(cart._id.toString())
         }
