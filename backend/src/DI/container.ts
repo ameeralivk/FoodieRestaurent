@@ -47,6 +47,8 @@ import { OrderRepository } from "../Repositories/order/implimentation/implimenta
 import { OrderController } from "../Controller/orderController/implimentation/orderController";
 import { OrderService } from "../services/orderService/implimentation/orderService";
 import { UserWalletRepository } from "../Repositories/userWallet/implementation/implementation";
+import { UserWalletController } from "../Controller/userWalletController/implimentation/userWalletController";
+import { UserWalletService } from "../services/userWalletService/implementation/UserWalletService";
 
 
 const container = new Container();
@@ -134,4 +136,6 @@ container.bind(TYPES.orderService).to(OrderService)
 
 //userWallet
 container.bind(TYPES.userWalletRepository).to(UserWalletRepository)
+container.bind(TYPES.userWalletController).to(UserWalletController)
+container.bind(TYPES.userWalletService).to(UserWalletService)
 export { container };

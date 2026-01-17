@@ -7,4 +7,5 @@ export interface IUserWalletRepository {
     description: string,
     method: string
   ):Promise<IUserWallet|null>
+  getWallet(userId:String):Promise<IUserWallet|null>
 }

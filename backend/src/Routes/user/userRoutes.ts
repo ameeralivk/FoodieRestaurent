@@ -10,6 +10,7 @@ import { UserController } from "../../Controller/userController/implementation/u
 import { updateProfile } from "../../config/multerConfig";
 import { PaymentController } from "../../Controller/paymentController/Implimentation/paymentController";
 import { OrderController } from "../../Controller/orderController/implimentation/orderController";
+import { UserWalletController } from "../../Controller/userWalletController/implimentation/userWalletController";
 const aiController = container.get<AiController>(TYPES.aiController);
 const cartController = container.get<CartController>(TYPES.cartController);
 const userController = container.get<UserController>(TYPES.userController);
@@ -17,6 +18,7 @@ const paymentController = container.get<PaymentController>(
   TYPES.PaymentController
 );
 const orderController = container.get<OrderController>(TYPES.orderController);
+const userWalletController =container.get<UserWalletController>(TYPES.userWalletController)
 const Router = express.Router();
 
 Router.route("/ai").post(
@@ -62,4 +64,8 @@ Router.route("/order/payment").post(
 Router.route("/orders").get(asyncHandler(orderController.getAllOrders));
 Router.route("/orders/:orderId").get(asyncHandler(orderController.getOrder))
 Router.route("/orders/:orderId/cancell").post(asyncHandler(orderController.cancelOrder))
+
+
+//wallet 
+Router.route("/wallet").get(asyncHandler(userWalletController.getWallet))
 export default Router;

@@ -4,6 +4,7 @@ export interface IItem {
   price: number;
   stock: number;
   points: number;
+  description?:string;
   isStock: boolean;
   isActive: boolean;
   isDeleted: boolean;

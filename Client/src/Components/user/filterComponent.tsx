@@ -1,164 +1,3 @@
-// import React, { useState } from "react";
-// import type { CategoryResponse } from "../../types/category";
-// import { getAllCategory } from "../../services/category";
-// import { useQuery } from "@tanstack/react-query";
-// import { useParams } from "react-router-dom";
-// import { getAllSubCategory } from "../../services/subCategory";
-// import type{ SubCategory } from "../../types/subCategory";
-// import type {
-//   SubCategoryResponse,
-// } from "../../types/subCategory";
-
-// const CategorySubCategoryFilter: React.FC = () => {
-//   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-//   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("all");
-
-//   const { restaurantId } = useParams<{ restaurantId: string }>();
-//   const {
-//     data: categoryData,
-//   } = useQuery<CategoryResponse, Error>({
-//     queryKey: ["categories", restaurantId],
-//     queryFn: () =>
-//       getAllCategory(restaurantId as string, undefined, undefined, ""),
-//   });
-
-//   const {
-//     data: subCategoryData,
-//   } = useQuery<SubCategoryResponse, Error>({
-//     queryKey: ["subCategories", restaurantId],
-//     queryFn: () => getAllSubCategory(restaurantId as string, 1, 10, ""),
-//   });
-
-//   // Dummy subcategories based on selected category
-
-//   const currentSubCategories=
-//     selectedCategory !== "all"
-//       ? subCategoryData?.data.filter((x) => x.categoryName === selectedCategory)
-//       : [];
-//   console.log(currentSubCategories, selectedCategory);
-//   const handleCategoryChange = (categoryName: string): void => {
-//     setSelectedCategory(categoryName);
-//     setSelectedSubCategory("all");
-//   };
-
-//   return (
-//     <div className="bg-white">
-//       {/* Category Filter */}
-//       <div className="border-b border-gray-200 py-6">
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2">
-//             {/* All Categories Button */}
-//             <button
-//               onClick={() => handleCategoryChange("all")}
-//               className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[80px] h-24 rounded-2xl border-2 transition-all ${
-//                 selectedCategory === "all"
-//                   ? "border-orange-500 bg-orange-50"
-//                   : "border-gray-200 bg-white hover:border-gray-300"
-//               }`}
-//             >
-//               <div className="w-14 h-14 mb-2 flex items-center justify-center bg-gray-50 rounded-xl">
-//                 <span className="text-3xl">🍽️</span>
-//               </div>
-//               <span className="text-sm font-medium text-gray-900">All</span>
-//               {selectedCategory === "all" && (
-//                 <div className="absolute top-2 right-2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-//                   <svg
-//                     className="w-3 h-3 text-white"
-//                     fill="none"
-//                     stroke="currentColor"
-//                     viewBox="0 0 24 24"
-//                   >
-//                     <path
-//                       strokeLinecap="round"
-//                       strokeLinejoin="round"
-//                       strokeWidth={3}
-//                       d="M5 13l4 4L19 7"
-//                     />
-//                   </svg>
-//                 </div>
-//               )}
-//             </button>
-
-//             {/* Category Items */}
-//             {categoryData?.data.map((category) => (
-//               <button
-//                 key={category.id}
-//                 onClick={() => handleCategoryChange(category.name)}
-//                 className={`relative flex-shrink-0 flex flex-col items-center justify-center min-w-[80px] h-24 rounded-2xl border-2 transition-all ${
-//                   selectedCategory === category.name
-//                     ? "border-orange-500 bg-orange-50"
-//                     : "border-gray-200 bg-white hover:border-gray-300"
-//                 }`}
-//               >
-//                 {/* <div className="w-14 h-14 mb-2 flex items-center justify-center bg-gray-50 rounded-xl">
-//                   <span className="text-3xl">{category.icon}</span>
-//                 </div> */}
-//                 <span className="text-sm font-medium text-gray-900 truncate px-2 text-center w-full">
-//                   {category.name}
-//                 </span>
-//                 {selectedCategory === category.name && (
-//                   <div className="absolute top-2 right-2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-//                     <svg
-//                       className="w-3 h-3 text-white"
-//                       fill="none"
-//                       stroke="currentColor"
-//                       viewBox="0 0 24 24"
-//                     >
-//                       <path
-//                         strokeLinecap="round"
-//                         strokeLinejoin="round"
-//                         strokeWidth={3}
-//                         d="M5 13l4 4L19 7"
-//                       />
-//                     </svg>
-//                   </div>
-//                 )}
-//               </button>
-//             ))}
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* SubCategory Filter - Only shown when a category is selected */}
-//       {currentSubCategories && currentSubCategories.length > 0 && (
-//         <div className="bg-gray-50 border-b border-gray-200 py-4">
-//           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//             <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2">
-//               <button
-//                 onClick={() => setSelectedSubCategory("all")}
-//                 className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-//                   selectedSubCategory === "all"
-//                     ? "bg-orange-500 text-white shadow-sm"
-//                     : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300"
-//                 }`}
-//               >
-//                 All
-//               </button>
-//               {currentSubCategories?.map((subCategory: SubCategory) => (
-//                 <button
-//                   key={subCategory.id}
-//                   onClick={() => setSelectedSubCategory(subCategory.name)}
-//                   className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-//                     selectedSubCategory === subCategory.name
-//                       ? "bg-orange-500 text-white shadow-sm"
-//                       : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300"
-//                   }`}
-//                 >
-//                   {subCategory.name}
-//                 </button>
-//               ))}
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Selected Info Display */}
-//     </div>
-//   );
-// };
-
-// export default CategorySubCategoryFilter;
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
@@ -168,7 +7,6 @@ import { getAllSubCategory } from "../../services/subCategory";
 
 import type { CategoryResponse } from "../../types/category";
 import type { SubCategory, SubCategoryResponse } from "../../types/subCategory";
-import { Pagination } from "@mui/material";
 
 interface CategorySubCategoryFilterProps {
   onChange: (category: string, subCategory: string) => void;
@@ -217,79 +55,69 @@ const CategorySubCategoryFilter: React.FC<CategorySubCategoryFilterProps> = ({
 
   /* -------------------- JSX -------------------- */
   return (
-    <div className="bg-white">
+    <div className="w-full space-y-4">
       {/* Category Filter */}
-      <div className="border-b border-gray-200 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2">
-            {/* All Categories */}
-            <button
-              onClick={() => handleCategoryChange("all")}
-              className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[80px] h-24 rounded-2xl border-2 transition-all ${
-                selectedCategory === "all"
-                  ? "border-orange-500 bg-orange-50"
-                  : "border-gray-200 bg-white hover:border-gray-300"
-              }`}
-            >
-              <div className="w-14 h-14 mb-2 flex items-center justify-center bg-gray-50 rounded-xl">
-                <span className="text-3xl">🍽️</span>
-              </div>
-              <span className="text-sm font-medium text-gray-900">All</span>
-            </button>
+      <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
+        {/* All Button */}
+        <button
+          onClick={() => handleCategoryChange("all")}
+          className={`flex-shrink-0 px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105 ${selectedCategory === "all"
+              ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-lg shadow-orange-500/30 ring-2 ring-orange-200"
+              : "bg-white text-gray-700 border border-gray-100 hover:border-orange-200 hover:bg-orange-50/50 shadow-sm"
+            }`}
+        >
+          All Items
+        </button>
 
-            {/* Category Items */}
-            {categoryData?.data.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => handleCategoryChange(category.name)}
-                className={`relative flex-shrink-0 flex flex-col items-center justify-center min-w-[80px] h-24 rounded-2xl border-2 transition-all ${
-                  selectedCategory === category.name
-                    ? "border-orange-500 bg-orange-50"
-                    : "border-gray-200 bg-white hover:border-gray-300"
-                }`}
-              >
-                <span className="text-sm font-medium text-gray-900 truncate px-2 text-center w-full">
-                  {category.name}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Dynamic Categories */}
+        {categoryData?.data.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => handleCategoryChange(category.name)}
+            className={`flex-shrink-0 px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105 ${selectedCategory === category.name
+                ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-lg shadow-orange-500/30 ring-2 ring-orange-200"
+                : "bg-white text-gray-700 border border-gray-100 hover:border-orange-200 hover:bg-orange-50/50 shadow-sm"
+              }`}
+          >
+            {category.name}
+          </button>
+        ))}
       </div>
 
-      {/* SubCategory Filter */}
-      {currentSubCategories && currentSubCategories.length > 0 && (
-        <div className="bg-gray-50 border-b border-gray-200 py-4">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2">
-              <button
-                onClick={() => handleSubCategoryChange("all")}
-                className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-                  selectedSubCategory === "all"
-                    ? "bg-orange-500 text-white"
-                    : "bg-white text-gray-700 border border-gray-200"
-                }`}
-              >
-                All
-              </button>
+      {/* SubCategory Filter - Appears smoothly when needed */}
+      <div className={`transition-all duration-500 ease-in-out overflow-hidden ${currentSubCategories && currentSubCategories.length > 0
+          ? "max-h-20 opacity-100 translate-y-0"
+          : "max-h-0 opacity-0 -translate-y-2"
+        }`}>
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2 flex-shrink-0">
+            Tags:
+          </span>
 
-              {currentSubCategories.map((subCategory: SubCategory) => (
-                <button
-                  key={subCategory.id}
-                  onClick={() => handleSubCategoryChange(subCategory.name)}
-                  className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-                    selectedSubCategory === subCategory.name
-                      ? "bg-orange-500 text-white"
-                      : "bg-white text-gray-700 border border-gray-200"
-                  }`}
-                >
-                  {subCategory.name}
-                </button>
-              ))}
-            </div>
-          </div>
+          <button
+            onClick={() => handleSubCategoryChange("all")}
+            className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${selectedSubCategory === "all"
+                ? "bg-gray-800 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+          >
+            All
+          </button>
+
+          {currentSubCategories?.map((subCategory: SubCategory) => (
+            <button
+              key={subCategory.id}
+              onClick={() => handleSubCategoryChange(subCategory.name)}
+              className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${selectedSubCategory === subCategory.name
+                  ? "bg-gray-800 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+            >
+              {subCategory.name}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };

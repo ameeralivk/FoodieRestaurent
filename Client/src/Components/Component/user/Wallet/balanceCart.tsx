@@ -1,62 +1,38 @@
-import React from 'react'
+import React from "react";
+import { CircleDollarSign, TrendingUp } from "lucide-react";
+
 interface BalanceCardProps {
   currentBalance: number;
 }
-const balanceCart:React.FC<BalanceCardProps> = ({currentBalance}) => {
+
+const BalanceCard: React.FC<BalanceCardProps> = ({ currentBalance }) => {
   return (
-     <div className="bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl p-8 mb-8 shadow-sm">
-            <div className="flex items-center gap-8">
-              {/* Wallet Icon */}
-              <div className="flex-shrink-0">
-                <svg className="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                  <rect
-                    x="25"
-                    y="35"
-                    width="70"
-                    height="50"
-                    rx="4"
-                    fill="#F4A460"
-                    stroke="#8B4513"
-                    strokeWidth="2"
-                  />
-                  <rect
-                    x="30"
-                    y="30"
-                    width="70"
-                    height="50"
-                    rx="4"
-                    fill="#FFA07A"
-                    stroke="#8B4513"
-                    strokeWidth="2"
-                  />
-                  <circle cx="75" cy="55" r="4" fill="#8B4513" />
-                  <line
-                    x1="30"
-                    y1="45"
-                    x2="100"
-                    y2="45"
-                    stroke="#8B4513"
-                    strokeWidth="1.5"
-                  />
-                </svg>
-              </div>
+    <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-8 mb-8 shadow-xl relative overflow-hidden text-white">
+      {/* Background Patterns */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-40 h-40 bg-black opacity-5 rounded-full blur-2xl translate-y-1/4 -translate-x-1/4 pointer-events-none"></div>
 
-              {/* Points Info */}
-              <div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-2">
-                  {currentBalance.toLocaleString()} Points
-                </h2>
-                <p className="text-gray-700 mb-1">
-                  Redeem points for discounts at participating restaurants.
-                </p>
-                <p className="text-gray-700 mb-1">(100 points = $1)</p>
-                <p className="text-gray-700 font-semibold">
-                  Current Points Balance
-                </p>
-              </div>
-            </div>
+      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-6 w-full">
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner">
+            <CircleDollarSign className="w-8 h-8 text-white" />
           </div>
-  )
-}
 
-export default balanceCart
+          <div>
+            <p className="text-orange-50 font-medium mb-1 text-sm uppercase tracking-wider">Total Balance</p>
+            <h2 className="text-5xl font-extrabold text-white tracking-tight">
+              ₹{currentBalance.toLocaleString()}
+            </h2>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
+          <TrendingUp className="w-4 h-4 text-green-300" />
+          <p className="text-sm font-medium">Ready to use</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BalanceCard;

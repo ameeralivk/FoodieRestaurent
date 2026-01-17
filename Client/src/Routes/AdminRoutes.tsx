@@ -15,6 +15,7 @@ import TableManagement from "../Pages/admin/Table";
 import SubCategory from "../Pages/admin/SubCategory";
 import Category from "../Pages/admin/Category";
 import ItemsPage from "../Pages/admin/ItemsPage";
+import VarientPage from "../Pages/admin/varientPage";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -71,6 +72,7 @@ const AdminRoutes = () => {
         }
       />
       <Route path="/staff" element={<ProtectedRoute><StaffManagement/></ProtectedRoute>}/>
+      <Route path="/varients" element={<ProtectedRoute><VarientPage/></ProtectedRoute>}/>
       <Route path="/table" element={<ProtectedRoute><TableManagement/></ProtectedRoute>} />
       <Route path="/category" element={<ProtectedRoute><Category/></ProtectedRoute>}/>
       <Route path="/subcategory" element={<ProtectedRoute><SubCategory/></ProtectedRoute>}/>

@@ -35,4 +35,8 @@ export class UserWalletRepository
       }
     );
   }
+
+  getWallet(userId: String): Promise<IUserWallet | null> {
+    return this.getByFilter({userId:userId})
+  }
 }

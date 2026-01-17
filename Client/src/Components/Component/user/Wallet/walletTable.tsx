@@ -1,66 +1,67 @@
 import React from "react";
-
-interface WalletTransaction {
-  date: string;
-  description: string;
-  points: number;
-  status: string;
-}
+import type { IWalletTransaction } from "../../../../types/wallet";
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 
 interface WalletTableProps {
-  transactions: WalletTransaction[];
+  transactions: IWalletTransaction[];
 }
 
 const WalletTable: React.FC<WalletTableProps> = ({ transactions }) => {
+  if (transactions.length === 0) {
+    return (
+      <div className="p-8 text-center text-gray-500">
+        No transactions found.
+      </div>
+    )
+  }
+
   return (
     <table className="w-full">
-      <thead className="bg-gray-50 border-y border-gray-200">
+      <thead className="bg-gray-50 border-b border-gray-100">
         <tr>
-          <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
-            Date
+          <th className="text-left px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Transaction Details
           </th>
-          <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
-            Description
+          <th className="text-right px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Amount
           </th>
-          <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
-            Points
-          </th>
-          <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
+          <th className="text-right px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
             Status
           </th>
         </tr>
       </thead>
 
-      <tbody className="divide-y divide-gray-200">
-        {transactions.map((transaction, index) => (
-          <tr
-            key={index}
-            className="hover:bg-gray-50 transition-colors"
-          >
-            <td className="px-6 py-4 text-sm text-orange-400">
-              {transaction.date}
-            </td>
+      <tbody className="divide-y divide-gray-50">
+        {transactions.map((transaction, index) => {
+          const isCredit = transaction.amount > 0;
+          return (
+            <tr key={index} className="hover:bg-gray-50/80 transition-colors group">
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isCredit ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                    {isCredit ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">{transaction.description}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{new Date(transaction.createdAt).toDateString()}</p>
+                  </div>
+                </div>
+              </td>
 
-            <td className="px-6 py-4 text-sm text-gray-700">
-              {transaction.description}
-            </td>
+              <td className="px-6 py-4 text-right">
+                <span className={`text-sm font-bold ${isCredit ? 'text-green-600' : 'text-gray-900'}`}>
+                  {isCredit ? "+" : ""}₹{Math.abs(transaction.amount).toLocaleString()}
+                </span>
+              </td>
 
-            <td
-              className={`px-6 py-4 text-sm font-medium ${
-                transaction.points > 0
-                  ? "text-green-600"
-                  : "text-gray-700"
-              }`}
-            >
-              {transaction.points > 0 ? "+" : ""}
-              {transaction.points.toLocaleString()}
-            </td>
-
-            <td className="px-6 py-4 text-sm text-gray-700">
-              {transaction.status}
-            </td>
-          </tr>
-        ))}
+              <td className="px-6 py-4 text-right hidden sm:table-cell">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Successful
+                </span>
+              </td>
+            </tr>
+          )
+        })}
       </tbody>
     </table>
   );

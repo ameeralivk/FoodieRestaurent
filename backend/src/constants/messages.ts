@@ -104,5 +104,7 @@ export const MESSAGES = {
   INVALID_CURRENT_PASSWORD: "Current password is incorrect",
   PASSWORD_CHANGED_SUCCESS: "Password changed successfully",
   ORDER_CANCELLED_SUCCESS:"Order Cancelled Successfully",
-  ORDER_CANCELLED_FAILED:"Order Cancelled Failed"
+  ORDER_CANCELLED_FAILED:"Order Cancelled Failed",
+  WALLET_FETCHED_SUCCESS:"Wallet Fetched Successfully",
+  WALLET_FETCHED_FAILED:"Wallet Fetched Failed"
 };

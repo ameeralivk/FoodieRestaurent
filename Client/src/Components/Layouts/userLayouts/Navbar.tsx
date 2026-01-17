@@ -5,11 +5,12 @@ import { showConfirm } from "../../Elements/ConfirmationSwall";
 import Swal from "sweetalert2";
 import { logoutRequest } from "../../../services/Auth";
 import { userLogoutAction } from "../../../redux/slice/userSlice";
-import type{ RootState } from "../../../redux/store/store";
+import type { RootState } from "../../../redux/store/store";
 interface NavbarProps {
   restaurantName?: string;
+  isShowProfile?: boolean;
 }
-const Navbar = ({ restaurantName }: NavbarProps) => {
+const Navbar = ({ restaurantName, isShowProfile = true }: NavbarProps) => {
   const imageUrl = useSelector(
     (state: RootState) => state.userAuth.user?.imageUrl
   );
@@ -33,36 +34,46 @@ const Navbar = ({ restaurantName }: NavbarProps) => {
     }
   };
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-10">
-      <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <ChefHat className="w-6 h-6 text-gray-700" />
-            <h1 className="text-xl font-bold text-gray-900">
-              {restaurantName}
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+            <div className="bg-orange-500 p-2 rounded-xl text-white shadow-lg shadow-orange-500/20">
+              <ChefHat className="w-6 h-6" />
+            </div>
+            <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">
+              {restaurantName || "Foodie"}
             </h1>
           </div>
 
           {/* Right Icons */}
+
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                {/* <User
-                  onClick={() => {
-                    navigate("/user/profile");
-                  }}
-                  className="w-5 h-5 text-gray-600"
-                /> */}
-                <img
-                  src={imageUrl || "/default-avatar.png"}
-                  alt="Profile"
-                  onClick={() => navigate("/user/profile")}
-                  className="w-8 h-8 rounded-full object-cover cursor-pointer"
-                />
-              </div>
+            {isShowProfile && (
+              <button
+                onClick={() => navigate("/user/profile")}
+                className="group relative p-1 rounded-full transition-all duration-300 hover:ring-2 hover:ring-orange-100"
+              >
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
+                  <img
+                    src={imageUrl || "/default-avatar.png"}
+                    alt="Profile"
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=User&background=random";
+                    }}
+                  />
+                </div>
+              </button>
+            )}
+            <button
+              onClick={handleLogout}
+              className="p-2.5 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all duration-200"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
             </button>
-            <LogOut onClick={handleLogout} className=" cursor-pointer" />
           </div>
         </div>
       </div>

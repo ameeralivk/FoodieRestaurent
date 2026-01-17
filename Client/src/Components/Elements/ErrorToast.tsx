@@ -1,17 +1,18 @@
 import { toast } from "react-toastify";
-export const showErrorToast = (message: string = "❌ Something went wrong!") => {
+export const showErrorToast = (message: string = "Something went wrong!") => {
   toast.error(message, {
+    icon: () => <span className="text-xl">⚠️</span>,
     position: "top-center",
     autoClose: 3000,
-    hideProgressBar: false,
+    hideProgressBar: true,
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
-    theme: "colored",
+    className: "bg-white/90 backdrop-blur-md shadow-2xl border border-red-100 rounded-2xl !mb-4 text-sm font-bold text-gray-800",
     style: {
-      backgroundColor: "#111827",
-      color: "#f87171", // red text
-      fontWeight: "bold",
+      padding: "16px",
+      borderRadius: "16px",
+      boxShadow: "0 10px 40px -10px rgba(239,68,68,0.3)",
     },
   });
 };

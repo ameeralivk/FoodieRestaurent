@@ -31,9 +31,16 @@
 # --boundary--
 
 ### Get all orders with pagination and search
-POST http://localhost:3000/api/user/orders/695f36345fa15289d991c96c/cancell
+# POST http://localhost:3000/api/user/orders/695f36345fa15289d991c96c/cancell
+# Content-Type: application/json
+# Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+# {
+#   "userId":"6930063477bdbd4c43e863aa"
+# }
+
+GET http://localhost:3000/api/user/wallet
 Content-Type: application/json
-Authorization: Bearer YOUR_JWT_TOKEN_HERE
 
 {
   "userId":"6930063477bdbd4c43e863aa"
