@@ -1,8 +1,4 @@
-import {
-  ChartNoAxesColumn,
-  TableOfContents,
-  UtensilsCrossed,
-} from "lucide-react";
+import { ChartNoAxesColumn, TableOfContents } from "lucide-react";
 import SearchBar from "../../Elements/Reusable/reusableSearchBar";
 import { ToastContainer } from "react-toastify";
 import ReusableModal from "../../modals/SuperAdmin/GeneralModal";
@@ -28,11 +24,14 @@ import { getAllSubCategory } from "../../../services/subCategory";
 import { showConfirm } from "../../Elements/ConfirmationSwall";
 import { useQueryClient } from "@tanstack/react-query";
 import type { SubCategoryResponse } from "../../../types/subCategory";
+import { validateItem } from "../../../Validation/validateItems";
 import {
-  validateImages,
-  validateItem,
-} from "../../../Validation/validateItems";
-import { showErrorToast } from "../../Elements/ErrorToast";
+  AddVarient,
+  deleteVarient,
+  editVarient,
+  getAllVarient,
+} from "../../../services/varient";
+import type { IGetVariantsResponse } from "../../../types/varient";
 const VarientComponent = () => {
   const [currentRow, setCurrentRow] = useState<any>(null);
   const [modalErrors, setModalErrors] = useState<{ [key: string]: string }>({});
@@ -50,40 +49,22 @@ const VarientComponent = () => {
   const limit = 10;
   const queryClient = useQueryClient();
   const columns = [
-    { header: "Item Name", accessor: "name" },
-    { header: "Price", accessor: "price" },
+    { header: "VarientName", accessor: "name" },
     {
-      header: "Stock",
-      accessor: "stock",
-      render: (value: number | null | undefined) => {
-        return value ?? "Null";
-      },
-    },
-    {
-      header: "Preparation Time",
-      accessor: "preparationTime",
-      render: (value: number | null | undefined) => {
-        return value != null ? `${value} minutes` : "—";
-      },
-    },
-    {
-      header: "Created At",
-      accessor: "createdAt",
-      render: (value: string) => {
-        const date = new Date(value);
-        return date.toLocaleDateString();
-      },
+      header: "Types",
+      accessor: "Varient",
+      render: (value: { name: string }[]) =>
+        value.map((v) => v.name).join(", "),
     },
   ];
 
   const {
-    data: ItemsList,
+    data: VarientList,
     isLoading: isItemCaLoading,
     isFetching: isItemFetching,
-  } = useQuery<IItemResponse, Error>({
-    queryKey: ["ItemsList", restaurentId, currentPage, debouncedSearch],
-    queryFn: () =>
-      getAllItems(restaurentId as string, currentPage, limit, debouncedSearch),
+  } = useQuery<IGetVariantsResponse, Error>({
+    queryKey: ["VarientList", restaurentId, currentPage, debouncedSearch],
+    queryFn: () => getAllVarient(currentPage, limit, debouncedSearch),
   });
 
   const {
@@ -125,10 +106,10 @@ const VarientComponent = () => {
   }, [searchTerm]);
 
   useEffect(() => {
-    if (ItemsList?.total) {
-      setTotalPages(Math.ceil(ItemsList.total / limit));
+    if (VarientList?.total) {
+      setTotalPages(Math.ceil(VarientList.total / limit));
     }
-  }, [ItemsList]);
+  }, [VarientList]);
 
   useEffect(() => {
     if (modalMode === "edit" && currentRow && SubCategory?.data) {
@@ -146,40 +127,28 @@ const VarientComponent = () => {
     setSearchQuery(query);
   };
   const handleSubmit = (row: any) => {
-    const { isValid, errors } = validateItem(row);
-    if (!isValid) {
-      setModalErrors(errors);
-      return;
-    }
-    const formData = new FormData();
-    formData.append("name", row.name);
-    formData.append("price", row.price);
-    formData.append("stock", row.stock);
-    formData.append("preparationTime", row.preparationTime);
-    formData.append("categoryId", categoryId || currentRow?.categoryId?._id);
-    if (subCategory.length) {
-      formData.append(
-        "subCategoryId",
-        subCategoryId || currentRow?.subCategoryId?._id,
-      );
-    }
-    formData.append("restaurantId", restaurentId as string);
-    row.images?.forEach((file: File) => {
-      formData.append("images", file);
-    });
-
-    for (let [key, val] of formData.entries()) {
-      console.log(key, val);
-    }
-
+    // const { isValid, errors } = validateItem(row);
+    // if (!isValid) {
+    //   setModalErrors(errors);
+    //   return;
+    // }
     if (modalMode == "add") {
-      const itemsAdd = async () => {
+      const varientAdd = async () => {
         try {
-          const res = await addItems(formData);
+          let varients = [];
+          for (let char of row.skills) {
+            varients.push({ name: char });
+          }
+          const res = await AddVarient(
+            row.GroupName,
+            varients,
+            restaurentId as string,
+          );
+
           if (res.success) {
             showSuccessToast(res.message);
             queryClient.invalidateQueries({
-              queryKey: ["ItemsList", restaurentId],
+              queryKey: ["VarientList"],
             });
             setModalOpen(false);
             setCurrentRow({});
@@ -189,15 +158,26 @@ const VarientComponent = () => {
           return;
         }
       };
-      itemsAdd();
+      varientAdd();
     } else {
       const EditItem = async () => {
         try {
-          const res = await editItem(currentRow._id, formData);
+          let varients = [];
+          for (let char of row.skills) {
+            varients.push({ name: char });
+          }
+          console.log(currentRow._id, "ro");
+          const res = await editVarient(
+            currentRow._id,
+            row.name,
+            varients,
+            restaurentId as string,
+          );
+          console.log(res, "result");
           if (res.success) {
             showSuccessToast(res.message);
             queryClient.invalidateQueries({
-              queryKey: ["ItemsList", restaurentId],
+              queryKey: ["VarientList", restaurentId],
             });
             setModalOpen(false);
             setCurrentRow({});
@@ -254,7 +234,7 @@ const VarientComponent = () => {
       ...currentRow,
       [name]: value,
     };
-    console.log(updatedRow, "rowlsleodlsod");
+
     setCurrentRow(updatedRow);
 
     const { errors } = validateItem(updatedRow);
@@ -289,11 +269,11 @@ const VarientComponent = () => {
     if (!confirmed) return;
     const del = async () => {
       try {
-        const res = await deleteItem(row._id);
+        const res = await deleteVarient(row._id);
         if (res.success) {
           showSuccessToast(res.message);
           queryClient.invalidateQueries({
-            queryKey: ["ItemsList", restaurentId],
+            queryKey: ["VarientList", restaurentId],
           });
           setModalOpen(false);
         }
@@ -306,7 +286,8 @@ const VarientComponent = () => {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-  const Items = ItemsList?.data;
+  const Varients = VarientList?.data;
+
   return (
     <div>
       <ToastContainer />
@@ -324,7 +305,7 @@ const VarientComponent = () => {
                   Varient Managment
                 </h1>
                 <p className="text-gray-400 text-sm">
-                  Manage and organize your Items efficiently
+                  Manage and organize your Varients efficiently
                 </p>
               </div>
             </div>
@@ -351,12 +332,12 @@ const VarientComponent = () => {
             onSearch={handleSearch}
           />
         </div>
-        {Items && Items.length >= 1 ? (
+        {Varients && Varients.length >= 1 ? (
           <div className="bg-[#141518] border border-gray-800/60 rounded-2xl p-6 shadow-xl backdrop-blur-md">
             <ReusableTable
               title="Staff Members"
               columns={columns}
-              data={Items}
+              data={Varients}
               loading={loading}
               minWidth="min-w-[100px]"
               actions={[
@@ -373,8 +354,8 @@ const VarientComponent = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center py-24 bg-[#141518] border border-gray-800/60 rounded-2xl shadow-xl">
-            <UtensilsCrossed className="w-20 h-20 text-gray-600 mb-6" />
-            <p className="text-gray-400 text-lg mb-3">No SubCategory found.</p>
+            <TableOfContents className="w-20 h-20 text-gray-600 mb-6" />
+            <p className="text-gray-400 text-lg mb-3">No Varients found.</p>
             <p className="text-gray-500 mb-8">
               Start by adding your first subCategory.
             </p>
@@ -420,7 +401,7 @@ const VarientComponent = () => {
               name: "Varieties",
               label: "Varieties *",
               type: "tags",
-              value: currentRow?.name || "",
+              value: currentRow?.Varient?.map((v: any) => v.name) || [],
             },
           ]}
           externalErrors={modalErrors}

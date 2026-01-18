@@ -11,6 +11,7 @@ import { updateProfile } from "../../config/multerConfig";
 import { PaymentController } from "../../Controller/paymentController/Implimentation/paymentController";
 import { OrderController } from "../../Controller/orderController/implimentation/orderController";
 import { UserWalletController } from "../../Controller/userWalletController/implimentation/userWalletController";
+import { VarientController } from "../../Controller/varientController/implementation/varientController";
 const aiController = container.get<AiController>(TYPES.aiController);
 const cartController = container.get<CartController>(TYPES.cartController);
 const userController = container.get<UserController>(TYPES.userController);
@@ -19,6 +20,7 @@ const paymentController = container.get<PaymentController>(
 );
 const orderController = container.get<OrderController>(TYPES.orderController);
 const userWalletController =container.get<UserWalletController>(TYPES.userWalletController)
+const varientController = container.get<VarientController>(TYPES.VarientController)
 const Router = express.Router();
 
 Router.route("/ai").post(
@@ -68,4 +70,14 @@ Router.route("/orders/:orderId/cancell").post(asyncHandler(orderController.cance
 
 //wallet 
 Router.route("/wallet").get(asyncHandler(userWalletController.getWallet))
+
+
+//user Varient 
+Router.route("/varients").post(asyncHandler(varientController.addVarient))
+                         .get(asyncHandler(varientController.getAllVarient))
+Router.route("/varients/:varientId").put(asyncHandler(varientController.editVarient))
+                                    .delete(asyncHandler(varientController.deleteVarient))
+
+
+
 export default Router;

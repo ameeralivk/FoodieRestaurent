@@ -39,12 +39,43 @@
 #   "userId":"6930063477bdbd4c43e863aa"
 # }
 
-GET http://localhost:3000/api/user/wallet
-Content-Type: application/json
+# GET http://localhost:3000/api/user/wallet
+# Content-Type: application/json
 
-{
-  "userId":"6930063477bdbd4c43e863aa"
-}
+# {
+#   "userId":"6930063477bdbd4c43e863aa"
+# }
+
+# POST http://localhost:3000/api/user/varients
+# Content-Type: application/json
+
+# {
+#   "name": "Size",
+#   "Varients": [
+#     { "name": "Half" },
+#     { "name": "Full" }
+#   ]
+# }
+# PUT http://localhost:3000/api/user/varients/696c7d88389ac1dcec6c81f8
+# Content-Type: application/json
+
+# {
+#   "name": "Portion Size",
+#   "Varients": [
+#     { "name": "Half" },
+#     { "name": "Full" },
+#     { "name": "Family" }
+#   ]
+# }
+
+# DELETE  http://localhost:3000/api/user/varients/696c7d88389ac1dcec6c81f8
+# Content-Type: application/json
+
+
+GET http://localhost:3000/api/user/varients?page=1&limit=5
+
+
+
 
 
 

@@ -49,6 +49,9 @@ import { OrderService } from "../services/orderService/implimentation/orderServi
 import { UserWalletRepository } from "../Repositories/userWallet/implementation/implementation";
 import { UserWalletController } from "../Controller/userWalletController/implimentation/userWalletController";
 import { UserWalletService } from "../services/userWalletService/implementation/UserWalletService";
+import { VarientController } from "../Controller/varientController/implementation/varientController";
+import { VarientService } from "../services/varientService/implementation/varientService";
+import { VarientRepository } from "../Repositories/varient/implementation/varientRepository";
 
 
 const container = new Container();
@@ -138,4 +141,10 @@ container.bind(TYPES.orderService).to(OrderService)
 container.bind(TYPES.userWalletRepository).to(UserWalletRepository)
 container.bind(TYPES.userWalletController).to(UserWalletController)
 container.bind(TYPES.userWalletService).to(UserWalletService)
+
+
+//Items Varients
+container.bind(TYPES.VarientController).to(VarientController)
+container.bind(TYPES.VarientService).to(VarientService)
+container.bind(TYPES.VarientRepository).to(VarientRepository)
 export { container };

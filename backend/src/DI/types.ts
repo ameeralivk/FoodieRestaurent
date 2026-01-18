@@ -48,5 +48,9 @@ export const TYPES = {
   orderService:Symbol("orderService"),
   userWalletRepository:Symbol("userWalletRepository"),
   userWalletService:Symbol("userWalletService"),
-  userWalletController:Symbol("userWalletController")
+  userWalletController:Symbol("userWalletController"),
+  VarientController:Symbol("VarientController"),
+  VarientService:Symbol("VarientService"),
+  VarientRepository:Symbol("VarientRepository")
+
 };

@@ -106,5 +106,13 @@ export const MESSAGES = {
   ORDER_CANCELLED_SUCCESS:"Order Cancelled Successfully",
   ORDER_CANCELLED_FAILED:"Order Cancelled Failed",
   WALLET_FETCHED_SUCCESS:"Wallet Fetched Successfully",
-  WALLET_FETCHED_FAILED:"Wallet Fetched Failed"
+  WALLET_FETCHED_FAILED:"Wallet Fetched Failed",
+  VARIENT_ADDED_SUCCESS:"Varient Added Successfully",
+  VARIENT_ADDED_FAILED:"Varient Added Failed",
+  VARIENT_EDITED_SUCCESS:"Varient Edited Successfully",
+  VARIENT_EDITED_FAILED:"Varient Edited Failed",
+  VARIENT_DEL_SUCCESS:"Varient Deleted Successfully",
+  VARIENT_DEL_FAILED:"Varient Deleted Failed",
+  VARIENT_EXIST :"Varient Already Exist",
+  VARIENT_NOT_FOUND:"Varient Not Found"
 };
