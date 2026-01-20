@@ -1,4 +1,3 @@
-
 import mongoose, { Schema, Types, HydratedDocument } from "mongoose";
 import { ICart } from "../types/cart";
 
@@ -48,6 +47,11 @@ const CartSchema = new Schema<ICart>(
             type: [String],
             default: [],
           },
+          variant: {
+            category: String,
+            option: String,
+            price: Number,
+          },
           preparationTime: {
             type: Number,
           },
@@ -60,12 +64,12 @@ const CartSchema = new Schema<ICart>(
       type: Number,
       default: 0,
     },
-    isDeleted:{
-      type:Boolean,
-      default:false
-    }
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 CartSchema.pre("save", function (next) {
@@ -73,7 +77,7 @@ CartSchema.pre("save", function (next) {
 
   cart.totalAmount = cart.items.reduce(
     (total, item) => total + item.price * item.quantity,
-    0
+    0,
   );
 
   next();
@@ -81,4 +85,3 @@ CartSchema.pre("save", function (next) {
 
 const Cart = mongoose.model<ICart>("Cart", CartSchema);
 export default Cart;
-

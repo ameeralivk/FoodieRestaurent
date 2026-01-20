@@ -1,10 +1,27 @@
+
+
+export interface VariantValue {
+  _id?: string;
+  option?: string;
+  price?: number;
+}
+
+export interface Variant {
+  category?: string;
+  option?:string;
+  price?:number;
+  values?: VariantValue[];
+}
+
 export interface CartItem {
   _id: string;
   itemId: string;
   name: string;
   price: number;
   quantity: number;
+  varient:Variant;
   images: string[];
+  variant:Variant
   preparationTime: number;
 }
 

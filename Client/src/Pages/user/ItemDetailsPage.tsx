@@ -1,8 +1,8 @@
-
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import VariantSelectModal from "../../Components/modals/Admin/varientSelectModal";
+import type { Item } from "../../types/Items";
 import {
   ChevronLeft,
   Clock,
@@ -30,6 +30,8 @@ const ItemDetailPage: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [aiDescription, setAiDescription] = useState<string>("");
   const [loadingNutrition, setLoadingNutrition] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [openVariantModal, setOpenVariantModal] = useState(false);
   const [nutrition, setNutrition] = useState({
     calories: 0,
     protein: 0,
@@ -55,7 +57,7 @@ const ItemDetailPage: React.FC = () => {
     if (!images.length) return;
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) =>
-        prev === images.length - 1 ? 0 : prev + 1
+        prev === images.length - 1 ? 0 : prev + 1,
       );
     }, 4000);
     return () => clearInterval(interval);
@@ -67,7 +69,8 @@ const ItemDetailPage: React.FC = () => {
       if (!item?.name) return;
       setLoadingNutrition(true);
       try {
-        const res = await sendToAi(`Give me a JSON with description and nutritional info (Calories, Protein in g, Carbs in g, Fat in g) for ${item.name}.
+        const res =
+          await sendToAi(`Give me a JSON with description and nutritional info (Calories, Protein in g, Carbs in g, Fat in g) for ${item.name}.
 Example format:
 {
   "description": "...",
@@ -95,25 +98,53 @@ Example format:
     fetchDescriptionAndNutrition();
   }, [item]);
 
-  const handleAddToCart = async () => {
+  // const handleAddToCart = async () => {
+  //   try {
+  //     if (userId && restaurantId && table && item?._id) {
+  //       const res = await AddToCart(
+  //         userId,
+  //         restaurantId,
+  //         item._id,
+  //         table,
+  //         quantity.toString(),
+  //       );
+  //       if (res.success) {
+  //         showSuccessToast("Added to Cart Successfully");
+  //         navigate(-1);
+  //       }
+  //     } else {
+  //       showErrorToast("Session expired. Please rescan QR.");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+  const handleAddToCart = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+    item: Item, // use your typed Item
+  ) => {
+    e.stopPropagation();
+
+    // If item has variants, open modal
+    if (item.variant && item.variant.values && item.variant.values.length > 0) {
+      setSelectedItem(item);
+      setOpenVariantModal(true);
+      return;
+    }
+
+    // No variant → add directly
     try {
-      if (userId && restaurantId && table && item?._id) {
-        const res = await AddToCart(
-          userId,
-          restaurantId,
-          item._id,
-          table,
-          quantity.toString()
-        );
+      if (userId && restaurantId && table) {
+        const res = await AddToCart(userId, restaurantId, item._id, table,quantity.toString());
         if (res.success) {
           showSuccessToast("Added to Cart Successfully");
-          navigate(-1);
         }
       } else {
-        showErrorToast("Session expired. Please rescan QR.");
+        showErrorToast("Session expired or invalid table. Please rescan QR.");
       }
     } catch (error) {
       console.error(error);
+      showErrorToast("Failed to add item");
     }
   };
 
@@ -153,7 +184,10 @@ Example format:
 
         {/* Main Image */}
         <img
-          src={images[currentImageIndex] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800"}
+          src={
+            images[currentImageIndex] ||
+            "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800"
+          }
           alt={item.name}
           className="w-full h-full object-cover"
         />
@@ -171,6 +205,60 @@ Example format:
         )}
       </div>
 
+      {openVariantModal && selectedItem && (
+        <VariantSelectModal
+          open={openVariantModal}
+          itemName={selectedItem.name}
+          basePrice={selectedItem.price}
+          variant={{
+            category: selectedItem.variant?.category ?? "",
+            values:
+              selectedItem.variant?.values?.map((v) => ({
+                _id: v._id ?? `${selectedItem._id}-variant`,
+                option: v.option ?? "Unknown Option",
+                price: v.price ?? selectedItem.price,
+              })) ?? [],
+          }}
+          onClose={() => {
+            setOpenVariantModal(false);
+            setSelectedItem(null);
+          }}
+          onConfirm={async ({ variantOption }) => {
+            try {
+              if (!userId || !restaurantId || !table || !selectedItem?._id) {
+                showErrorToast("Session expired. Please rescan QR.");
+                return;
+              }
+
+              const res = await AddToCart(
+                userId,
+                restaurantId,
+                selectedItem._id,
+                table,
+                quantity.toString(),
+                variantOption
+                  ? {
+                      category: selectedItem.variant?.category ?? "",
+                      option: variantOption.option,
+                      price: variantOption.price,
+                    }
+                  : undefined, // ✅ NORMAL ITEM
+              );
+
+              if (res.success) {
+                showSuccessToast("Added to Cart Successfully");
+              }
+            } catch (err) {
+              console.error(err);
+              showErrorToast("Failed to add item to cart");
+            } finally {
+              setOpenVariantModal(false);
+              setSelectedItem(null);
+            }
+          }}
+        />
+      )}
+
       <div className="max-w-4xl mx-auto -mt-10 relative z-10 px-4">
         <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8">
           {/* Header Info */}
@@ -186,7 +274,9 @@ Example format:
 
           {/* Price & Meta */}
           <div className="flex items-center gap-4 mb-6">
-            <span className="text-3xl font-bold text-orange-600">₹{item.price}</span>
+            <span className="text-3xl font-bold text-orange-600">
+              ₹{item.price}
+            </span>
             <div className="h-6 w-px bg-gray-200"></div>
             <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium">
               <Clock className="w-4 h-4" />
@@ -198,7 +288,9 @@ Example format:
           <div className="mb-8">
             <h3 className="text-gray-900 font-bold mb-2">Description</h3>
             {aiDescription ? (
-              <p className="text-gray-600 text-sm leading-relaxed">{aiDescription}</p>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {aiDescription}
+              </p>
             ) : (
               <div className="space-y-2 animate-pulse">
                 <div className="h-4 bg-gray-100 rounded w-full"></div>
@@ -209,20 +301,29 @@ Example format:
 
           {/* Nutrition Cards */}
           <div>
-            <h3 className="text-gray-900 font-bold mb-3">Nutrition (approx.)</h3>
+            <h3 className="text-gray-900 font-bold mb-3">
+              Nutrition (approx.)
+            </h3>
             <div className="grid grid-cols-4 gap-3">
               {[
-                { k: 'cal', l: 'Calories', v: nutrition.calories, u: 'kcal' },
-                { k: 'pro', l: 'Protein', v: nutrition.protein, u: 'g' },
-                { k: 'fat', l: 'Fat', v: nutrition.fat, u: 'g' },
-                { k: 'car', l: 'Carbs', v: nutrition.carbs, u: 'g' }
+                { k: "cal", l: "Calories", v: nutrition.calories, u: "kcal" },
+                { k: "pro", l: "Protein", v: nutrition.protein, u: "g" },
+                { k: "fat", l: "Fat", v: nutrition.fat, u: "g" },
+                { k: "car", l: "Carbs", v: nutrition.carbs, u: "g" },
               ].map((n, i) => (
-                <div key={i} className="bg-gray-50 rounded-2xl p-3 text-center border border-gray-100">
+                <div
+                  key={i}
+                  className="bg-gray-50 rounded-2xl p-3 text-center border border-gray-100"
+                >
                   <div className="text-orange-600 font-bold text-lg">
                     {loadingNutrition ? "-" : n.v}
-                    <span className="text-xs font-normal text-gray-400 ml-0.5">{n.u}</span>
+                    <span className="text-xs font-normal text-gray-400 ml-0.5">
+                      {n.u}
+                    </span>
                   </div>
-                  <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mt-1">{n.l}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mt-1">
+                    {n.l}
+                  </div>
                 </div>
               ))}
             </div>
@@ -241,7 +342,9 @@ Example format:
             >
               <Minus className="w-5 h-5" />
             </button>
-            <span className="w-8 text-center font-bold text-lg">{quantity}</span>
+            <span className="w-8 text-center font-bold text-lg">
+              {quantity}
+            </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
               className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-gray-700 hover:text-orange-600 active:scale-95 transition-all"
@@ -252,13 +355,18 @@ Example format:
 
           {/* Add Button */}
           <button
-            onClick={handleAddToCart}
+            onClick={(e) => handleAddToCart(e, item)}
             disabled={!item.isStock}
-            className={`flex-1 flex items-center justify-between px-6 py-4 rounded-2xl font-bold text-white shadow-lg shadow-orange-500/30 transition-all hover:scale-[1.02] active:scale-95 ${item.isStock ? "bg-gradient-to-r from-orange-500 to-amber-500" : "bg-gray-300 cursor-not-allowed shadow-none"
-              }`}
+            className={`flex-1 flex items-center justify-between px-6 py-4 rounded-2xl font-bold text-white shadow-lg shadow-orange-500/30 transition-all hover:scale-[1.02] active:scale-95 ${
+              item.isStock
+                ? "bg-gradient-to-r from-orange-500 to-amber-500"
+                : "bg-gray-300 cursor-not-allowed shadow-none"
+            }`}
           >
             <span>{item.isStock ? "Add to Cart" : "Out of Stock"}</span>
-            <span className="bg-white/20 px-2 py-1 rounded-lg text-sm">₹{totalPrice}</span>
+            <span className="bg-white/20 px-2 py-1 rounded-lg text-sm">
+              ₹{totalPrice}
+            </span>
           </button>
         </div>
       </div>
@@ -267,4 +375,3 @@ Example format:
 };
 
 export default ItemDetailPage;
-

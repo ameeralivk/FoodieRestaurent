@@ -4,14 +4,14 @@ export interface IItem {
   price: number;
   stock: number;
   points: number;
-  description?:string;
+  description?: string;
   isStock: boolean;
   isActive: boolean;
   isDeleted: boolean;
   categoryName: string;
   subCategoryId?: { name: string; _id: string };
   restaurantId: string;
-  categoryId: { name: string , _id:string};
+  categoryId: { name: string; _id: string };
   category: string; // categoryId
   images: File[];
   createdAt: string; // ISO date string
@@ -52,6 +52,18 @@ export interface ISubCategory {
   createdAt?: string;
   updatedAt?: string;
 }
+export interface VariantValue {
+  _id?: string;
+  option?: string;
+  price?: number;
+}
+
+export interface Variant {
+  category?: string;
+  option?:string;
+  price?:number;
+  values?: VariantValue[];
+}
 
 export interface Item {
   _id: string;
@@ -66,6 +78,7 @@ export interface Item {
   categoryId: string;
   restaurantId: string;
   createdAt: string;
+  variant?: Variant;
   updatedAt: string;
   __v: number;
 }

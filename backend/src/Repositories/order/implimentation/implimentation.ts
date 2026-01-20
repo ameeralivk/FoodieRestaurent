@@ -5,6 +5,8 @@ import UserOrder from "../../../models/order";
 import { ICart } from "../../../types/cart";
 import { Types } from "mongoose";
 import { AppError } from "../../../utils/Error";
+import unwrapVariant from "../../../helpers/unwrapter";
+import varient from "../../../models/varient";
 export class OrderRepository
   extends BaseRepository<IUserOrderDocument>
   implements IOrderRepo
@@ -15,6 +17,7 @@ export class OrderRepository
 
   async addOrder(data: ICart, orderId: string): Promise<IUserOrderDocument> {
     try {
+      console.log(data.items, "data ishere is sidheeq");
       const orderItems = data.items.map((item) => ({
         itemId: item.itemId,
         itemName: item.name,
@@ -22,6 +25,7 @@ export class OrderRepository
         price: item.price,
         quantity: item.quantity,
         assignedCookId: null,
+        variant: unwrapVariant(item.variant),
         itemStatus: "PENDING" as const,
       }));
 
@@ -48,7 +52,7 @@ export class OrderRepository
     userId: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<{ data: IUserOrderDocument[]; total: number }> {
     const filter: any = {
       restaurantId,
@@ -71,13 +75,16 @@ export class OrderRepository
     });
     return order;
   }
-   async getOrderById(orderId: string): Promise<IUserOrderDocument | null> {
+  async getOrderById(orderId: string): Promise<IUserOrderDocument | null> {
     const order = await this.getByFilter({
       _id: new Types.ObjectId(orderId),
     });
     return order;
   }
-   changeStatus(orderId: string, status: string): Promise<IUserOrderDocument | null> {
-     return this.findByIdAndUpdate(orderId,{orderStatus:status})
-   }
+  changeStatus(
+    orderId: string,
+    status: string,
+  ): Promise<IUserOrderDocument | null> {
+    return this.findByIdAndUpdate(orderId, { orderStatus: status });
+  }
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Navbar from "../../Components/Layouts/userLayouts/Navbar";
 import { useQuery } from "@tanstack/react-query";
@@ -6,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../redux/store/store";
 import { getAllItems } from "../../services/ItemsService";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import VariantSelectModal from "../../Components/modals/Admin/varientSelectModal";
 import type { IItemResponse } from "../../types/Items";
 import DraggableAIChatbot from "../../Components/Component/user/chatBot";
 import { AddToCart } from "../../services/cart";
@@ -27,6 +27,8 @@ const UserRestaurantPage: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const [searchParams] = useSearchParams();
   const table = searchParams.get("table");
+  const [openVariantModal, setOpenVariantModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("all");
   const [totalPages, setTotalPages] = useState(3);
@@ -91,14 +93,47 @@ const UserRestaurantPage: React.FC = () => {
     return true;
   });
 
+  // const handleAddToCart = async (
+  //   e: React.MouseEvent<HTMLButtonElement>,
+  //   id: string,
+  // ) => {
+  //   e.stopPropagation();
+  //   try {
+  //     if (userId && restaurantId && table) {
+  //       const res = await AddToCart(userId, restaurantId, id, table, "1");
+  //       if (res.success) {
+  //         showSuccessToast("Added to Cart Successfully");
+  //       }
+  //     } else {
+  //       showErrorToast("Session expired or invalid table. Please rescan QR.");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
   const handleAddToCart = async (
     e: React.MouseEvent<HTMLButtonElement>,
-    id: string,
+    item: any,
   ) => {
     e.stopPropagation();
+
+    // 👉 CHECK VARIANT
+    if (
+      item.variant &&
+      item.variant.category &&
+      item.variant.values &&
+      item.variant.values.length > 0
+    ) {
+      setSelectedItem(item);
+      setOpenVariantModal(true);
+      return;
+    }
+
+    // 👉 NO VARIANT → DIRECT ADD
     try {
       if (userId && restaurantId && table) {
-        const res = await AddToCart(userId, restaurantId, id, table, "1");
+        const res = await AddToCart(userId, restaurantId, item._id, table, "1");
         if (res.success) {
           showSuccessToast("Added to Cart Successfully");
         }
@@ -183,6 +218,49 @@ const UserRestaurantPage: React.FC = () => {
         </div>
       </div>
 
+     {openVariantModal && selectedItem && (
+  <VariantSelectModal
+    open={openVariantModal}
+    itemName={selectedItem.name}
+    basePrice={selectedItem.price}
+    variant={selectedItem.variant}
+    onClose={() => {
+      setOpenVariantModal(false);
+      setSelectedItem(null);
+    }}
+    onConfirm={async ({ variantOption }) => {
+      try {
+        if (userId && restaurantId && table) {
+          const res = await AddToCart(
+            userId,
+            restaurantId,
+            selectedItem._id,
+            table,
+            "1",
+            variantOption
+              ? {
+                  category: selectedItem.variant.category,
+                  option: variantOption.option,
+                  price: variantOption.price,
+                }
+              : undefined // ✅ NORMAL ITEM
+          );
+
+          if (res.success) {
+            showSuccessToast("Added to Cart Successfully");
+          }
+        }
+      } catch (err) {
+        showErrorToast("Failed to add item");
+      } finally {
+        setOpenVariantModal(false);
+        setSelectedItem(null);
+      }
+    }}
+  />
+)}
+
+
       {/* Menu Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between mb-6">
@@ -235,7 +313,7 @@ const UserRestaurantPage: React.FC = () => {
                   )}
                   {!isOutOfStock && (
                     <button
-                      onClick={(e) => handleAddToCart(e, item._id)}
+                      onClick={(e) => handleAddToCart(e, item)}
                       className="absolute bottom-2 right-2 bg-white text-orange-600 p-2 rounded-full shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-orange-50"
                     >
                       <svg

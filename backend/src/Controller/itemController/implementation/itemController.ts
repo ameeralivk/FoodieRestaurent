@@ -10,7 +10,7 @@ import { MESSAGES } from "../../../constants/messages";
 @injectable()
 export class ItemController implements IItemController {
   constructor(
-    @inject(TYPES.itemsService) private _itemsService: IItemsService
+    @inject(TYPES.itemsService) private _itemsService: IItemsService,
   ) {}
 
   // addItems = async (req: Request, res: Response): Promise<Response> => {
@@ -42,9 +42,32 @@ export class ItemController implements IItemController {
         });
       }
       const imageUrls = files.map((file: any) => file.location);
-      const itemData = {
-        ...req.body,
+      const variantPricing = req.body.variantPricing
+        ? JSON.parse(req.body.variantPricing)
+        : undefined;
+        const itemData = {
+        name: req.body.name,
+        price: Number(req.body.price),
+
+        stock:
+          req.body.stock && req.body.stock !== "" ? Number(req.body.stock) : 0,
+
+        preparationTime:
+          req.body.preparationTime && req.body.preparationTime !== ""
+            ? Number(req.body.preparationTime)
+            : 0, 
+
+        categoryId: req.body.categoryId,
+        category: req.body.categoryId, 
+        subCategoryId: req.body.subCategoryId,
+        restaurantId: req.body.restaurantId,
+
         images: imageUrls,
+        variant: variantPricing, 
+        isActive: true, 
+        isDeleted: false,
+        isStock: true, 
+        points: 0, 
       };
       const item = await this._itemsService.addItem(itemData);
 
@@ -64,31 +87,66 @@ export class ItemController implements IItemController {
     }
   };
 
+  // editItem = async (req: Request, res: Response): Promise<Response> => {
+  //   try {
+  //     const { itemId } = req.params;
+  //     const files = req.files as Express.Multer.File[];
+  //     const imageUrls = files.map((file: any) => file.location);
+  //     const item = await this._itemsService.editItem(
+  //       itemId as string,
+  //       req.body,
+  //       imageUrls ? imageUrls : req.body.existingImage,
+  //     );
+  //     if (item) {
+  //       return res.status(HttpStatus.OK).json({
+  //         success: true,
+  //         message: MESSAGES.ITEM_EDITED_SUCCESS,
+  //       });
+  //     } else {
+  //       return res.status(HttpStatus.BAD_REQUEST).json({
+  //         success: true,
+  //         message: MESSAGES.ITEM_EDITED_SUCCESS,
+  //       });
+  //     }
+  //   } catch (error: any) {
+  //     throw new AppError(error.message);
+  //   }
+  // };
+
   editItem = async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const { itemId } = req.params;
-      const files = req.files as Express.Multer.File[];
-      const imageUrls = files.map((file: any) => file.location);
-      const item = await this._itemsService.editItem(
-        itemId as string,
-        req.body,
-        imageUrls ? imageUrls : req.body.existingImage
-      );
-      if (item) {
-        return res.status(HttpStatus.OK).json({
-          success: true,
-          message: MESSAGES.ITEM_EDITED_SUCCESS,
-        });
-      } else {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: true,
-          message: MESSAGES.ITEM_EDITED_SUCCESS,
-        });
-      }
-    } catch (error: any) {
-      throw new AppError(error.message);
+  try {
+    const { itemId } = req.params;
+    const files = req.files as Express.Multer.File[];
+
+    const imageUrls = files.map((file: any) => file.location);
+
+    // ✅ ADD ONLY THIS (variant parsing)
+    if (req.body.variantPricing) {
+      req.body.variant = JSON.parse(req.body.variantPricing);
     }
-  };
+
+    const item = await this._itemsService.editItem(
+      itemId as string,
+      req.body, // 👈 now contains variant
+      imageUrls ? imageUrls : req.body.existingImage
+    );
+
+    if (item) {
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGES.ITEM_EDITED_SUCCESS,
+      });
+    } else {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: true,
+        message: MESSAGES.ITEM_EDITED_SUCCESS,
+      });
+    }
+  } catch (error: any) {
+    throw new AppError(error.message);
+  }
+};
+
 
   deleteItem = async (req: Request, res: Response): Promise<Response> => {
     try {
@@ -117,7 +175,7 @@ export class ItemController implements IItemController {
 
       const item = await this._itemsService.changeStatus(
         itemId as string,
-        isActive
+        isActive,
       );
       if (item) {
         return res.status(HttpStatus.OK).json({
@@ -145,7 +203,7 @@ export class ItemController implements IItemController {
         restaurantId as string,
         page,
         limit,
-        search
+        search,
       );
       return res.status(HttpStatus.OK).json({
         success: true,

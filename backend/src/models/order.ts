@@ -32,6 +32,11 @@ const OrderItemSchema = new Schema(
       required: true,
       min: 1,
     },
+    variant: {
+      category: String,
+      option: String,
+      price: Number,
+    },
     assignedCookId: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -45,7 +50,7 @@ const OrderItemSchema = new Schema(
     assignedAt: Date,
     preparedAt: Date,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const UserOrderSchema = new Schema<IUserOrderDocument>(
@@ -56,9 +61,9 @@ const UserOrderSchema = new Schema<IUserOrderDocument>(
       required: true,
       index: true,
     },
-     orderId:{
-      type:String,
-      required:false,
+    orderId: {
+      type: String,
+      required: false,
     },
     userId: {
       type: Schema.Types.ObjectId,
@@ -108,12 +113,12 @@ const UserOrderSchema = new Schema<IUserOrderDocument>(
 
     servedAt: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const UserOrder = mongoose.model<IUserOrderDocument>(
   "UserOrder",
-  UserOrderSchema
+  UserOrderSchema,
 );
 
 export default UserOrder;

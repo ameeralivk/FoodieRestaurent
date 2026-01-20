@@ -1,10 +1,11 @@
 import type { CartItem } from "../../../types/cart";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import type { Variant } from "../../../types/Items";
 
 interface CartItemCardProps {
   item: CartItem;
-  onUpdateQuantity: (_id: string, change: number) => void;
-  onRemove: (id: string) => void;
+  onUpdateQuantity: (_id: string, change: number, varient?: Variant) => void;
+  onRemove: (id: string,variant?:Variant) => void;
 }
 
 const CartItemCard = ({
@@ -33,6 +34,9 @@ const CartItemCard = ({
             {item.name}
           </h3>
           <p className="text-sm font-medium text-gray-500">₹{item.price}</p>
+          <p className="text-sm font-medium text-gray-500">
+            {item?.variant?.option}
+          </p>
         </div>
       </div>
 
@@ -41,7 +45,7 @@ const CartItemCard = ({
         {/* Quantity Controls */}
         <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1">
           <button
-            onClick={() => onUpdateQuantity(item.itemId, -1)}
+            onClick={() => onUpdateQuantity(item.itemId, -1, item?.variant)}
             className="w-8 h-8 rounded-md bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-600 hover:scale-105 transition-all"
           >
             <Minus className="w-4 h-4" />
@@ -52,7 +56,7 @@ const CartItemCard = ({
           </span>
 
           <button
-            onClick={() => onUpdateQuantity(item.itemId, 1)}
+            onClick={() => onUpdateQuantity(item.itemId, 1, item?.variant)}
             className="w-8 h-8 rounded-md bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-600 hover:scale-105 transition-all"
           >
             <Plus className="w-4 h-4" />
@@ -65,7 +69,7 @@ const CartItemCard = ({
             ₹{item.price * item.quantity}
           </span>
           <button
-            onClick={() => onRemove(item.itemId)}
+            onClick={() => onRemove(item.itemId,item.variant)}
             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Remove item"
           >

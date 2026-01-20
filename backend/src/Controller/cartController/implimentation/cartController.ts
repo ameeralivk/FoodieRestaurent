@@ -6,6 +6,8 @@ import { AppError } from "../../../utils/Error";
 import HttpStatus from "../../../constants/htttpStatusCode";
 import { MESSAGES } from "../../../constants/messages";
 import { Request, Response } from "express";
+import varient from "../../../models/varient";
+import { CartVariant } from "../../../types/cart";
 
 @injectable()
 export class CartController implements ICartController {
@@ -13,14 +15,15 @@ export class CartController implements ICartController {
 
   addToCart = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const { itemId, restaurantId, userId, tableId, quantity } = req.body;
-
+      const { itemId, restaurantId, userId, tableId, quantity, variant } =
+        req.body;
       const cart = await this._cartService.addToCart(
         userId,
         itemId,
         restaurantId,
         tableId,
-        quantity
+        quantity,
+        variant,
       );
 
       if (cart) {
@@ -39,12 +42,13 @@ export class CartController implements ICartController {
 
   updateQuantity = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const { cartId, restaurantId, itemId, action } = req.body;
+      const { cartId, restaurantId, itemId, action, variant } = req.body;
       const cart = await this._cartService.updateQuantity(
         cartId,
         restaurantId,
         itemId,
-        action
+        action,
+        variant as any,
       );
 
       if (cart.success) {
@@ -69,7 +73,7 @@ export class CartController implements ICartController {
 
       const cart = await this._cartService.getCart(
         userId as string,
-        restaurantId as string
+        restaurantId as string,
       );
       if (cart) {
         return res.status(200).json({
@@ -90,11 +94,13 @@ export class CartController implements ICartController {
   deleteCart = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { cartId, restaurantId } = req.params;
-      const { itemId } = req.body;
+      const { itemId, variant } = req.body;
+      console.log(variant, "kindi sidheeq");
       let result = await this._cartService.deleteCart(
         cartId as string,
         restaurantId as string,
-        itemId as string
+        itemId as string,
+        variant,
       );
       if (result.success) {
         return res.status(HttpStatus.OK).json({

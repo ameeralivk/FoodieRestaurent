@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Check, Circle, Package, Truck } from "lucide-react";
 import Navbar from "../../Components/Layouts/userLayouts/Navbar";
@@ -6,9 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { generateInvoicePDF } from "../../Components/Helpers/user/invoiceDownloarder";
 import { getAllOrders, getOrder } from "../../services/order";
 import BottomNavBar from "../../Components/user/DownBar";
-import type {
-  IGetOrderResponse,
-} from "../../types/order";
+import type { IGetOrderResponse } from "../../types/order";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import type { RootState } from "../../redux/store/store";
@@ -17,11 +14,9 @@ const OrderDetail: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const userId = useSelector((state: RootState) => state.userAuth.user?._id);
   const restaurantId = useSelector(
-    (state: RootState) => state.userAuth.user?.restaurantId
+    (state: RootState) => state.userAuth.user?.restaurantId,
   );
-   const table= useSelector(
-    (state: RootState) => state.userAuth.user?.tableNo
-  );
+  const table = useSelector((state: RootState) => state.userAuth.user?.tableNo);
 
   const { data, isLoading } = useQuery<IGetOrderResponse>({
     queryKey: ["orders", restaurantId, userId, 1, 10],
@@ -109,6 +104,11 @@ const OrderDetail: React.FC = () => {
                     <p className="text-gray-500 text-sm">
                       Quantity: {item.quantity}
                     </p>
+                    {item?.variant?.option && (
+                      <p className="text-gray-500 text-sm">
+                        Varient: {item.variant?.option}
+                      </p>
+                    )}
                   </div>
                   <span className="font-medium">
                     {formatCurrency(item.price)}
@@ -218,4 +218,3 @@ const OrderDetail: React.FC = () => {
 };
 
 export default OrderDetail;
-

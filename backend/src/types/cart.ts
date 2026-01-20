@@ -7,6 +7,7 @@ export interface ICartItem {
   quantity: number;
   images: string[];
   preparationTime?: number;
+  variant?: CartVariant | null; 
 }
 
 export interface ICart extends Document {
@@ -17,4 +18,11 @@ export interface ICart extends Document {
   items: ICartItem[];
   totalAmount:number;
   isDeleted:boolean;
+}
+
+
+export interface CartVariant {
+  category: string;   
+  option: string;    
+  price: number;   
 }

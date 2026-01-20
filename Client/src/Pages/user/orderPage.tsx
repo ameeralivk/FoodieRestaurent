@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Navbar from "../../Components/Layouts/userLayouts/Navbar";
 import BottomNavBar from "../../Components/user/DownBar";
@@ -12,7 +11,14 @@ import { useEffect } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import UserPagination from "../../Components/Component/user/userPagination";
 import { showConfirm } from "../../Components/Elements/ConfirmationSwall";
-import { Clock, CheckCircle, XCircle, ChefHat, Truck, ArrowRight } from "lucide-react";
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
+  ChefHat,
+  Truck,
+  ArrowRight,
+} from "lucide-react";
 
 const OrderHistory: React.FC = () => {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
@@ -21,10 +27,10 @@ const OrderHistory: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
   const restaurantId = useSelector(
-    (state: RootState) => state.userAuth.user?.restaurantId
+    (state: RootState) => state.userAuth.user?.restaurantId,
   );
   const tableNo = useSelector(
-    (state: RootState) => state.userAuth.user?.tableNo
+    (state: RootState) => state.userAuth.user?.tableNo,
   );
   const navigator = useNavigate();
   const { data } = useQuery<IPaginatedOrdersResponse>({
@@ -35,7 +41,7 @@ const OrderHistory: React.FC = () => {
         userId as string,
         currentPage,
         limit,
-        ""
+        "",
       ),
   });
   const queryClient = useQueryClient();
@@ -53,7 +59,7 @@ const OrderHistory: React.FC = () => {
 
   const handleOrderClick = (
     orderId: string,
-    status: "PLACED" | "IN_KITCHEN" | "READY" | "SERVED" | "FAILED"
+    status: "PLACED" | "IN_KITCHEN" | "READY" | "SERVED" | "FAILED",
   ) => {
     if (status === "FAILED") {
       setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
@@ -80,7 +86,7 @@ const OrderHistory: React.FC = () => {
 
   async function handleCancellButton(
     e: React.MouseEvent<HTMLButtonElement>,
-    orderId: string
+    orderId: string,
   ) {
     e.stopPropagation();
     try {
@@ -89,7 +95,7 @@ const OrderHistory: React.FC = () => {
         "Cancel Order?",
         "This action cannot be undone",
         "Yes, Cancel",
-        "No"
+        "No",
       );
 
       if (!confirmed) return;
@@ -101,7 +107,13 @@ const OrderHistory: React.FC = () => {
   }
 
   const getStatusBadge = (
-    status: "PLACED" | "IN_KITCHEN" | "READY" | "SERVED" | "FAILED",
+    status:
+      | "PLACED"
+      | "IN_KITCHEN"
+      | "READY"
+      | "SERVED"
+      | "FAILED"
+      | "CANCELLED",
   ) => {
     switch (status) {
       case "PLACED":
@@ -125,6 +137,13 @@ const OrderHistory: React.FC = () => {
             Ready
           </span>
         );
+      case "CANCELLED":
+        return (
+          <span className="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full gap-1.5">
+            <XCircle className="w-3.5 h-3.5" />
+            Cancelled
+          </span>
+        );
       case "FAILED":
         return (
           <span className="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full gap-1.5">
@@ -144,7 +163,7 @@ const OrderHistory: React.FC = () => {
           <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-800 text-xs font-bold rounded-full gap-1.5">
             Unknown
           </span>
-        )
+        );
     }
   };
 
@@ -165,8 +184,9 @@ const OrderHistory: React.FC = () => {
           {data?.data?.map((order) => (
             <div
               key={order._id}
-              className={`group bg-white rounded-3xl shadow-lg shadow-orange-500/5 border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.01] ${order.orderStatus === "FAILED" ? "border-red-100" : ""
-                } ${expandedOrderId === order._id ? "ring-2 ring-orange-100" : ""}`}
+              className={`group bg-white rounded-3xl shadow-lg shadow-orange-500/5 border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.01] ${
+                order.orderStatus === "FAILED" ? "border-red-100" : ""
+              } ${expandedOrderId === order._id ? "ring-2 ring-orange-100" : ""}`}
             >
               <div
                 className={`p-6 cursor-pointer`}
@@ -181,19 +201,30 @@ const OrderHistory: React.FC = () => {
                       {getStatusBadge(order.orderStatus)}
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Order #{order.orderId.substring(0, 8)}</p>
+                      <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
+                        Order #{order.orderId.substring(0, 8)}
+                      </p>
                       <p className="text-sm font-semibold text-gray-900">
                         {new Date(order.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
-                        })} • {new Date(order.createdAt).toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}
+                        })}{" "}
+                        •{" "}
+                        {new Date(order.createdAt).toLocaleTimeString("en-IN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-gray-900">₹{order.totalAmount}</p>
-                    <p className="text-xs text-gray-500 font-medium">{order.items.length} Items</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      ₹{order.totalAmount}
+                    </p>
+                    <p className="text-xs text-gray-500 font-medium">
+                      {order.items.length} Items
+                    </p>
                   </div>
                 </div>
 
@@ -207,7 +238,8 @@ const OrderHistory: React.FC = () => {
                         alt={item.itemName}
                         className="w-12 h-12 rounded-full border-2 border-white shadow-sm object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200";
+                          (e.target as HTMLImageElement).src =
+                            "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200";
                         }}
                       />
                     ))}
@@ -219,7 +251,9 @@ const OrderHistory: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-600 truncate font-medium">
-                      {order.items.map(i => `${i.quantity}x ${i.itemName}`).join(", ")}
+                      {order.items
+                        .map((i) => `${i.quantity}x ${i.itemName}`)
+                        .join(", ")}
                     </p>
                   </div>
                   <div className="text-gray-300 group-hover:text-orange-500 transition-colors">
@@ -253,8 +287,11 @@ const OrderHistory: React.FC = () => {
                     Cancel Order
                   </button>
                   <button
-                    onClick={() => handleOrderClick(order.orderId, order.orderStatus)}
-                    className="px-5 py-2 text-sm font-bold bg-white text-orange-600 border border-orange-200 rounded-lg shadow-sm hover:shadow-md transition-all">
+                    onClick={() =>
+                      handleOrderClick(order.orderId, order.orderStatus)
+                    }
+                    className="px-5 py-2 text-sm font-bold bg-white text-orange-600 border border-orange-200 rounded-lg shadow-sm hover:shadow-md transition-all"
+                  >
                     Track Status
                   </button>
                 </div>
@@ -272,7 +309,6 @@ const OrderHistory: React.FC = () => {
             />
           </div>
         )}
-
       </div>
       <BottomNavBar
         restaurantId={restaurantId}
@@ -280,7 +316,7 @@ const OrderHistory: React.FC = () => {
         defaultActive="Orders"
         activeColor="text-orange-600"
       />
-    </div >
+    </div>
   );
 };
 

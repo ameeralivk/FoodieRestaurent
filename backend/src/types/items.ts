@@ -1,21 +1,30 @@
 import { Types } from "mongoose";
+export type VariantOption = {
+  option: string;
+  price: number;
+};
+export type VariantPricing = {
+  category: string;
+  values: VariantOption[];
+};
 
 export interface IItemInterface {
   _id?: Types.ObjectId;
   isActive: boolean;
-  existingImages?:string;
+  existingImages?: string;
   name: string;
   price: number;
   restaurantId: Types.ObjectId;
-  categoryId:Types.ObjectId;
+  categoryId: Types.ObjectId;
   stock: number;
   description?: string;
-  isDeleted:boolean;
-   preparationTime?: number;
+  isDeleted: boolean;
+  preparationTime?: number;
   images: string[];
   subCategoryId?: Types.ObjectId;
   category: Types.ObjectId;
   isStock: boolean;
+  variant?: VariantPricing;
   points: number;
   createdAt?: Date;
   updatedAt?: Date;

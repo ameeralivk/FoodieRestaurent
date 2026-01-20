@@ -24,6 +24,8 @@ import { getAllSubCategory } from "../../../services/subCategory";
 import { showConfirm } from "../../Elements/ConfirmationSwall";
 import { useQueryClient } from "@tanstack/react-query";
 import type { SubCategoryResponse } from "../../../types/subCategory";
+import { getAllVarient } from "../../../services/varient";
+import type { IGetVariantsResponse } from "../../../types/varient";
 import {
   validateImages,
   validateItem,
@@ -73,6 +75,16 @@ const ItemComponent = () => {
   ];
 
   const {
+    data: VarientList,
+    isLoading: isVarientCaLoading,
+    isFetching: isVarientFetching,
+  } = useQuery<IGetVariantsResponse, Error>({
+    queryKey: ["VarientList", restaurentId, currentPage, debouncedSearch],
+    queryFn: () => getAllVarient(currentPage, limit, debouncedSearch),
+  });
+  console.log(VarientList, "list is ehre amere");
+
+  const {
     data: ItemsList,
     isLoading: isItemCaLoading,
     isFetching: isItemFetching,
@@ -93,10 +105,16 @@ const ItemComponent = () => {
         restaurentId as string,
         currentPage,
         limit,
-        debouncedSearch
+        debouncedSearch,
       ),
     enabled: modalOpen && !!restaurentId,
   });
+
+  const variantMap =
+    VarientList?.data?.reduce((acc: any, v) => {
+      acc[v.name] = v.Varient.map((opt) => opt.name);
+      return acc;
+    }, {}) || {};
 
   const {
     data: categoryData,
@@ -143,6 +161,7 @@ const ItemComponent = () => {
   };
   const handleSubmit = (row: any) => {
     const { isValid, errors } = validateItem(row);
+    console.log(row, "hi hl");
     if (!isValid) {
       setModalErrors(errors);
       return;
@@ -156,10 +175,13 @@ const ItemComponent = () => {
     if (subCategory.length) {
       formData.append(
         "subCategoryId",
-        subCategoryId || currentRow?.subCategoryId?._id
+        subCategoryId || currentRow?.subCategoryId?._id,
       );
     }
     formData.append("restaurantId", restaurentId as string);
+    if (row.variantPricing) {
+      formData.append("variantPricing", JSON.stringify(row.variantPricing));
+    }
     row.images?.forEach((file: File) => {
       formData.append("images", file);
     });
@@ -221,7 +243,7 @@ const ItemComponent = () => {
       "Change this status?",
       `Are you Wand to Change the Status?`,
       "Change",
-      "Cancel"
+      "Cancel",
     );
     if (!confirmed) return;
     const newValue = value;
@@ -280,7 +302,7 @@ const ItemComponent = () => {
       "Delete this Item?",
       `Are you sure you want to delete ${row.name}?`,
       "Delete",
-      "Cancel"
+      "Cancel",
     );
     if (!confirmed) return;
     const del = async () => {
@@ -400,15 +422,15 @@ const ItemComponent = () => {
             modalMode === "add"
               ? "Add Items"
               : modalMode === "edit"
-              ? "Edit Items"
-              : "View Items"
+                ? "Edit Items"
+                : "View Items"
           }
           submitText={
             modalMode === "add"
               ? "Create Items"
               : modalMode === "edit"
-              ? "Save Changes"
-              : ""
+                ? "Save Changes"
+                : ""
           }
           cancelText="Close"
           mode={modalMode}
@@ -460,6 +482,17 @@ const ItemComponent = () => {
               options: subCategory,
               value: currentRow?.subCategoryId?.name || [],
             },
+            {
+              name: "variant",
+              label: "Variant Pricing",
+              type: "variant-price",
+              variantMap: variantMap,
+              value: currentRow?.variant || {
+                category: "",
+                values: [],
+              },
+            },
+
             {
               name: "images",
               label: "Images",

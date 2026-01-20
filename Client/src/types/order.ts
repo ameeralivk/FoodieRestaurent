@@ -1,24 +1,28 @@
-
-
 export type OrderItemStatus = "PENDING" | "PREPARING" | "READY";
 
 export interface IOrderItem {
-  itemId:string;
+  itemId: string;
   itemName: string;
   price: number;
-  itemImages:string[];
+  itemImages: string[];
   quantity: number;
+  variant?: { category: string,option:string,price:number};
   assignedCookId: string | null;
   itemStatus: OrderItemStatus;
 }
-export type OrderStatus = "PLACED" | "IN_KITCHEN" | "READY" | "SERVED" |"FAILED";
+export type OrderStatus =
+  | "PLACED"
+  | "IN_KITCHEN"
+  | "READY"
+  | "SERVED"
+  | "FAILED";
 
 export interface IUserOrder {
-  _id:  string;
+  _id: string;
   restaurantId: string;
   userId: string;
   tableId: string;
-  orderId:string;
+  orderId: string;
   items: IOrderItem[];
 
   subTotal: number;
@@ -38,7 +42,6 @@ export interface IPaginatedOrdersResponse {
   limit: number;
 }
 
-
 export interface IOrder {
   _id: string;
   orderId: string;
@@ -49,7 +52,13 @@ export interface IOrder {
   items: IOrderItem[];
   subTotal: number;
   totalAmount: number;
-  orderStatus: "PLACED" | "CONFIRMED" | "PREPARING" | "READY" | "COMPLETED" | "CANCELLED";
+  orderStatus:
+    | "PLACED"
+    | "CONFIRMED"
+    | "PREPARING"
+    | "READY"
+    | "COMPLETED"
+    | "CANCELLED";
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   __v: number;
@@ -59,5 +68,3 @@ export interface IGetOrderResponse {
   success: boolean;
   result: IOrder;
 }
-
-

@@ -1,12 +1,14 @@
 import { apiRequest } from "../api/apiRequest";
 import type { ResponseCart } from "../types/cart";
+import type { Variant } from "../types/Items";
 
 export const AddToCart = (
   userId: string,
   restaurantId: string,
   itemId: string,
   tableId: string,
-  quantity: string
+  quantity: string,
+  variant?: { category: string; option: string; price: number },
 ): Promise<{ success: boolean; message: string }> => {
   return apiRequest("POST", "/user/cart", {
     userId,
@@ -14,12 +16,13 @@ export const AddToCart = (
     itemId,
     tableId,
     quantity,
+    variant,
   });
 };
 
 export const getCart = (
   userId: string,
-  restaurantId: string
+  restaurantId: string,
 ): Promise<ResponseCart> => {
   return apiRequest("GET", `/user/cart/${userId}/${restaurantId}`);
 };
@@ -28,22 +31,27 @@ export const CartUpdate = (
   cartId: string,
   restaurantId: string,
   itemId: string,
-  action: "inc" | "dec"
+  action: "inc" | "dec",
+  variant?: Variant | null,
 ): Promise<{ success: boolean; message: string }> => {
+  console.log(variant, "varient");
   return apiRequest("PUT", "/user/cart/update-quantity", {
     cartId,
     restaurantId,
     itemId,
     action,
+    variant
   });
 };
-
-
 
 export const deleteCart = (
   cartId: string,
   restaurantId: string,
-  itemId:string
+  itemId: string,
+  variant:Variant| undefined
 ): Promise<ResponseCart> => {
-  return apiRequest("DELETE", `/user/cart/${cartId}/${restaurantId}`,{itemId});
+  console.log(variant,'hi ')
+  return apiRequest("DELETE", `/user/cart/${cartId}/${restaurantId}`, {
+    itemId,variant
+  });
 };
