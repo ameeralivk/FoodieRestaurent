@@ -161,7 +161,6 @@ const ItemComponent = () => {
   };
   const handleSubmit = (row: any) => {
     const { isValid, errors } = validateItem(row);
-    console.log(row, "hi hl");
     if (!isValid) {
       setModalErrors(errors);
       return;

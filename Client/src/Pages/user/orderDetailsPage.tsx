@@ -22,9 +22,7 @@ const OrderDetail: React.FC = () => {
     queryKey: ["orders", restaurantId, userId, 1, 10],
     queryFn: () => getOrder(orderId as string),
   });
-  console.log(data, "data is here");
   const order = data?.result;
-  console.log(order, "order ameer");
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -155,7 +153,7 @@ const OrderDetail: React.FC = () => {
         </div>
 
         {/* Order Timeline */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border-2 border-orange-100">
+        {/* <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border-2 border-orange-100">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">
             Order Timeline
           </h3>
@@ -189,10 +187,10 @@ const OrderDetail: React.FC = () => {
               <span className="text-gray-500">Delivered</span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-4">
+        {/* <div className="flex flex-wrap gap-4">
           <button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-3 rounded-xl font-bold hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
             Mark Tip
           </button>
@@ -210,7 +208,7 @@ const OrderDetail: React.FC = () => {
           <button className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-xl font-bold hover:from-teal-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
             Add Feedback
           </button>
-        </div>
+        </div> */}
       </div>
       <BottomNavBar restaurantId={restaurantId} tableNo={table ? table : ""} />
     </div>

@@ -98,27 +98,6 @@ Example format:
     fetchDescriptionAndNutrition();
   }, [item]);
 
-  // const handleAddToCart = async () => {
-  //   try {
-  //     if (userId && restaurantId && table && item?._id) {
-  //       const res = await AddToCart(
-  //         userId,
-  //         restaurantId,
-  //         item._id,
-  //         table,
-  //         quantity.toString(),
-  //       );
-  //       if (res.success) {
-  //         showSuccessToast("Added to Cart Successfully");
-  //         navigate(-1);
-  //       }
-  //     } else {
-  //       showErrorToast("Session expired. Please rescan QR.");
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
   const handleAddToCart = async (
     e: React.MouseEvent<HTMLButtonElement>,
     item: Item, // use your typed Item

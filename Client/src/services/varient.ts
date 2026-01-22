@@ -6,7 +6,6 @@ export const AddVarient = async (
   varient: IVarient[],
   restaurantId: string,
 ): Promise<{ success: boolean; message: string }> => {
-  console.log(varient, "varine");
   return apiRequest("POST", "/user/varients", {
     name,
     Varients: varient,

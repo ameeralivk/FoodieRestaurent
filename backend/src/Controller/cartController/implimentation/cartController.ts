@@ -95,7 +95,6 @@ export class CartController implements ICartController {
     try {
       const { cartId, restaurantId } = req.params;
       const { itemId, variant } = req.body;
-      console.log(variant, "kindi sidheeq");
       let result = await this._cartService.deleteCart(
         cartId as string,
         restaurantId as string,

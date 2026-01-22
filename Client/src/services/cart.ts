@@ -34,7 +34,6 @@ export const CartUpdate = (
   action: "inc" | "dec",
   variant?: Variant | null,
 ): Promise<{ success: boolean; message: string }> => {
-  console.log(variant, "varient");
   return apiRequest("PUT", "/user/cart/update-quantity", {
     cartId,
     restaurantId,
@@ -50,7 +49,6 @@ export const deleteCart = (
   itemId: string,
   variant:Variant| undefined
 ): Promise<ResponseCart> => {
-  console.log(variant,'hi ')
   return apiRequest("DELETE", `/user/cart/${cartId}/${restaurantId}`, {
     itemId,variant
   });

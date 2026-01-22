@@ -84,7 +84,6 @@ const UserPage = () => {
     setSearchQuery(query);
   };
 
-  console.log(data);
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);

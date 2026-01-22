@@ -16,7 +16,7 @@ export interface IItemInterface {
   price: number;
   restaurantId: Types.ObjectId;
   categoryId: Types.ObjectId;
-  stock: number;
+  stock?: number |null;
   description?: string;
   isDeleted: boolean;
   preparationTime?: number;

@@ -109,7 +109,6 @@ const RestaurantApprovalModal: React.FC<RestaurantApprovalModalProps> = ({
       }
     }
   };
-  console.log(data, "ano");
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div className="bg-neutral-900 rounded-lg w-full max-w-5xl max-h-[90vh] overflow-y-auto">

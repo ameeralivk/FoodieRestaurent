@@ -40,7 +40,6 @@ const CartPage = () => {
     change: number,
     variant?: Variant,
   ) => {
-    console.log(variant, "vari");
     const item = cartData?.cart.items.find((i) => {
       const sameItemId = i.itemId === id;
 
@@ -117,7 +116,6 @@ const CartPage = () => {
   // };
 
   const removeItem = async (id: string, variant?: Variant) => {
-    console.log(variant, "vari");
     const confirmed = await showConfirm(
       "Remove Item?",
       "Are you sure you want to remove this item from your cart?",
@@ -201,7 +199,9 @@ const CartPage = () => {
               Looks like you haven't added anything yet.
             </p>
             <button
-              onClick={() => Navigate(-1)}
+              onClick={() =>
+                Navigate(`/user/restaurant/${restaurantId}?table=${tableNo}`)
+              }
               className="bg-orange-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/30"
             >
               Start Ordering

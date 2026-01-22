@@ -16,7 +16,6 @@ export class UserWalletController implements IUserWalletController {
   getWallet = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { userId } = req.query;
-       console.log(userId,'hi')
       if (!userId) {
         return res
           .status(HttpStatus.BAD_REQUEST)

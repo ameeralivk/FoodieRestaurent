@@ -16,6 +16,9 @@ import BottomNavBar from "../../Components/user/DownBar";
 import { setRestaurantId, setTableNo } from "../../redux/slice/userSlice";
 import UserPagination from "../../Components/Component/user/userPagination";
 import { ToastContainer } from "react-toastify";
+import RestaurantHero from "../../Components/Component/user/menuPage/RestaurantHero";
+import SearchFilterBar from "../../Components/Component/user/menuPage/SearchAndFilterBar";
+import VariantHandler from "../../Components/Component/user/menuPage/varientHandler";
 
 const UserRestaurantPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -93,25 +96,6 @@ const UserRestaurantPage: React.FC = () => {
     return true;
   });
 
-  // const handleAddToCart = async (
-  //   e: React.MouseEvent<HTMLButtonElement>,
-  //   id: string,
-  // ) => {
-  //   e.stopPropagation();
-  //   try {
-  //     if (userId && restaurantId && table) {
-  //       const res = await AddToCart(userId, restaurantId, id, table, "1");
-  //       if (res.success) {
-  //         showSuccessToast("Added to Cart Successfully");
-  //       }
-  //     } else {
-  //       showErrorToast("Session expired or invalid table. Please rescan QR.");
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
   const handleAddToCart = async (
     e: React.MouseEvent<HTMLButtonElement>,
     item: any,
@@ -155,111 +139,31 @@ const UserRestaurantPage: React.FC = () => {
       <Navbar restaurantName="Foodie Restaurant" />
 
       {/* Hero Header */}
-      <div className="relative h-64 md:h-80 bg-gray-900 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80"
-          alt="Restaurant Cover"
-          className="w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 drop-shadow-md">
-            Foodie Restaurant
-          </h1>
-          <p className="text-gray-200 text-sm md:text-base flex items-center gap-2">
-            <span className="bg-orange-500/90 backdrop-blur-sm text-white px-2 py-0.5 rounded text-xs font-bold">
-              4.8 ★
-            </span>
-            <span>• Italian, Fast Food • 30-40 min</span>
-          </p>
-        </div>
-      </div>
+      <RestaurantHero name="Foodie Restaurant" />
 
       {/* Sticky Search & Filter Bar */}
-      <div
-        className={`sticky top-20 z-30 transition-all duration-300 ${scrolled ? "bg-white/90 backdrop-blur-md shadow-md py-2" : "bg-transparent py-4"}`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-          {/* Search Input */}
-          <div className="relative max-w-full mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search for dishes..."
-              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all"
-            />
-          </div>
 
-          {/* Categories */}
-          <div className="overflow-x-auto no-scrollbar pb-1">
-            <CategorySubCategoryFilter
-              onChange={(category, subCategory) => {
-                setSelectedCategory(category);
-                setSelectedSubCategory(subCategory);
-              }}
-            />
-          </div>
-        </div>
-      </div>
+      <SearchFilterBar
+        scrolled={scrolled}
+        search={search}
+        setSearch={setSearch}
+        onFilterChange={(c, s) => {
+          setSelectedCategory(c);
+          setSelectedSubCategory(s);
+        }}
+      />
 
-     {openVariantModal && selectedItem && (
-  <VariantSelectModal
-    open={openVariantModal}
-    itemName={selectedItem.name}
-    basePrice={selectedItem.price}
-    variant={selectedItem.variant}
-    onClose={() => {
-      setOpenVariantModal(false);
-      setSelectedItem(null);
-    }}
-    onConfirm={async ({ variantOption }) => {
-      try {
-        if (userId && restaurantId && table) {
-          const res = await AddToCart(
-            userId,
-            restaurantId,
-            selectedItem._id,
-            table,
-            "1",
-            variantOption
-              ? {
-                  category: selectedItem.variant.category,
-                  option: variantOption.option,
-                  price: variantOption.price,
-                }
-              : undefined // ✅ NORMAL ITEM
-          );
-
-          if (res.success) {
-            showSuccessToast("Added to Cart Successfully");
-          }
-        }
-      } catch (err) {
-        showErrorToast("Failed to add item");
-      } finally {
-        setOpenVariantModal(false);
-        setSelectedItem(null);
-      }
-    }}
-  />
-)}
-
+      <VariantHandler
+        open={openVariantModal}
+        item={selectedItem}
+        userId={userId}
+        restaurantId={restaurantId}
+        table={table}
+        onClose={() => {
+          setOpenVariantModal(false);
+          setSelectedItem(null);
+        }}
+      />
 
       {/* Menu Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -343,7 +247,6 @@ const UserRestaurantPage: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Meta info */}
                   <div className="flex items-center gap-3 pt-2 text-xs text-gray-400 font-medium border-t border-gray-50 mt-2">
                     {item.categoryId?.name && (
                       <span>• {item.categoryId.name}</span>

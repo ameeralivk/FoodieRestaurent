@@ -13,25 +13,6 @@ export class ItemController implements IItemController {
     @inject(TYPES.itemsService) private _itemsService: IItemsService,
   ) {}
 
-  // addItems = async (req: Request, res: Response): Promise<Response> => {
-  //   try {
-  //     const item = await this._itemsService.addItem(req.body);
-  //     if (item) {
-  //       return res.status(HttpStatus.CREATED).json({
-  //         success: true,
-  //         message: MESSAGES.ITEM_ADDED_SUCCESS,
-  //       });
-  //     } else {
-  //       return res.status(HttpStatus.BAD_REQUEST).json({
-  //         succcess: false,
-  //         message: MESSAGES.ITEM_ADDED_FAILED,
-  //       });
-  //     }
-  //   } catch (error: any) {
-  //     throw new AppError(error.message);
-  //   }
-  // };
-
   addItems = async (req: Request, res: Response): Promise<Response> => {
     try {
       const files = req.files as Express.Multer.File[];
@@ -50,7 +31,7 @@ export class ItemController implements IItemController {
         price: Number(req.body.price),
 
         stock:
-          req.body.stock && req.body.stock !== "" ? Number(req.body.stock) : 0,
+          req.body.stock && req.body.stock !== "" ? Number(req.body.stock) : null,
 
         preparationTime:
           req.body.preparationTime && req.body.preparationTime !== ""
@@ -87,31 +68,6 @@ export class ItemController implements IItemController {
     }
   };
 
-  // editItem = async (req: Request, res: Response): Promise<Response> => {
-  //   try {
-  //     const { itemId } = req.params;
-  //     const files = req.files as Express.Multer.File[];
-  //     const imageUrls = files.map((file: any) => file.location);
-  //     const item = await this._itemsService.editItem(
-  //       itemId as string,
-  //       req.body,
-  //       imageUrls ? imageUrls : req.body.existingImage,
-  //     );
-  //     if (item) {
-  //       return res.status(HttpStatus.OK).json({
-  //         success: true,
-  //         message: MESSAGES.ITEM_EDITED_SUCCESS,
-  //       });
-  //     } else {
-  //       return res.status(HttpStatus.BAD_REQUEST).json({
-  //         success: true,
-  //         message: MESSAGES.ITEM_EDITED_SUCCESS,
-  //       });
-  //     }
-  //   } catch (error: any) {
-  //     throw new AppError(error.message);
-  //   }
-  // };
 
   editItem = async (req: Request, res: Response): Promise<Response> => {
   try {

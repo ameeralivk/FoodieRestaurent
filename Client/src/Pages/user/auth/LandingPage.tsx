@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import { Search } from "lucide-react";
 import Navbar from "../../../Components/Layouts/userLayouts/Navbar";
@@ -73,7 +71,7 @@ const UserLandingPage: React.FC = () => {
               userLocation.latitude,
               userLocation.longitude,
               lat,
-              lng
+              lng,
             );
             return { ...restaurant, distance: `${distance.toFixed(1)} km` };
           });
@@ -137,7 +135,6 @@ const UserLandingPage: React.FC = () => {
       }
     };
   };
-  console.log(restaurants, "hi");
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -166,7 +163,8 @@ const UserLandingPage: React.FC = () => {
               </span>
             </h1>
             <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed">
-              Scan the QR code at your table to view the menu and order instantly. No waiting, just eating.
+              Scan the QR code at your table to view the menu and order
+              instantly. No waiting, just eating.
             </p>
 
             {/* Action Buttons */}
@@ -266,7 +264,9 @@ const UserLandingPage: React.FC = () => {
               <h2 className="text-3xl font-bold text-gray-900">
                 Explore Restaurants
               </h2>
-              <p className="text-gray-500 mt-1">Found {total} places near you</p>
+              <p className="text-gray-500 mt-1">
+                Found {total} places near you
+              </p>
             </div>
           </div>
 
@@ -288,9 +288,12 @@ const UserLandingPage: React.FC = () => {
                   <div className="bg-orange-50 p-6 rounded-full mb-6">
                     <Search className="w-12 h-12 text-orange-400" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">No restaurants found</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    No restaurants found
+                  </h3>
                   <p className="text-gray-500 max-w-sm">
-                    We couldn't find any restaurants matching your search. Try different keywords or adjust your location.
+                    We couldn't find any restaurants matching your search. Try
+                    different keywords or adjust your location.
                   </p>
                 </div>
               ) : (
@@ -357,7 +360,10 @@ const UserLandingPage: React.FC = () => {
                               </h3>
                               <div className="flex items-center gap-2 text-white/90 text-sm font-medium">
                                 <span className="flex items-center gap-1 bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg">
-                                  <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                  <svg
+                                    className="w-4 h-4 text-yellow-400 fill-current"
+                                    viewBox="0 0 20 20"
+                                  >
                                     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                                   </svg>
                                   {rating}
@@ -379,30 +385,72 @@ const UserLandingPage: React.FC = () => {
                               <span className="bg-orange-50 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full border border-orange-100">
                                 Restaurant
                               </span>
-                              {restaurant.openingTime && restaurant.closingTime && (
-                                <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${isOpenNow(restaurant.openingTime, restaurant.closingTime)
-                                  ? "bg-green-50 text-green-700 border-green-100"
-                                  : "bg-red-50 text-red-700 border-red-100"
-                                  }`}>
-                                  {isOpenNow(restaurant.openingTime, restaurant.closingTime) ? "Open Now" : "Closed"}
-                                </span>
-                              )}
+                              {restaurant.openingTime &&
+                                restaurant.closingTime && (
+                                  <span
+                                    className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
+                                      isOpenNow(
+                                        restaurant.openingTime,
+                                        restaurant.closingTime,
+                                      )
+                                        ? "bg-green-50 text-green-700 border-green-100"
+                                        : "bg-red-50 text-red-700 border-red-100"
+                                    }`}
+                                  >
+                                    {isOpenNow(
+                                      restaurant.openingTime,
+                                      restaurant.closingTime,
+                                    )
+                                      ? "Open Now"
+                                      : "Closed"}
+                                  </span>
+                                )}
                             </div>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 mb-6">
                             <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              <svg
+                                className="w-4 h-4 text-gray-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
                               </svg>
-                              <span className="truncate">{restaurant.openingTime} - {restaurant.closingTime}</span>
+                              <span className="truncate">
+                                {restaurant.openingTime} -{" "}
+                                {restaurant.closingTime}
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <svg
+                                className="w-4 h-4 text-gray-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
                               </svg>
-                              <span className="truncate">{restaurant.city || "Nearby"}</span>
+                              <span className="truncate">
+                                {restaurant.city || "Nearby"}
+                              </span>
                             </div>
                           </div>
 
@@ -459,4 +507,3 @@ const UserLandingPage: React.FC = () => {
 };
 
 export default UserLandingPage;
-

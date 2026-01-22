@@ -17,7 +17,6 @@ export class OrderRepository
 
   async addOrder(data: ICart, orderId: string): Promise<IUserOrderDocument> {
     try {
-      console.log(data.items, "data ishere is sidheeq");
       const orderItems = data.items.map((item) => ({
         itemId: item.itemId,
         itemName: item.name,

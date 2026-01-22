@@ -32,7 +32,6 @@ export class CartRepository
   ): Promise<ICart | null> {
     const objuserId = new mongoose.Types.ObjectId(userId);
     const objrestaurantId = new mongoose.Types.ObjectId(restaurantId);
-    console.log(items,'items')
     return super.create({
       userId: objuserId,
       restaurantId: objrestaurantId,

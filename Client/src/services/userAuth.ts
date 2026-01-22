@@ -136,7 +136,6 @@ export const userGoogleLoginHandler = (dispatch: AppDispatch) => {
           token: tokenResponse.access_token,
         });
         if (res.data.success) {
-          console.log(res.data.data, "data is here");
           const saveddata: AdminType = {
             name: res.data.data.name,
             phone: res.data.data.phone,

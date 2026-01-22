@@ -173,7 +173,6 @@ const VarientComponent = () => {
             varients,
             restaurentId as string,
           );
-          console.log(res, "result");
           if (res.success) {
             showSuccessToast(res.message);
             queryClient.invalidateQueries({
