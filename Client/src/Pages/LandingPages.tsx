@@ -16,7 +16,7 @@ const LandingPage = () => {
     navigate("/admin/Login");
   };
   const handleUserButton = () => {
-    navigate("/user/Login");
+    navigate("/user");
   };
 
   return (
@@ -72,7 +72,7 @@ const LandingPage = () => {
               className="group relative flex items-center justify-center gap-3 w-full sm:w-auto bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-4 px-10 rounded-2xl backdrop-blur-md transition-all duration-300 hover:-translate-y-1"
             >
               <QrCode className="w-5 h-5" />
-              <span>Customer Login</span>
+              <span>Browse Restaurants</span>
             </button>
           </div>
         </div>

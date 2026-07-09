@@ -17,25 +17,26 @@ import OrderDetail from "../Pages/user/orderDetailsPage";
 import WalletPage from "../Pages/user/walletPage";
 import PageWrapper from "../Components/Layouts/userLayouts/PageWrapper";
 import OrderTracking from "../Pages/user/OrderTrackingPage";
+
 const UserRoutes = () => {
   return (
     <Routes>
+      {/* Public auth routes - redirect to home if already logged in */}
       <Route element={<UserPublicRoute />}>
         <Route path="/login" element={<UserLogin />} />
         <Route path="/register" element={<UserSignUpPage />} />
         <Route path="/forgetPassword" element={<ForgotPassword />} />
       </Route>
+
+      {/* Public browsing routes - no login required */}
       <Route
         path="/"
         element={
-          <UserPrivateRoute>
-            <PageWrapper>
-              <UserLandingPage />
-            </PageWrapper>
-          </UserPrivateRoute>
+          <PageWrapper>
+            <UserLandingPage />
+          </PageWrapper>
         }
       />
-      <Route path="/*" element={<PageNotFound />} />
       <Route
         path="/restaurant/:restaurantId"
         element={
@@ -52,63 +53,69 @@ const UserRoutes = () => {
           </PageWrapper>
         }
       />
-      <Route
-        path="/:restaurantId/cart"
-        element={
-          <PageWrapper>
-            <CartPage />
-          </PageWrapper>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <PageWrapper>
-            <UserProfile />
-          </PageWrapper>
-        }
-      />
-      <Route
-        path="/checkout"
-        element={
-          <PageWrapper>
-            <CheckoutPage />
-          </PageWrapper>
-        }
-      />
-      <Route path="/payment-success" element={<UserOrderSuccessPage />} />
-      <Route
-        path="/order"
-        element={
-          <PageWrapper>
-            <OrderHistory />
-          </PageWrapper>
-        }
-      />
-      <Route
-        path="/order/:orderId"
-        element={
-          <PageWrapper>
-            <OrderDetail />
-          </PageWrapper>
-        }
-      />
-      <Route
-        path="/wallet"
-        element={
-          <PageWrapper>
-            <WalletPage />
-          </PageWrapper>
-        }
-      />
-      <Route
-        path="/order/track/:orderId"
-        element={
-          <PageWrapper>
-            <OrderTracking />
-          </PageWrapper>
-        }
-      />
+
+      {/* Private routes - login required */}
+      <Route element={<UserPrivateRoute />}>
+        <Route
+          path="/:restaurantId/cart"
+          element={
+            <PageWrapper>
+              <CartPage />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PageWrapper>
+              <UserProfile />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <PageWrapper>
+              <CheckoutPage />
+            </PageWrapper>
+          }
+        />
+        <Route path="/payment-success" element={<UserOrderSuccessPage />} />
+        <Route
+          path="/order"
+          element={
+            <PageWrapper>
+              <OrderHistory />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/order/:orderId"
+          element={
+            <PageWrapper>
+              <OrderDetail />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/wallet"
+          element={
+            <PageWrapper>
+              <WalletPage />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/order/track/:orderId"
+          element={
+            <PageWrapper>
+              <OrderTracking />
+            </PageWrapper>
+          }
+        />
+      </Route>
+
+      <Route path="/*" element={<PageNotFound />} />
     </Routes>
   );
 };

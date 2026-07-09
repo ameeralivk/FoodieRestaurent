@@ -198,94 +198,81 @@ const Navbar = ({
               {restaurantName || "Foodie"}
             </h1>
           </div>
-
-          {/* Left side: Back button + Logo */}
-          {/* Right side: Profile & Logout */}
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 rounded-full hover:bg-gray-100 transition"
-            >
-              <Bell className="w-5 h-5 text-gray-700" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
+            {user ? (
+              <>
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative p-2 rounded-full hover:bg-gray-100 transition"
+                >
+                  <Bell className="w-5 h-5 text-gray-700" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
 
-            {/* Notification Dropdown */}
-            {/* {showNotifications && (
-              <div className="absolute right-0 top-14 w-80 bg-white shadow-lg rounded-xl border z-50 max-h-96 overflow-y-auto">
-                <div className="p-3 border-b font-semibold">Notifications</div>
-
-                {notifications.length === 0 ? (
-                  <div className="p-4 text-gray-500 text-sm">
-                    No notifications
+                {showNotifications && (
+                  <div className="absolute right-0 top-14 z-50">
+                    <NotificationCenter
+                      notifications={notifications}
+                      filter={filter}
+                      onFilterChange={setFilter}
+                      onMarkAsRead={(id) => {
+                        setNotifications((prev) =>
+                          prev.map((n) =>
+                            n._id === id ? { ...n, isRead: true } : n,
+                          ),
+                        );
+                        handleMarkAsReady(id);
+                      }}
+                      onMarkAllAsRead={() => {
+                        setNotifications((prev) =>
+                          prev.map((n) => ({ ...n, isRead: true })),
+                        );
+                        handlemarkAll();
+                      }}
+                      onClose={() => setShowNotifications(false)}
+                    />
                   </div>
-                ) : (
-                  notifications.map((n) => (
-                    <div
-                      key={n._id}
-                      onClick={() => removeNotification(n._id.toString())}
-                      className="p-3 hover:bg-gray-100 cursor-pointer border-b text-sm"
-                    >
-                      {n.message}
-                    </div>
-                  ))
                 )}
-              </div>
-            )} */}
-            {showNotifications && (
-              <div className="absolute right-0 top-14 z-50">
-                <NotificationCenter
-                  notifications={notifications}
-                  filter={filter}
-                  onFilterChange={setFilter}
-                  onMarkAsRead={(id) => {
-                    setNotifications((prev) =>
-                      prev.map((n) =>
-                        n._id === id ? { ...n, isRead: true } : n,
-                      ),
-                    );
-                    handleMarkAsReady(id);
-                  }}
-                  onMarkAllAsRead={() => {
-                    setNotifications((prev) =>
-                      prev.map((n) => ({ ...n, isRead: true })),
-                    );
-                    handlemarkAll();
-                  }}
-                  onClose={() => setShowNotifications(false)}
-                />
-              </div>
-            )}
-            {isShowProfile && (
+
+                {isShowProfile && (
+                  <button
+                    onClick={() => navigate("/user/profile")}
+                    className="group relative p-1 rounded-full transition-all duration-300 hover:ring-2 hover:ring-orange-100"
+                  >
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
+                      <img
+                        src={imageUrl || "/default-avatar.png"}
+                        alt="Profile"
+                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "https://ui-avatars.com/api/?name=User&background=random";
+                        }}
+                      />
+                    </div>
+                  </button>
+                )}
+
+                <button
+                  onClick={handleLogout}
+                  className="p-2.5 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all duration-200"
+                  title="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </>
+            ) : (
               <button
-                onClick={() => navigate("/user/profile")}
-                className="group relative p-1 rounded-full transition-all duration-300 hover:ring-2 hover:ring-orange-100"
+                onClick={() => navigate("/user/login")}
+                className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-5 rounded-xl transition-all duration-200 shadow-md shadow-orange-500/20"
               >
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
-                  <img
-                    src={imageUrl || "/default-avatar.png"}
-                    alt="Profile"
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        "https://ui-avatars.com/api/?name=User&background=random";
-                    }}
-                  />
-                </div>
+                <span>Login</span>
               </button>
             )}
-
-            <button
-              onClick={handleLogout}
-              className="p-2.5 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all duration-200"
-              title="Logout"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </div>

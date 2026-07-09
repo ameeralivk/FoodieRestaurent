@@ -152,9 +152,10 @@ export class ItemController implements IItemController {
   getAllItems = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { restaurantId } = req.params;
-       const user = (req as any).user; 
-       const role = user.role;
-       console.log(role,'rols ei fdasfkld')
+      const user = (req as any).user;
+      // Default to 'user' role for unauthenticated guests — shows only active items
+      const role: string = user?.role ?? "user";
+
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const search = req.query.search as string | undefined;

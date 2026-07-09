@@ -22,6 +22,7 @@ import { showErrorToast } from "../../Components/Elements/ErrorToast";
 import { showSuccessToast } from "../../Components/Elements/SuccessToast";
 import { ToastContainer } from "react-toastify";
 import TableNumberModal from "../../Components/Component/user/TableModal";
+import Swal from "sweetalert2";
 
 const ItemDetailPage: React.FC = () => {
   const { itemId, restaurantId } = useParams<{
@@ -120,6 +121,26 @@ const ItemDetailPage: React.FC = () => {
     overrideTable?: string,
   ) => {
     e.stopPropagation();
+
+    // Guest check: redirect to login if not authenticated
+    if (!userId) {
+      Swal.fire({
+        title: "Login Required",
+        text: "Please sign in to add items to your cart and place orders.",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#ea580c",
+        cancelButtonColor: "#9ca3af",
+        confirmButtonText: "Sign In",
+        cancelButtonText: "Later",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/user/login");
+        }
+      });
+      return;
+    }
+
     const activeTable = overrideTable || currentTable;
     if (!activeTable) {
       setPendingItem(item);

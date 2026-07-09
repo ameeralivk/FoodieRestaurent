@@ -10,6 +10,7 @@ import DraggableAIChatbot from "../../Components/Component/user/chatBot";
 import { AddToCart } from "../../services/cart";
 import { showErrorToast } from "../../Components/Elements/ErrorToast";
 import { showSuccessToast } from "../../Components/Elements/SuccessToast";
+import Swal from "sweetalert2";
 import BottomNavBar from "../../Components/user/DownBar";
 import { setRestaurantId, setTableNo } from "../../redux/slice/userSlice";
 import UserPagination from "../../Components/Component/user/userPagination";
@@ -21,7 +22,6 @@ import TableNumberModal from "../../Components/Component/user/TableModal";
 const UserRestaurantPage: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const restaurentId = useSelector((state: RootState) => state.auth.admin?._id);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const userId = useSelector((state: RootState) => state.userAuth.user?._id);
@@ -61,7 +61,7 @@ const UserRestaurantPage: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
 
   const { data: ItemsList } = useQuery<IItemResponse, Error>({
-    queryKey: ["ItemsList", restaurentId, currentPage, debouncedSearch],
+    queryKey: ["ItemsList", restaurantId, currentPage, debouncedSearch],
     queryFn: () =>
       getAllItems(restaurantId as string, currentPage, limit, debouncedSearch),
   });
@@ -123,6 +123,25 @@ const UserRestaurantPage: React.FC = () => {
     overrideTable?: string,
   ) => {
     e.stopPropagation();
+
+    // Guest check: redirect to login if not authenticated
+    if (!userId) {
+      Swal.fire({
+        title: "Login Required",
+        text: "Please sign in to add items to your cart and place orders.",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#ea580c",
+        cancelButtonColor: "#9ca3af",
+        confirmButtonText: "Sign In",
+        cancelButtonText: "Later",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/user/login");
+        }
+      });
+      return;
+    }
 
     const activeTable = overrideTable || currentTable;
 

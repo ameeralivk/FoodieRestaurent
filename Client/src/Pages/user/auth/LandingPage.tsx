@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Camera } from "lucide-react";
 import Navbar from "../../../Components/Layouts/userLayouts/Navbar";
 import { useEffect } from "react";
 import { styled } from "@mui/material/styles";
@@ -10,6 +10,7 @@ import {
   RestaurantDetailsModal,
   type Restaurant,
 } from "../../../Components/modals/user/UserRestauarentDetailModal";
+import { QrScannerModal } from "../../../Components/modals/user/QrScannerModal";
 import { getAllRestaurent } from "../../../services/superAdmin";
 import UserPagination from "../../../Components/Component/user/userPagination";
 import RestaurantFilters from "../../../Components/Component/user/restaraurentFilter";
@@ -47,36 +48,13 @@ const UserLandingPage: React.FC = () => {
     longitude: number;
   } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
   const [total, setTotal] = useState(10);
   const limit = 10;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   if (!userLocation) return;
-
-  //   const fetchData = async () => {
-  //     setLoading(true);
-
-  //     try {
-  //       const response = await getAllRestaurent(false, page, limit, searchTerm);
-  //       console.log(response, "ameer");
-  //       if (response && response.success) {
-  //         await new Promise((res) => setTimeout(res, 300));
-
-  //         // check subscription for each restaurant
-  //         const restaurantsWithPlan = await Promise.all(
-  //           response.data.map(async (restaurant: any) => {
-  //             try {
-  //               const planResponse = await getActivePlanByRestaurant(
-  //                 restaurant._id,
-  //               );
-
-  //               if (!planResponse?.data?.success) {
-  //                 return null; // remove restaurant
-  //               }
 
   //               const itemsResponse = await getAllItems(
   //                 restaurant._id,
@@ -125,111 +103,110 @@ const UserLandingPage: React.FC = () => {
   // }, [userLocation, page, searchTerm]);
 
   useEffect(() => {
-  if (!userLocation) return;
+    const fetchData = async () => {
+      setLoading(true);
 
-  const fetchData = async () => {
-    setLoading(true);
+      try {
+        let allRestaurants: any[] = [];
+        let currentPage = 1;
+        let totalPages = 1;
 
-    try {
-      let allRestaurants: any[] = [];
-      let currentPage = 1;
-      let totalPages = 1;
+        // ✅ fetch ALL backend pages
+        while (currentPage <= totalPages) {
+          const response = await getAllRestaurent(
+            false,
+            currentPage,
+            limit,
+            searchTerm,
+          );
 
-      // ✅ fetch ALL backend pages
-      while (currentPage <= totalPages) {
-        const response = await getAllRestaurent(
-          false,
-          currentPage,
-          limit,
-          searchTerm,
-        );
+          if (!response?.success) break;
 
-        if (!response?.success) break;
+          totalPages = response.pagination.totalPages;
 
-        totalPages = response.pagination.totalPages;
+          allRestaurants = [...allRestaurants, ...response.data];
 
-        allRestaurants = [...allRestaurants, ...response.data];
+          currentPage++;
+        }
 
-        currentPage++;
-      }
+        // ✅ process ALL restaurants once
+        const processedRestaurants = await Promise.all(
+          allRestaurants.map(async (restaurant: any) => {
+            try {
+              const planResponse = await getActivePlanByRestaurant(
+                restaurant._id,
+              );
 
-      // ✅ process ALL restaurants once
-      const processedRestaurants = await Promise.all(
-        allRestaurants.map(async (restaurant: any) => {
-          try {
-            const planResponse = await getActivePlanByRestaurant(
-              restaurant._id,
-            );
+              const itemsResponse = await getAllItems(
+                restaurant._id,
+                1,
+                10,
+                "",
+              );
 
-            const itemsResponse = await getAllItems(
-              restaurant._id,
-              1,
-              10,
-              "",
-            );
+              const hasPlan = planResponse?.data?.success;
 
-            const hasPlan = planResponse?.data?.success;
+              const hasItems =
+                itemsResponse?.data &&
+                itemsResponse.data.length > 0;
 
-            const hasItems =
-              itemsResponse?.data &&
-              itemsResponse.data.length > 0;
+              // remove invalid restaurants
+              if (!hasPlan || !hasItems) {
+                return null;
+              }
 
-            // remove invalid restaurants
-            if (!hasPlan || !hasItems) {
+              let distance = null;
+
+              // only compute distance if user granted location
+              if (userLocation && restaurant.location?.coordinates?.length) {
+                const [lng, lat] = restaurant.location.coordinates;
+
+                distance = `${getDistanceInKm(
+                  userLocation.latitude,
+                  userLocation.longitude,
+                  lat,
+                  lng,
+                ).toFixed(1)} km`;
+              }
+
+              return {
+                ...restaurant,
+                distance,
+              };
+            } catch {
               return null;
             }
+          }),
+        );
 
-            let distance = null;
+        // ✅ remove invalid restaurants
+        const validRestaurants =
+          processedRestaurants.filter(Boolean);
 
-            if (restaurant.location?.coordinates?.length) {
-              const [lng, lat] = restaurant.location.coordinates;
+        // ✅ LOCAL PAGINATION (CORRECT)
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
 
-              distance = `${getDistanceInKm(
-                userLocation.latitude,
-                userLocation.longitude,
-                lat,
-                lng,
-              ).toFixed(1)} km`;
-            }
+        const paginatedRestaurants = validRestaurants.slice(
+          startIndex,
+          endIndex,
+        );
 
-            return {
-              ...restaurant,
-              distance,
-            };
-          } catch {
-            return null;
-          }
-        }),
-      );
+        setRestaurants(paginatedRestaurants);
 
-      // ✅ remove invalid restaurants
-      const validRestaurants =
-        processedRestaurants.filter(Boolean);
+        // ✅ correct total pages
+        setTotal(
+          Math.ceil(validRestaurants.length / limit),
+        );
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      // ✅ LOCAL PAGINATION (CORRECT)
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-
-      const paginatedRestaurants = validRestaurants.slice(
-        startIndex,
-        endIndex,
-      );
-
-      setRestaurants(paginatedRestaurants);
-
-      // ✅ correct total pages
-      setTotal(
-        Math.ceil(validRestaurants.length / limit),
-      );
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchData();
-}, [userLocation, page, searchTerm]);
+    fetchData();
+  }, [page, searchTerm, userLocation]);
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -239,7 +216,10 @@ const UserLandingPage: React.FC = () => {
       .then((loc) => {
         setUserLocation(loc);
       })
-      .catch(() => alert("Location permission denied"));
+      .catch(() => {
+        // Location denied - page still works, distance sorting just won't apply
+        console.warn("Location permission denied");
+      });
   }, []);
 
   const handleRestaurantClick = (restaurant: Restaurant) => {
@@ -288,6 +268,23 @@ const UserLandingPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
+      <QrScannerModal
+        isOpen={isQrScannerOpen}
+        onClose={() => setIsQrScannerOpen(false)}
+        onScanSuccess={(data) => {
+          try {
+            const urlObj = new URL(data);
+            navigate(urlObj.pathname + urlObj.search);
+          } catch {
+            if (data.startsWith("/")) {
+              navigate(data);
+            } else {
+              alert("Scanned content: " + data);
+            }
+          }
+          setIsQrScannerOpen(false);
+        }}
+      />
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-white">
         {/* Background Decorative Elements */}
@@ -312,32 +309,11 @@ const UserLandingPage: React.FC = () => {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <button
-                onClick={() => {
-                  const input = document.createElement("input");
-                  input.type = "file";
-                  input.accept = "image/*";
-                  input.onchange = (e) => {
-                    const files = (e.target as HTMLInputElement).files;
-                    handleFileUpload(files);
-                  };
-                  input.click();
-                }}
+                onClick={() => setIsQrScannerOpen(true)}
                 className="group relative flex items-center justify-center gap-3 bg-gradient-to-r from-orange-600 to-orange-500 text-white font-bold py-4 px-10 rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-orange-500/30 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
+                <Camera className="w-6 h-6" />
                 <span className="text-lg">Scan QR Code</span>
               </button>
 

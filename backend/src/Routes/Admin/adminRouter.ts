@@ -33,9 +33,8 @@ const subCategoryController = container.get<SubCategoryController>(
 const Router = express.Router();
 
 //subcription
+// Public: guests need to check active plan to see restaurant listing
 Router.route("/getplan/:restaurantId").get(
-  verifyAccessToken,
-  authorizeRoles("admin", "User"),
   asyncHandler(subcriptionController.getPlan),
 );
 
@@ -134,20 +133,16 @@ Router.route("/items/:itemId")
     authorizeRoles("admin"),
     asyncHandler(itemsController.deleteItem),
   )
-  .get(
-    verifyAccessToken,
-    authorizeRoles("admin", "user"),
-    asyncHandler(itemsController.getItem),
-  );
+  // Public: guests can view individual item details
+  .get(asyncHandler(itemsController.getItem));
 
 Router.route("/items/:itemId/status").patch(
   verifyAccessToken,
   authorizeRoles("admin"),
   asyncHandler(itemsController.changeStatus),
 );
+// Public: guests can browse restaurant menu items
 Router.route("/restaurants/items/:restaurantId").get(
-  verifyAccessToken,
-  authorizeRoles("admin", "user"),
   asyncHandler(itemsController.getAllItems),
 );
 
@@ -158,9 +153,8 @@ Router.route("/category").post(
   asyncHandler(categoryController.addCategory),
 );
 
+// Public: guests can see categories while browsing
 Router.route("/category/:restaurantId").get(
-  verifyAccessToken,
-  authorizeRoles("admin", "user"),
   asyncHandler(categoryController.getAllCategory),
 );
 
@@ -184,9 +178,8 @@ Router.route("/subcategory").post(
   asyncHandler(subCategoryController.addSubCategory),
 );
 
+// Public: guests can see subcategories while browsing
 Router.route("/subcategory/:restaurantId").get(
-  verifyAccessToken,
-  authorizeRoles("admin", "user"),
   asyncHandler(subCategoryController.getAllByRestaurant),
 );
 

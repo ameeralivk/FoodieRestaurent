@@ -115,8 +115,8 @@ Router.route("/feedback").post(
   verifyAccessToken,
   asyncHandler(feedbackController.addFeedback),
 );
+// Public: guests can see item ratings while browsing menu
 Router.route("/feedback/items/:restaurantId").get(
-  verifyAccessToken,
   asyncHandler(feedbackController.getItemsRating),
 );
 
