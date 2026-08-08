@@ -15,13 +15,14 @@ export class ItemController implements IItemController {
   addItems = async (req: Request, res: Response): Promise<Response> => {
     try {
       const files = req.files as Express.Multer.File[];
+      console.log(files,'files')
       if (!files || files.length === 0) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: "At least one image is required",
         });
       }
-      const imageUrls = files.map((file: any) => file.location);
+      const imageUrls = files.map((file: any) => file.path);
       const variantPricing = req.body.variantPricing
         ? JSON.parse(req.body.variantPricing)
         : undefined;
@@ -74,7 +75,7 @@ export class ItemController implements IItemController {
     const { itemId } = req.params;
     const files = req.files as Express.Multer.File[];
 
-    const imageUrls = files.map((file: any) => file.location);
+    const imageUrls = files.map((file: any) => file.path);
 
     // ✅ ADD ONLY THIS (variant parsing)
     if (req.body.variantPricing) {

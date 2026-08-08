@@ -6,8 +6,7 @@ import { IItemInterface } from "../../../types/items";
 import { AppError } from "../../../utils/Error";
 import { MESSAGES } from "../../../constants/messages";
 import { FilterQuery } from "mongoose";
-import s3 from "../../../config/Bucket";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { deleteFromCloudinary } from "../../../helpers/cloudinaryService";
 import HttpStatus from "../../../constants/htttpStatusCode";
 import { Request } from "express";
 @injectable()
@@ -52,22 +51,10 @@ export class ItemsService implements IItemsService {
       await this._itemsRepo.editItem(id, data, existingImages);
     }
 
-    const bucketName = process.env.S3_BUCKET_NAME!;
-    const region = process.env.AWS_REGION || "ap-south-1";
     const imagesToDelete = existingImages.slice(MAX_IMAGES - incomingCount);
     for (const oldImage of imagesToDelete) {
-      const key = oldImage.replace(
-        `https://${bucketName}.s3.${region}.amazonaws.com/`,
-        ""
-      );
-
-      if (key) {
-        await s3.send(
-          new DeleteObjectCommand({
-            Bucket: bucketName,
-            Key: key,
-          })
-        );
+      if (oldImage && oldImage.includes("res.cloudinary.com")) {
+        await deleteFromCloudinary(oldImage);
       }
     }
     const imagesToKeep = existingImages.slice(0, MAX_IMAGES - incomingCount);

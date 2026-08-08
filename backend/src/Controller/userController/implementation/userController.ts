@@ -108,8 +108,8 @@ export class UserController implements IUserController {
   updateImage = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { userId } = req.params;
-      const file = req.file as Express.MulterS3.File;
-      const profilePhotoKey = file?.location;
+      const file = req.file as Express.Multer.File;
+      const profilePhotoKey = file?.path;
       const result = await this._userService.updateProfilePhoto(
         profilePhotoKey as string,
         userId as string

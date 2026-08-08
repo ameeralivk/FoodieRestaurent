@@ -1,23 +1,16 @@
-
 import multer, { FileFilterCallback } from "multer";
-import path from "path";
-import s3 from "./Bucket";
-import multerS3 from "multer-s3";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "./cloudinaryConfig";
 import crypto from "crypto";
 import { Request } from "express";
 
-const storage = multerS3({
-  s3,
-  bucket: process.env.S3_BUCKET_NAME || "foodierestaurent",
-  key: (
-    req: Request,
-    file: Express.Multer.File,
-    cb: (error: any, key?: string) => void
-  ) => {
-    const folder = "images/";
-    const filename = `${file.fieldname}-${Date.now()}-${file.originalname}`;
-    cb(null, folder + filename);
-  },
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req: Request, file: Express.Multer.File) => ({
+    folder: "foodie/onboarding",
+    public_id: `${file.fieldname}-${Date.now()}-${crypto.randomUUID()}`,
+    resource_type: "auto",
+  }),
 });
 
 const fileFilter = (
@@ -70,16 +63,13 @@ const imageOnlyFilter = (
   }
 };
 
-const itemImageStorage = multerS3({
-  s3,
-  bucket: process.env.S3_BUCKET_NAME || "foodierestaurent",
-  contentType: multerS3.AUTO_CONTENT_TYPE,
-  key: (req, file, cb) => {
-    const folder = "items/images/";
-    const uniqueId = crypto.randomUUID(); // Node 16+
-    const ext = path.extname(file.originalname);
-    cb(null, `${folder}item-${Date.now()}-${uniqueId}${ext}`);
-  },
+const itemImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req: Request, file: Express.Multer.File) => ({
+    folder: "foodie/items/images",
+    public_id: `item-${Date.now()}-${crypto.randomUUID()}`,
+    resource_type: "image",
+  }),
 });
 
 export const uploadItemImages = multer({
@@ -96,20 +86,14 @@ export const updateItemImagesUpload = multer({
 
 //profileImage
 
-const ProfileImageStorage = multerS3({
-  s3,
-  bucket: process.env.S3_BUCKET_NAME || "foodierestaurent",
-  contentType: multerS3.AUTO_CONTENT_TYPE,
-  key: (req, file, cb) => {
-    const folder = "profile/images/";
-    const uniqueId = crypto.randomUUID(); // Node 16+
-    const ext = path.extname(file.originalname);
-    cb(null, `${folder}item-${Date.now()}-${uniqueId}${ext}`);
-  },
+const ProfileImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req: Request, file: Express.Multer.File) => ({
+    folder: "foodie/profile/images",
+    public_id: `profile-${Date.now()}-${crypto.randomUUID()}`,
+    resource_type: "image",
+  }),
 });
-
-
-
 
 export const updateProfile = multer({
   storage: ProfileImageStorage,

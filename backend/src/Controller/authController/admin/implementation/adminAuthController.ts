@@ -7,7 +7,6 @@ import { loginSchema, registerSchema } from "../../../../helpers/zodvalidation";
 import { MESSAGES } from "../../../../constants/messages";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../../DI/types";
-import { getS3PublicUrl } from "../../../../utils/s3-url.utils";
 
 const refreshTokenMaxAge =
   Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
@@ -304,12 +303,12 @@ export class AdminAuthController implements IAdminAuthController {
             proofDocument?: Express.Multer.File[];
           }
         | undefined;
-      const restaurantPhotoKey = files?.restaurantPhoto?.[0]?.key;
-      const proofDocumentKey = files?.proofDocument?.[0]?.key;
-
-      // Construct public URLs directly
-      const restaurantPhoto = getS3PublicUrl(restaurantPhotoKey);
-      const proofDocument = getS3PublicUrl(proofDocumentKey);
+      const restaurantPhoto = (files?.restaurantPhoto?.[0] as any)?.path as
+        | string
+        | undefined;
+      const proofDocument = (files?.proofDocument?.[0] as any)?.path as
+        | string
+        | undefined;
       await this._adminauthService.registerRestaurant({
         email,
         restaurantName,
@@ -352,13 +351,8 @@ export class AdminAuthController implements IAdminAuthController {
       if (!adminId) {
         throw new AppError("Admin ID is required", HttpStatus.BAD_REQUEST);
       }
-      const proofDocument = req.file;
-      const bucketName = process.env.S3_BUCKET_NAME;
-      const region = process.env.AWS_REGION || "ap-south-1";
-      const Document = proofDocument
-        ? `https://${bucketName}.s3.${region}.amazonaws.com/${proofDocument.key}`
-        : undefined;
-      const file = Document;
+      const proofDocument = req.file as (Express.Multer.File & { path: string }) | undefined;
+      const file = proofDocument?.path;
       if (!file) {
         throw new AppError("No document uploaded", HttpStatus.BAD_REQUEST);
       }

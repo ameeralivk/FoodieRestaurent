@@ -13,7 +13,7 @@ import redisClient from "../../../config/redisClient";
 import { sentOtp } from "../../../helpers/sentOtp";
 import { generateOtp, hashOtp } from "../../../helpers/generateOtp";
 import bcrypt from "bcrypt";
-import { deleteFromS3, getS3KeyFromUrl } from "../../../helpers/s3Service";
+import { deleteFromCloudinary } from "../../../helpers/cloudinaryService";
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
 
 @injectable()
@@ -151,15 +151,11 @@ export class UserService implements IUserService {
     if (!user) return { success: false, message: MESSAGES.USER_NOT_FOUND };
     const oldImageUrl = user.imageUrl;
 
-    if (
-      oldImageUrl &&
-      oldImageUrl.includes("foodierestaurent.s3.ap-south-1.amazonaws.com")
-    ) {
+    if (oldImageUrl && oldImageUrl.includes("res.cloudinary.com")) {
       try {
-        const key = getS3KeyFromUrl(oldImageUrl);
-        await deleteFromS3(key);
+        await deleteFromCloudinary(oldImageUrl);
       } catch (error) {
-        console.error("Failed to delete old S3 image:", error);
+        console.error("Failed to delete old Cloudinary image:", error);
       }
     }
     let result = await this._userRepo.updateProfileImage(image, userId);

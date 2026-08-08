@@ -5,12 +5,11 @@ import { generateOtp } from "../../../helpers/generateOtp";
 import { AppError } from "../../../utils/Error";
 import redisClient from "../../../config/redisClient";
 import bcrypt from "bcrypt";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import axios from "axios";
 import { sendResetPasswordEmail, sentOtp } from "../../../helpers/sentOtp";
 import crypto from "crypto";
 import { resendOtpEmail } from "../../../helpers/sentOtp";
-import s3 from "../../../config/Bucket";
+import { deleteFromCloudinary } from "../../../helpers/cloudinaryService";
 import {
   generateRefreshToken,
   generateToken,
@@ -393,25 +392,9 @@ export class AdminAuthService implements IAdminAuthService {
       throw new AppError("Admin not found", HttpStatus.NOT_FOUND);
     }
 
-    const oldKey = admin.proofDocument;
-    if (oldKey) {
-      const bucketName = process.env.S3_BUCKET_NAME!;
-      const region = process.env.AWS_REGION || "ap-south-1";
-
-      // Extract the S3 object key from full URL
-      const key = oldKey.replace(
-        `https://${bucketName}.s3.${region}.amazonaws.com/`,
-        "",
-      );
-
-      if (key) {
-        await s3.send(
-          new DeleteObjectCommand({
-            Bucket: bucketName,
-            Key: key,
-          }),
-        );
-      }
+    const oldUrl = admin.proofDocument;
+    if (oldUrl && oldUrl.includes("res.cloudinary.com")) {
+      await deleteFromCloudinary(oldUrl);
     }
     await this._adminAuthRepository.updateById(adminId, {
       proofDocument: file,
